@@ -144,7 +144,7 @@ class MasqueradeToolbarAccessPolicyTest extends UnitTestCase {
   }
 
   /**
-   * Tests the masqueraded account gets the toolbar permission.
+   * Tests the masqueraded account gets the navigation permissions.
    *
    * @covers ::calculatePermissions
    */
@@ -161,6 +161,7 @@ class MasqueradeToolbarAccessPolicyTest extends UnitTestCase {
       ->calculatePermissions($account, AccessPolicyInterface::SCOPE_DRUPAL);
 
     $this->assertTrue($permissions->getItem()->hasPermission('access toolbar'));
+    $this->assertTrue($permissions->getItem()->hasPermission('access navigation'));
     $this->assertContains('user', $permissions->getCacheContexts());
     $this->assertContains('session.is_masquerading', $permissions->getCacheContexts());
   }

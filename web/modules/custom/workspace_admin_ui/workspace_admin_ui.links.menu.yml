@@ -1,0 +1,32 @@
+# Masquerade shortcuts in the Navigation user popover (footer). The uids are
+# resolved from the account names by MasqueradeMenuLink, and the route access
+# check decides per request whether a link is shown.
+workspace_admin_ui.masquerade.user:
+  title: 'Masquerade as User'
+  description: 'Switch to the user account.'
+  menu_name: navigation-user-links
+  route_name: entity.user.masquerade
+  weight: 1
+  class: Drupal\workspace_admin_ui\Plugin\Menu\MasqueradeMenuLink
+  options:
+    account_name: user
+
+workspace_admin_ui.masquerade.editor:
+  title: 'Masquerade as Editor'
+  description: 'Switch to the editor account.'
+  menu_name: navigation-user-links
+  route_name: entity.user.masquerade
+  weight: 2
+  class: Drupal\workspace_admin_ui\Plugin\Menu\MasqueradeMenuLink
+  options:
+    account_name: editor
+
+# Masquerade ships this link in the `account` menu. Navigation's user popover
+# reads `navigation-user-links`, and the route's own access check hides the
+# link except while masquerading.
+workspace_admin_ui.unmasquerade:
+  title: 'Unmasquerade'
+  description: 'Switch back to your user account.'
+  menu_name: navigation-user-links
+  route_name: masquerade.unmasquerade
+  weight: 5

@@ -31,6 +31,21 @@ msgstr "Redakteur"
 msgid "Masquerade as @name"
 msgstr "Als @name maskieren"
 
+msgid "Masquerade as User"
+msgstr "Als Benutzer anmelden"
+
+msgid "Masquerade as Editor"
+msgstr "Als Redakteur anmelden"
+
+msgid "Switch to the user account."
+msgstr "Zum Benutzerkonto wechseln."
+
+msgid "Switch to the editor account."
+msgstr "Zum Redakteurkonto wechseln."
+
+msgid "Switch back to your user account."
+msgstr "Zurück zu deinem eigenen Konto wechseln."
+
 msgid "Masquerade"
 msgstr "Maskerade"
 

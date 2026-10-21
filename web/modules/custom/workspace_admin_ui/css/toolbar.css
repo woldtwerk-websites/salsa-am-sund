@@ -1,6 +1,6 @@
 /**
  * @file
- * The icons of the Masquerade toolbar tab and the sidebar links under Content.
+ * The icon of the Masquerade toolbar tab.
  *
  * Gin paints toolbar icons by masking `::before` with `--icon`, so the shape
  * is all the file has to carry — the colour comes from the theme, in both its
@@ -10,20 +10,11 @@
  * The icon ships with the module rather than pointing at a symbol of gin's
  * sprite: the tab is the module's, and a path into a theme's build output is
  * a dependency on a directory layout nothing guarantees.
+ *
+ * The Content links in core's Navigation sidebar get their icons from the
+ * module's icon pack (workspace_admin_ui.icons.yml); Navigation renders them
+ * as inline SVG and does not use this stylesheet.
  */
 .toolbar-icon-masquerade::before {
   --icon: url(../icons/masquerade.svg);
-}
-
-/* Gin has no icons for these; its sidebar links take `toolbar-link--{class}`. */
-.toolbar-link--taxonomy::before {
-  --icon: url(../icons/taxonomy.svg);
-}
-
-.toolbar-link--url-aliases::before {
-  --icon: url(../icons/url-aliases.svg);
-}
-
-.toolbar-link--menus::before {
-  --icon: url(../icons/menus.svg);
 }

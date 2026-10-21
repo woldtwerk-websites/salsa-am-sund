@@ -1,0 +1,116 @@
+/**
+ * @file
+ * Layout Builder's colours on gin, in light and in dark mode.
+ *
+ * Core's layout-builder.css paints the builder in fixed light colours: a white
+ * canvas inside a #2f91da frame, #f7f7f7 and #eff6fc drop zones, a white round
+ * remove button. Gin turns the admin dark, and those colours stay light there,
+ * so the builder is an island of white in an otherwise dark page.
+ *
+ * Gin switches its own palette through custom properties, which .gin--dark-mode
+ * redefines — so pointing core's colours at them fixes both modes with one set
+ * of rules and no dark-mode selector of our own. Light mode keeps its pale
+ * canvas because --gin-bg-app and --gin-color-primary-light are near-white
+ * there.
+ *
+ * Everything is scoped to body[data-gin-accent]. Gin writes that attribute on
+ * the body (and on <html>) from its settings; no other theme does, so the
+ * front-end theme salsa keeps core's own styling.
+ *
+ * The plus of an add link and the cross of the remove link carry their colour
+ * inside a data URI, where a custom property cannot reach them. They are masked
+ * instead: the URI supplies the shape, background-color supplies the colour, and
+ * that follows --gin-color-text-light into both modes.
+ */
+
+body[data-gin-accent] .layout-builder {
+  border-color: var(--gin-color-primary, #2f91da);
+  background-color: var(--gin-bg-app, #fff);
+}
+
+body[data-gin-accent] .layout-builder__add-section {
+  outline-color: var(--gin-border-color-layer2, #979797);
+  background-color: var(--gin-bg-layer2, #f7f7f7);
+}
+
+body[data-gin-accent] .layout-builder__link--add {
+  padding-inline-start: 0;
+  color: var(--gin-color-text-light, #686868);
+  background: none;
+}
+
+body[data-gin-accent] .layout-builder__link--add::before {
+  content: "";
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-inline-end: 0.3em;
+  vertical-align: -0.125em;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16px' height='16px'%3e%3cpath d='M0.656,9.023c0,0.274,0.224,0.5,0.499,0.5l4.853,0.001c0.274-0.001,0.501,0.226,0.5,0.5l0.001,4.853 c-0.001,0.273,0.227,0.5,0.501,0.5l1.995-0.009c0.273-0.003,0.497-0.229,0.5-0.503l0.002-4.806c0-0.272,0.228-0.5,0.499-0.502 l4.831-0.021c0.271-0.005,0.497-0.23,0.501-0.502l0.008-1.998c0-0.276-0.225-0.5-0.499-0.5l-4.852,0c-0.275,0-0.502-0.228-0.501-0.5 L9.493,1.184c0-0.275-0.225-0.499-0.5-0.499L6.997,0.693C6.722,0.694,6.496,0.92,6.495,1.195L6.476,6.026 c-0.001,0.274-0.227,0.5-0.501,0.5L1.167,6.525C0.892,6.526,0.665,6.752,0.665,7.026L0.656,9.023z'/%3e%3c/svg%3e") center left / 1em no-repeat;
+  mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16px' height='16px'%3e%3cpath d='M0.656,9.023c0,0.274,0.224,0.5,0.499,0.5l4.853,0.001c0.274-0.001,0.501,0.226,0.5,0.5l0.001,4.853 c-0.001,0.273,0.227,0.5,0.501,0.5l1.995-0.009c0.273-0.003,0.497-0.229,0.5-0.503l0.002-4.806c0-0.272,0.228-0.5,0.499-0.502 l4.831-0.021c0.271-0.005,0.497-0.23,0.501-0.502l0.008-1.998c0-0.276-0.225-0.5-0.499-0.5l-4.852,0c-0.275,0-0.502-0.228-0.501-0.5 L9.493,1.184c0-0.275-0.225-0.499-0.5-0.499L6.997,0.693C6.722,0.694,6.496,0.92,6.495,1.195L6.476,6.026 c-0.001,0.274-0.227,0.5-0.501,0.5L1.167,6.525C0.892,6.526,0.665,6.752,0.665,7.026L0.656,9.023z'/%3e%3c/svg%3e") center left / 1em no-repeat;
+}
+
+body[data-gin-accent] .layout-builder__link--add:hover,
+body[data-gin-accent] .layout-builder__link--add:active {
+  color: var(--gin-color-text, #000);
+}
+
+body[data-gin-accent] .layout-builder__section .ui-sortable-helper {
+  outline-color: var(--gin-border-color, #f7f7f7);
+  background-color: var(--gin-bg-layer, #fff);
+}
+
+body[data-gin-accent] .layout-builder__section .ui-state-drop {
+  outline-color: var(--gin-color-warning, #fedb60);
+  background-color: var(--gin-bg-warning-light, #ffd);
+}
+
+body[data-gin-accent] .layout-builder__region {
+  outline-color: var(--gin-color-primary, #2f91da);
+}
+
+body[data-gin-accent] .layout-builder__add-block {
+  background-color: var(--gin-color-primary-light, #eff6fc);
+}
+
+body[data-gin-accent] .layout-builder__link--remove {
+  border-color: var(--gin-border-color, #ccc);
+  background: var(--gin-bg-layer, #fff);
+}
+
+body[data-gin-accent] .layout-builder__link--remove::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 1rem;
+  height: 1rem;
+  margin: auto;
+  background-color: var(--gin-color-text-light, #bebebe);
+  -webkit-mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3e%3cpath d='M3.51 13.925c.194.194.512.195.706.001l3.432-3.431c.194-.194.514-.194.708 0l3.432 3.431c.192.194.514.193.707-.001l1.405-1.417c.191-.195.189-.514-.002-.709l-3.397-3.4c-.192-.193-.192-.514-.002-.708l3.401-3.43c.189-.195.189-.515 0-.709l-1.407-1.418c-.195-.195-.513-.195-.707-.001l-3.43 3.431c-.195.194-.516.194-.708 0l-3.432-3.431c-.195-.195-.512-.194-.706.001l-1.407 1.417c-.194.195-.194.515 0 .71l3.403 3.429c.193.195.193.514-.001.708l-3.4 3.399c-.194.195-.195.516-.001.709l1.406 1.419z'/%3e%3c/svg%3e") center / 1rem 1rem no-repeat;
+  mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3e%3cpath d='M3.51 13.925c.194.194.512.195.706.001l3.432-3.431c.194-.194.514-.194.708 0l3.432 3.431c.192.194.514.193.707-.001l1.405-1.417c.191-.195.189-.514-.002-.709l-3.397-3.4c-.192-.193-.192-.514-.002-.708l3.401-3.43c.189-.195.189-.515 0-.709l-1.407-1.418c-.195-.195-.513-.195-.707-.001l-3.43 3.431c-.195.194-.516.194-.708 0l-3.432-3.431c-.195-.195-.512-.194-.706.001l-1.407 1.417c-.194.195-.194.515 0 .71l3.403 3.429c.193.195.193.514-.001.708l-3.4 3.399c-.194.195-.195.516-.001.709l1.406 1.419z'/%3e%3c/svg%3e") center / 1rem 1rem no-repeat;
+}
+
+body[data-gin-accent] .layout-builder__link--remove:hover::before {
+  background-color: var(--gin-color-text, #787878);
+}
+
+body[data-gin-accent] .layout-builder-block {
+  background-color: var(--gin-bg-layer, #fff);
+}
+
+body[data-gin-accent] .layout-builder--content-preview-disabled .layout-builder-block {
+  border-bottom-color: var(--gin-border-color-layer2, #979797);
+}
+
+body[data-gin-accent] .layout-builder__add-block.is-layout-builder-highlighted,
+body[data-gin-accent] .layout-builder__add-section.is-layout-builder-highlighted,
+body[data-gin-accent] .layout-builder__layout.is-layout-builder-highlighted,
+body[data-gin-accent] .layout-builder__layout.is-layout-builder-highlighted::before,
+body[data-gin-accent] .layout-builder-block.is-layout-builder-highlighted {
+  border-color: var(--gin-color-text, #000);
+}
+
+body[data-gin-accent] .layout__region-info {
+  border-bottom-color: var(--gin-border-color-layer2, #979797);
+}

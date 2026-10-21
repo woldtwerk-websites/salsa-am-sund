@@ -1,0 +1,38 @@
+# The module's own icons: the Masquerade toolbar tab and the Content links in
+# the Navigation sidebar. Navigation reads a link's `options.icon` and defaults
+# the pack to `navigation`, so the links name this pack explicitly.
+workspace_admin_ui:
+  label: "Admin UI"
+  description: "Icons for the Admin UI module's links."
+  version: 11.x
+  license:
+    name: GPL2-or-later
+    url: https://www.drupal.org/about/licensing
+    gpl-compatible: true
+  extractor: svg
+  config:
+    sources:
+      - icons/*.svg
+  settings:
+    size:
+      title: "Size"
+      description: "Set a size for this icon."
+      type: "integer"
+      default: 20
+    class:
+      title: "Class"
+      description: "Set a class for this icon."
+      type: "string"
+      default: ""
+  template: >
+    <svg
+      {{ attributes
+          .setAttribute('viewBox', attributes.viewBox|default('0 0 24 24'))
+          .setAttribute('class', class)
+          .setAttribute('width', size|default('20'))
+          .setAttribute('height', size|default('20'))
+          .setAttribute('aria-hidden', 'true')
+      }}
+    >
+      {{ content }}
+    </svg>

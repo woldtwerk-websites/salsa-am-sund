@@ -3,14 +3,19 @@
 ## Functionality
 - add the *Masquerade* tab with its two shortcuts, *User* and *Editor*, to
   the toolbar
+- add *Masquerade as User* and *Masquerade as Editor* to the user popover in
+  the footer of core's Navigation sidebar
 - add the *Unmasquerade* link to the toolbar user menu
   (`#toolbar-item-user-tray`), next to *View profile*, *Edit profile* and
-  *Log out*
-- keep the toolbar for an admin masquerading as an account without
-  `access toolbar`
+  *Log out*, and to the Navigation user popover
+- keep the toolbar and the Navigation sidebar for an admin masquerading as an
+  account without `access toolbar` / `access navigation`
 - drop the status message masquerade shows after a switch
 - move *Taxonomy*, *Menus* (both from *Structure*) and *URL aliases* (from
-  *Configuration*) to gin's Content block, after *Media*
+  *Configuration*) to the Content section of the Navigation sidebar, after
+  *Media*
+- keep Layout Builder in gin's palette, so its canvas, drop zones and remove
+  button are dark in dark mode instead of white
 
 ## The masquerade shortcuts
 `hook_toolbar()` adds a *Masquerade* tab whose tray holds a *User* and an
@@ -20,9 +25,15 @@ them does. The tab itself goes to `/masquerade`, masquerade's own form, which
 is both a sensible target and the fallback where the JavaScript that opens the
 tray has not run.
 
-The accounts are found by user name — `user` and `editor`, the constants in
-`AdminUiHooks` — because a uid is a fact about one database and the name is
-the same everywhere the accounts were seeded.
+The same two shortcuts appear in the user popover of core's Navigation
+sidebar. `workspace_admin_ui.links.menu.yml` defines them in the
+`navigation-user-links` menu, which `NavigationUserBlock` renders in the
+footer. A menu link definition cannot carry a uid: a uid is a fact about one
+database, and the account behind a name may be recreated with another id. The
+definitions therefore carry the name, and `MasqueradeMenuLink` resolves it to
+the route's `user` parameter when the link is used. `MasqueradeLinks` holds the
+name lookup, the access check and the cache tags for both surfaces, so they
+cannot drift apart.
 
 The links carry no `destination`: `SwitchController` then sends you back to
 the referrer if the account you stepped into may see it, and to `<front>`
@@ -32,9 +43,17 @@ Each link asks `masquerade_target_user_access()` and is left out when the
 answer is no — the account does not exist, or the current user may not
 masquerade as it, or a masquerade is already running, which takes every link
 and with them the whole tab away and leaves *Unmasquerade* as the only move.
-The item carries `user.permissions`, `session.is_masquerading` and the
+The toolbar item carries `user.permissions`, `session.is_masquerading` and the
 accounts' cache tags — `user_list` for a name no account holds, so the link
-appears once one does.
+appears once one does. The menu links carry the same contexts and tags.
+
+Menu links are cached in the menu tree, so the answer cannot be baked into a
+definition. Masquerade's switch route only requires a CSRF token, which needs
+the incoming request; a menu tree cannot evaluate that and would drop every
+link to the route as inaccessible. `RouteSubscriber` adds
+`MasqueradeTargetAccessCheck` to the route as a second requirement, so the
+menu tree decides whether to show a link and a request without permission is
+refused before the controller runs.
 
 Gin's secondary toolbar renders every toolbar tab except the main menu one, so
 the tab needs nothing beyond `#type: toolbar_item` to land there. The CSRF
@@ -51,14 +70,21 @@ the link above *Log out* while masquerading; the tray varies by
 `session.is_masquerading`. `hook_toolbar_alter()` drops masquerade's own
 standalone toolbar tab so the action appears once, in the user menu.
 
-## The toolbar while masquerading
-`MasqueradeToolbarAccessPolicy` is an access policy that grants `access
-toolbar` to the masqueraded account, so the toolbar — and *Unmasquerade* in
-it — stays when an admin steps into `user`, which holds no role. Core, gin
-and gin_toolbar check the permission directly, so granting it is the only
-place that reaches all three.
+For the Navigation sidebar, `workspace_admin_ui.links.menu.yml` adds an
+*Unmasquerade* link to `navigation-user-links`. It reuses
+`masquerade.unmasquerade`, whose route already refuses access except while
+masquerading, so the link is hidden by the menu tree's access check and needs
+no custom class.
 
-The account gets it only for as long as the masquerade runs, and no other
+## The toolbar and sidebar while masquerading
+`MasqueradeToolbarAccessPolicy` is an access policy that grants `access
+toolbar` and `access navigation` to the masqueraded account, so the toolbar,
+the Navigation sidebar and *Unmasquerade* in them stay when an admin steps into
+`user`, which holds no role. Core, gin and gin_toolbar check `access toolbar`;
+core's Navigation module checks `access navigation`, so both are granted in the
+one place that reaches them all.
+
+The account gets them only for as long as the masquerade runs, and no other
 account does: permissions for other accounts are calculated in the same
 request too, so the policy compares the account against the session's `uid`.
 It adds `session.is_masquerading` as a persistent cache context, and `user`
@@ -75,20 +101,46 @@ reports a refused switch as an error. Nothing else runs on those two routes,
 so there is no other status message to take with it.
 
 ## Taxonomy, URL aliases and menus under Content
-Gin's sidebar does not render the Content block from the admin menu. It is a
-fixed list in `GinNavigation` (Content, Blocks, Files, Media), and gin drops
-`system.admin_content` with its whole subtree from the admin block. So:
+Core's Navigation module renders the Content section from the `content` menu,
+not from the Content subtree of the admin menu: its admin block starts at
+level 2, and `NavigationHooks` removes `system.admin_content` entirely. The
+links in Structure and Configuration therefore live in the wrong menu.
 
-- `hook_menu_links_discovered_alter()` moves the links listed in
-  `AdminUiHooks::contentLinks()` under `system.admin_content`, which takes
-  them out of Structure and Configuration.
-- `AdminUiHooks::preprocessNavigation()` adds them to gin's list. Gin registers
-  `navigation` with its own `preprocess functions`, and that shuts out module
-  preprocess hooks, so `hook_theme_registry_alter()` appends the callback to
-  that list. It is static because the registry is cached and holds callables
-  by name.
+`hook_menu_links_discovered_alter()` moves the three existing definitions out
+of the `admin` menu and into `content`, dropping their old parent and giving
+them a weight after *Media* (0) and before the trash (1000). Titles,
+descriptions, paths and access checks stay core's; Navigation's menu tree
+still runs the route access check, so a link appears only for a user who may
+reach the page. To move another link, add it to `AdminUiHooks::contentLinks()`
+with an icon id.
 
-To move another link, add it to `contentLinks()` and give it an icon in
-`css/toolbar.css`. Only the links move. The pages keep their paths and access
-checks. Gin ships no icons for these, so they come from `icons/` through the
-`workspace_admin_ui/toolbar` library.
+Navigation takes an item's icon from its URL options, `options.icon`, and
+falls back to the `navigation` pack under the plugin id. Gin ships no icons
+for these pages, so `workspace_admin_ui.icons.yml` defines a pack over
+`icons/`, and the links name it explicitly (`pack_id: workspace_admin_ui`).
+Navigation then renders the SVG inline through the pack's template.
+
+The old gin sidebar is gone: `preprocessNavigation()` and
+`hook_theme_registry_alter()` only fed the `navigation` template of gin's
+pre-Navigation sidebar, which gin stops using once the Navigation module is
+installed. They were removed together with the `.toolbar-link--*` icon rules;
+`css/toolbar.css` now only carries the Masquerade toolbar tab icon.
+
+## Layout Builder in dark mode
+Core's `layout-builder.css` paints the builder in fixed light colours — a white
+canvas inside a `#2f91da` frame, `#f7f7f7` and `#eff6fc` drop zones, a white
+remove button — which gin's dark mode does not touch. `css/layout-builder.css`
+points every one of those colours at a gin custom property (`--gin-bg-app`,
+`--gin-bg-layer`, `--gin-bg-layer2`, `--gin-border-color*`,
+`--gin-color-primary*`, `--gin-color-text*`, `--gin-color-warning*`), so the
+light and the dark palette both come from the theme and no dark-mode selector
+is needed. The plus and cross icons travel inside data URIs, where a custom
+property cannot reach them, so they are masked and painted with
+`background-color` instead.
+
+The rules are scoped to `body[data-gin-accent]`, an attribute only gin writes,
+so the front-end theme is unaffected. `hook_library_info_alter()` adds
+`workspace_admin_ui/layout_builder` as a dependency of core's
+`drupal.layout_builder` library: the stylesheet loads wherever the builder UI
+does, and stays declared in this module's `libraries.yml` with a path relative
+to the module.

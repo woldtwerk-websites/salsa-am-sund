@@ -14,13 +14,16 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
- * Grants "access toolbar" to the account a session is masquerading as.
+ * Grants navigation permissions to a masqueraded account.
  *
- * Stepping into an account without the permission would take the toolbar away,
- * and with it the Unmasquerade link. Core, gin and gin_toolbar all ask for the
- * permission directly, so granting it is the one place that reaches them all.
+ * Stepping into an account without them would take the toolbar or the
+ * Navigation sidebar away, and with it the Unmasquerade link. `access toolbar`
+ * is what the toolbar, gin and gin_toolbar ask for; core's Navigation module
+ * asks for `access navigation` instead, and the masqueraded account has no
+ * role to grant it. Both are granted here, so whichever navigation the site
+ * uses keeps working.
  *
- * Only the masqueraded account gets it: permissions are calculated for other
+ * Only the masqueraded account gets them: permissions are calculated for other
  * accounts during the same request too, and the session says nothing about
  * them. Hence the `user` context while masquerading — without it the result
  * for one account would be served to another with the same roles.
@@ -56,8 +59,9 @@ final class MasqueradeToolbarAccessPolicy extends AccessPolicyBase {
     $calculated_permissions->addCacheContexts(['user']);
     // The session's uid is the masqueraded account; the current user may be
     // switched to whichever account is being calculated.
-    if ((string) $account->id() === (string) $this->session->get('uid')) {
-      $calculated_permissions->addItem(new CalculatedPermissionsItem(['access toolbar']));
+    $uid = $this->session->get('uid');
+    if ((is_string($uid) || is_int($uid)) && (string) $account->id() === (string) $uid) {
+      $calculated_permissions->addItem(new CalculatedPermissionsItem(['access toolbar', 'access navigation']));
     }
 
     return $calculated_permissions;

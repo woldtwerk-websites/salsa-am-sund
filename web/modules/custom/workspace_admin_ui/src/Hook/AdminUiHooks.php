@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace Drupal\workspace_admin_ui\Hook;
 
-use Drupal\Core\Cache\Cache;
-use Drupal\Core\Cache\CacheableMetadata;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
-use Drupal\user\UserInterface;
+use Drupal\workspace_admin_ui\MasqueradeLinks;
 
 /**
  * Hook implementations for the Admin UI module.
@@ -21,23 +17,18 @@ class AdminUiHooks {
   use StringTranslationTrait;
 
   /**
-   * The account behind the User shortcut.
+   * The icon pack defined in workspace_admin_ui.icons.yml.
    */
-  private const USER_NAME = 'user';
-
-  /**
-   * The account behind the Editor shortcut.
-   */
-  private const EDITOR_NAME = 'editor';
+  private const ICON_PACK = 'workspace_admin_ui';
 
   /**
    * Constructs the hook implementations.
    *
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
-   *   The entity type manager.
+   * @param \Drupal\workspace_admin_ui\MasqueradeLinks $masqueradeLinks
+   *   The masquerade link helper.
    */
   public function __construct(
-    protected EntityTypeManagerInterface $entityTypeManager,
+    protected MasqueradeLinks $masqueradeLinks,
   ) {
   }
 
@@ -58,31 +49,18 @@ class AdminUiHooks {
     $item = [
       '#cache' => [
         'contexts' => ['user.permissions', 'session.is_masquerading'],
-        'tags' => [],
+        'tags' => $this->masqueradeLinks->cacheTags(),
       ],
     ];
 
     $links = [];
     $shortcuts = [
-      self::USER_NAME => $this->t('User'),
-      self::EDITOR_NAME => $this->t('Editor'),
+      MasqueradeLinks::USER => $this->t('User'),
+      MasqueradeLinks::EDITOR => $this->t('Editor'),
     ];
-    foreach ($shortcuts as $name => $title) {
-      $account = $this->accountByName($name);
-      // The account's own tags once there is one to invalidate on, and the
-      // list tag while there is not: the name is the constant here, so the
-      // link has to appear when an account is created under it.
-      $item['#cache']['tags'] = Cache::mergeTags(
-        $item['#cache']['tags'],
-        $account?->getCacheTags() ?? ['user_list'],
-      );
-
-      if ($account === NULL || !masquerade_target_user_access($account)) {
-        continue;
-      }
-
+    foreach ($this->masqueradeLinks->available() as $name => $account) {
       $links[] = [
-        'title' => $title,
+        'title' => $shortcuts[$name],
         'url' => $account->toUrl('masquerade'),
         'attributes' => [
           'title' => $this->t('Masquerade as @name', ['@name' => $account->getDisplayName()]),
@@ -123,24 +101,6 @@ class AdminUiHooks {
   }
 
   /**
-   * Loads the account with a user name.
-   *
-   * @param string $name
-   *   The user name.
-   *
-   * @return \Drupal\user\UserInterface|null
-   *   The account, or NULL when no account has the name.
-   */
-  private function accountByName(string $name): ?UserInterface {
-    $accounts = $this->entityTypeManager->getStorage('user')
-      ->loadByProperties(['name' => $name]);
-    /** @var \Drupal\user\UserInterface|null $account */
-    $account = reset($accounts) ?: NULL;
-
-    return $account;
-  }
-
-  /**
    * Implements hook_toolbar_alter().
    *
    * @param array<string, mixed> $items
@@ -153,87 +113,98 @@ class AdminUiHooks {
   }
 
   /**
+   * Implements hook_library_info_alter().
+   *
+   * Core's Layout Builder UI is painted in fixed light colours, which stay
+   * light in gin's dark mode. The module's CSS points them at gin's custom
+   * properties, and rides along as a dependency of core's UI library so it is
+   * there exactly where the builder is — and nowhere else.
+   *
+   * A dependency rather than appending the stylesheet to core's definition:
+   * the file then stays declared in this module's libraries.yml, where its
+   * path is relative to the module, instead of being spelled out as a
+   * DRUPAL_ROOT-relative path here. Dependencies resolve before the library
+   * that needs them, so this CSS is emitted before core's; every rule in it is
+   * scoped to body[data-gin-accent] and so outranks core's selectors either
+   * way.
+   *
+   * @param array<string, mixed> $libraries
+   *   The library definitions of the extension, keyed by library name.
+   * @param string $extension
+   *   The name of the extension whose libraries are being altered.
+   */
+  #[Hook('library_info_alter')]
+  public function libraryInfoAlter(array &$libraries, string $extension): void {
+    if ($extension !== 'layout_builder' || !isset($libraries['drupal.layout_builder'])) {
+      return;
+    }
+    $library = $libraries['drupal.layout_builder'];
+    if (!is_array($library)) {
+      return;
+    }
+
+    $library['dependencies'] = array_merge(
+      is_array($library['dependencies'] ?? NULL) ? $library['dependencies'] : [],
+      ['workspace_admin_ui/layout_builder'],
+    );
+    $libraries['drupal.layout_builder'] = $library;
+  }
+
+  /**
    * Implements hook_menu_links_discovered_alter().
    *
    * Taxonomy, URL aliases and menus are day-to-day editing, not site
-   * building, so they leave Structure and Configuration for Content. Gin's
-   * sidebar drops the Content subtree of the admin menu —
-   * preprocessNavigation() puts the links back where Gin shows Content.
+   * building, so they leave Structure and Configuration for the Content
+   * section of the Navigation sidebar. Navigation's Content block renders the
+   * `content` menu, and its admin block starts below `system.admin_content`,
+   * which Navigation removes. The links are therefore moved into `content`
+   * rather than tucked under the admin menu.
+   *
+   * Navigation takes an item's icon from its URL options, and falls back to an
+   * icon of the same name in the `navigation` pack. These three have no icon
+   * there, so they point at the module's pack, which discovers `icons/`.
    *
    * @param array<string, array<string, mixed>> $links
    *   The menu link definitions, keyed by plugin id.
    */
   #[Hook('menu_links_discovered_alter')]
   public function menuLinksDiscoveredAlter(array &$links): void {
-    foreach (array_keys(self::contentLinks()) as $id) {
-      if (isset($links[$id])) {
-        $links[$id]['parent'] = 'system.admin_content';
+    foreach (self::contentLinks() as $id => $link) {
+      if (!isset($links[$id])) {
+        continue;
       }
-    }
-  }
 
-  /**
-   * Implements hook_theme_registry_alter().
-   *
-   * Gin registers `navigation` with its own list of preprocess functions,
-   * which shuts out module preprocess hooks, so the callback is appended to
-   * that list directly.
-   *
-   * @param array<string, mixed> $theme_registry
-   *   The theme registry.
-   */
-  #[Hook('theme_registry_alter')]
-  public function themeRegistryAlter(array &$theme_registry): void {
-    if (isset($theme_registry['navigation']['preprocess functions'])) {
-      $theme_registry['navigation']['preprocess functions'][] = self::class . '::preprocessNavigation';
-    }
-  }
-
-  /**
-   * Preprocess callback for gin's navigation.
-   *
-   * Gin builds its Content block from a fixed list — Content, Blocks, Files,
-   * Media — rather than from the admin menu, so the links moved under Content
-   * are appended to that list. Static because the theme registry, which
-   * caches it, holds callables by name.
-   *
-   * @param array<string, mixed> $variables
-   *   The template variables.
-   */
-  public static function preprocessNavigation(array &$variables): void {
-    if (!isset($variables['menu_middle']['content']['#items'])) {
-      return;
-    }
-
-    $cacheability = CacheableMetadata::createFromRenderArray($variables);
-    foreach (self::contentLinks() as $route_name => [$class, $title]) {
-      $url = Url::fromRoute($route_name);
-      $access = $url->access(return_as_object: TRUE);
-      $cacheability->addCacheableDependency($access);
-      if ($access->isAllowed()) {
-        $variables['menu_middle']['content']['#items'][$class] = [
-          'title' => $title,
-          'class' => $class,
-          'url' => $url->toString(),
-        ];
+      // The parent belongs to the admin menu and does not exist in `content`;
+      // an empty parent puts the link at the top level, after Media.
+      $links[$id]['menu_name'] = 'content';
+      $links[$id]['parent'] = '';
+      $links[$id]['weight'] = $link['weight'];
+      $options = $links[$id]['options'] ?? [];
+      if (!is_array($options)) {
+        $options = [];
       }
+      $options['icon'] = [
+        'pack_id' => self::ICON_PACK,
+        'icon_id' => $link['icon'],
+      ];
+      $links[$id]['options'] = $options;
     }
-    $cacheability->applyTo($variables);
-    $variables['#attached']['library'][] = 'workspace_admin_ui/toolbar';
   }
 
   /**
    * The admin links that belong under Content, in the order they appear.
    *
-   * @return array<string, array{string, \Drupal\Core\StringTranslation\TranslatableMarkup}>
-   *   The link's gin class and title, keyed by route name, which is also the
-   *   menu link's plugin id.
+   * @return array<string, array{icon: string, weight: int}>
+   *   The link's icon id and menu weight, keyed by menu link plugin id, which
+   *   is also the route name. Core's own link definitions keep their titles,
+   *   descriptions and access checks.
    */
   private static function contentLinks(): array {
     return [
-      'entity.taxonomy_vocabulary.collection' => ['taxonomy', new TranslatableMarkup('Taxonomy')],
-      'entity.path_alias.collection' => ['url-aliases', new TranslatableMarkup('URL aliases')],
-      'entity.menu.collection' => ['menus', new TranslatableMarkup('Menus')],
+      // Media sits at weight 0; these follow it, before the trash at 1000.
+      'entity.taxonomy_vocabulary.collection' => ['icon' => 'taxonomy', 'weight' => 10],
+      'entity.path_alias.collection' => ['icon' => 'url-aliases', 'weight' => 11],
+      'entity.menu.collection' => ['icon' => 'menus', 'weight' => 12],
     ];
   }
 

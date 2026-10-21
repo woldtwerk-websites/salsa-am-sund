@@ -6,6 +6,24 @@ services:
       - '@current_user'
       - '@masquerade'
 
+  workspace_admin_ui.masquerade_links:
+    class: Drupal\workspace_admin_ui\MasqueradeLinks
+    arguments:
+      - '@entity_type.manager'
+  Drupal\workspace_admin_ui\MasqueradeLinks: '@workspace_admin_ui.masquerade_links'
+
+  workspace_admin_ui.access_check.masquerade_target:
+    class: Drupal\workspace_admin_ui\Access\MasqueradeTargetAccessCheck
+    arguments:
+      - '@workspace_admin_ui.masquerade_links'
+    tags:
+      - { name: access_check, applies_to: _workspace_admin_ui_masquerade_target_access }
+
+  Drupal\workspace_admin_ui\Routing\RouteSubscriber:
+    autoconfigure: true
+    tags:
+      - { name: event_subscriber }
+
   Drupal\workspace_admin_ui\EventSubscriber\MasqueradeMessageSubscriber:
     autowire: true
     tags:

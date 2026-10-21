@@ -2,3 +2,7 @@ toolbar:
   css:
     theme:
       css/toolbar.css: {}
+layout_builder:
+  css:
+    theme:
+      css/layout-builder.css: {}
