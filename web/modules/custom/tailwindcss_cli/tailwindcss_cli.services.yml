@@ -1,0 +1,5 @@
+services:
+  tailwindcss_cli.css.optimizer:
+    class: Drupal\tailwindcss_cli\Asset\TailwindCSSCliOptimizer
+    decorates: asset.css.optimizer
+    arguments: ['@file_url_generator']

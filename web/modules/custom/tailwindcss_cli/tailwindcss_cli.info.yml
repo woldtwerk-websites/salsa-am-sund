@@ -1,0 +1,6 @@
+
+name: TailwindCSS CLI
+type: module
+description: Use TailwindCSS CLI to compile your CSS.
+package: Custom
+core_version_requirement: ^10 || ^11

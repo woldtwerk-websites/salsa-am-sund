@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#ddev-generated
+## Description: Run pnpx in the web container
+## Usage: pnpx
+## Example: "ddev pnpx"
+## ExecRaw: true
+## HostWorkingDir: true
+
+pnpx "$@"
