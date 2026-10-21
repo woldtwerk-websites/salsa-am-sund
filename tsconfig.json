@@ -2,6 +2,7 @@
   "extends": "./jsconfig.json",
   "compilerOptions": {
     "noEmit": true,
+    "strict": true,
     "module": "esnext",
     // The sources here are served as native ESM by the TypeScript asset
     // optimizer, so they are checked against what the browser runs rather than
@@ -24,9 +25,11 @@
   ],
   // The Nuxt layers of the modules are typed by their own tsconfig.json, which
   // hands them to the projects nuxt generates. `exclude` replaces the one
-  // in jsconfig.json, so node_modules is repeated.
+  // in jsconfig.json, so node_modules is repeated. libraries/ holds
+  // third-party bundles (the FullCalendar global build), not our code.
   "exclude": [
     "node_modules",
+    "**/libraries/**",
     "web/modules/custom/*/nuxt",
   ],
 }

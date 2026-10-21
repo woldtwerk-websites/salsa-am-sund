@@ -331,7 +331,45 @@ interface HtmxStatic {
 	[key: string]: unknown
 }
 
+/**
+ * The FullCalendar API, as far as the custom behaviours use it.
+ *
+ * @fullcalendar/web-component ships no global types, so the methods are
+ * declared by hand and everything else stays reachable through the index
+ * signature until a behaviour needs a real type.
+ */
+interface SalsaFullCalendarApi {
+	changeView(view: string): void
+	refetchEvents(): void
+	[key: string]: unknown
+}
+
+/** The FullCalendar web component. */
+interface SalsaFullCalendarElement extends HTMLElement {
+	/** The options object, handed to FullCalendar as is. */
+	options: Record<string, unknown>
+	/** Returns the API of the rendered calendar. */
+	getApi(): SalsaFullCalendarApi
+}
+
+interface HTMLElementTagNameMap {
+	'full-calendar': SalsaFullCalendarElement
+}
+
+/**
+ * The FullCalendar global exposed by the vendored global build.
+ *
+ * The view plugins are namespaces with a default export; they are handed to
+ * the element through its options.
+ */
+declare var FullCalendar: {
+	DayGrid: { default: unknown }
+	List: { default: unknown }
+}
+
 declare var once: OnceStatic
 declare var htmx: HtmxStatic
 declare var Drupal: DrupalGlobal
 declare var Cookies: JsCookiesStatic
+/** Drupal's per-page settings, as set from PHP. */
+declare var drupalSettings: Record<string, unknown>
