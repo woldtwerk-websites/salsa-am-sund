@@ -1,0 +1,39 @@
+{#
+/**
+ * @file
+ * Comment action links (Löschen, Bearbeiten, Antworten) as an inline row.
+ *
+ * Rendered by \Drupal\comment\CommentLazyBuilders::renderLinks(), which wraps
+ * the links in the "links__comment" theme hook. The inner
+ * "links__comment__comment" element is merged into this list by
+ * Link::preRenderLinks(), so this template is the one that applies.
+ *
+ * Available variables: see core/modules/system/templates/links.html.twig.
+ *
+ * @see \Drupal\comment\CommentLazyBuilders::renderLinks()
+ * @see \Drupal\Core\Render\Element\Link::preRenderLinks()
+ */
+#}
+{% if links -%}
+  {%- if heading -%}
+    {%- if heading.level -%}
+      <{{ heading.level }}{{ heading.attributes }}>{{ heading.text }}</{{ heading.level }}>
+    {%- else -%}
+      <h2{{ heading.attributes }}>{{ heading.text }}</h2>
+    {%- endif -%}
+  {%- endif -%}
+  {# Core adds a generic "inline" class that would override the flex display. #}
+  <ul{{ attributes.removeClass('inline').addClass('salsa-comment__links', 'mt-3', 'flex', 'flex-wrap', 'items-center', 'gap-x-4', 'gap-y-1', 'list-none', 'p-0', 'm-0', 'text-sm', '[&_a]:font-medium', '[&_a]:text-[var(--surface-muted)]', '[&_a]:underline', '[&_a]:decoration-flame-orange/40', '[&_a]:decoration-1', '[&_a]:underline-offset-4', '[&_a]:transition-colors', '[&_a:hover]:text-flame-gold', '[&_a:hover]:decoration-flame-gold', '[&_a:focus-visible]:outline-2', '[&_a:focus-visible]:outline-offset-2', '[&_a:focus-visible]:outline-flame-gold') }}>
+    {%- for item in links -%}
+      <li{{ item.attributes }}>
+        {%- if item.link -%}
+          {{ item.link }}
+        {%- elseif item.text_attributes -%}
+          <span{{ item.text_attributes }}>{{ item.text }}</span>
+        {%- else -%}
+          {{ item.text }}
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+  </ul>
+{%- endif %}

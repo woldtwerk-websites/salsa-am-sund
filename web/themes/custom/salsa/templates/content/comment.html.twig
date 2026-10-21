@@ -29,6 +29,12 @@
   </footer>
 
   <div{{ content_attributes.addClass('salsa-comment__body', 'prose', 'max-w-none') }}>
-    {{ content }}
+    {{ content|without('links') }}
   </div>
+
+  {% if content.links %}
+    <div class="salsa-comment__actions">
+      {{ content.links }}
+    </div>
+  {% endif %}
 </article>

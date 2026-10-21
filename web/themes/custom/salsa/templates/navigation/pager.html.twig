@@ -1,0 +1,86 @@
+{#
+/**
+ * @file
+ * On-brand pager for the Salsa am Sund theme.
+ *
+ * Mirrors core/modules/system/templates/pager.html.twig, but uses the theme's
+ * Tailwind tokens. First/last links are hidden on small screens so the pager
+ * never overflows a 320px viewport.
+ *
+ * Available variables:
+ * - heading_id: Pagination heading ID.
+ * - pagination_heading_level: The heading level for the visually hidden title.
+ * - items: First, previous, next, last and page links.
+ * - current: The current page number.
+ * - ellipses: Whether a previous/next ellipsis is needed.
+ */
+#}
+{% set item_classes = 'inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-line px-3 text-sm font-semibold no-underline text-sand transition duration-200 hover:border-flame-gold hover:text-flame-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame-gold' %}
+{% set current_classes = 'inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-flame-red/40 bg-flame-deep px-3 text-sm font-semibold text-white shadow-[0_14px_34px_-16px_rgb(143_15_22_/_0.9)]' %}
+
+{% if items %}
+  <nav class="mt-10 flex justify-center" aria-labelledby="{{ heading_id }}">
+    <{{ pagination_heading_level }} id="{{ heading_id }}" class="sr-only">{{ 'Seitennavigation'|t }}</{{ pagination_heading_level }}>
+    <ul class="js-pager__items flex flex-wrap items-center justify-center gap-2">
+      {% if items.first %}
+        <li class="hidden sm:inline-flex">
+          <a href="{{ items.first.href }}" title="{{ 'Zur ersten Seite'|t }}" class="{{ item_classes }}"{{ items.first.attributes|without('href', 'title') }}>
+            <span class="sr-only">{{ 'Erste Seite'|t }}</span>
+            <span aria-hidden="true">{{ items.first.text|default('« Erste'|t) }}</span>
+          </a>
+        </li>
+      {% endif %}
+
+      {% if items.previous %}
+        <li class="inline-flex">
+          <a href="{{ items.previous.href }}" title="{{ 'Zur vorherigen Seite'|t }}" rel="prev" class="{{ item_classes }}"{{ items.previous.attributes|without('href', 'title', 'rel') }}>
+            <span class="sr-only">{{ 'Vorherige Seite'|t }}</span>
+            <span aria-hidden="true">{{ items.previous.text|default('‹ Zurück'|t) }}</span>
+          </a>
+        </li>
+      {% endif %}
+
+      {% if ellipses.previous %}
+        <li class="inline-flex min-h-11 min-w-11 items-center justify-center text-mist" role="presentation">&hellip;</li>
+      {% endif %}
+
+      {% for key, item in items.pages %}
+        <li class="inline-flex">
+          {% if current == key %}
+            <a href="{{ item.href }}" title="{{ 'Aktuelle Seite'|t }}" class="{{ current_classes }}" aria-current="page">
+              <span class="sr-only">{{ 'Seite'|t }}</span>
+              {{- key -}}
+            </a>
+          {% else %}
+            <a href="{{ item.href }}" title="{{ 'Zu Seite @key'|t({'@key': key}) }}" class="{{ item_classes }}">
+              <span class="sr-only">{{ 'Seite'|t }}</span>
+              {{- key -}}
+            </a>
+          {% endif %}
+        </li>
+      {% endfor %}
+
+      {% if ellipses.next %}
+        <li class="inline-flex min-h-11 min-w-11 items-center justify-center text-mist" role="presentation">&hellip;</li>
+      {% endif %}
+
+      {% if items.next %}
+        <li class="inline-flex">
+          <a href="{{ items.next.href }}" title="{{ 'Zur nächsten Seite'|t }}" rel="next" class="{{ item_classes }}"{{ items.next.attributes|without('href', 'title', 'rel') }}>
+            <span class="sr-only">{{ 'Nächste Seite'|t }}</span>
+            <span aria-hidden="true">{{ items.next.text|default('Weiter ›'|t) }}</span>
+          </a>
+        </li>
+      {% endif %}
+
+      {% if items.last %}
+        <li class="hidden sm:inline-flex">
+          <a href="{{ items.last.href }}" title="{{ 'Zur letzten Seite'|t }}" class="{{ item_classes }}"{{ items.last.attributes|without('href', 'title') }}>
+            <span class="sr-only">{{ 'Letzte Seite'|t }}</span>
+            <span aria-hidden="true">{{ items.last.text|default('Letzte »'|t) }}</span>
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}
