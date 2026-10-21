@@ -1,0 +1,67 @@
+uuid: abffd793-2b42-4542-84be-6e9e7b2165e4
+langcode: de
+status: true
+dependencies:
+  config:
+    - canvas.component.block.system_menu_block.footer
+    - canvas.component.block.system_menu_block.main
+    - canvas.component.marker.page_content
+    - canvas.component.sdc.salsa.site-footer
+    - canvas.component.sdc.salsa.site-header
+    - canvas.component.theme_page_template.mercury
+id: theme_mercury
+label: 'Mercury theme'
+description: null
+component_tree:
+  94420671-2ec2-465e-bb83-8504c753ad44:
+    uuid: 94420671-2ec2-465e-bb83-8504c753ad44
+    component_id: theme_page_template.mercury
+    component_version: 15fe1e06320b1035
+    inputs: {  }
+  6049aa3c-067c-413d-8ece-b1747d35b2b7:
+    parent_uuid: 94420671-2ec2-465e-bb83-8504c753ad44
+    slot: content
+    uuid: 6049aa3c-067c-413d-8ece-b1747d35b2b7
+    component_id: marker.page_content
+    component_version: 3b12c0b99a6caecc
+    inputs: {  }
+  cd4b4630-df49-42a7-903a-973b63a4b211:
+    parent_uuid: 94420671-2ec2-465e-bb83-8504c753ad44
+    slot: footer
+    uuid: cd4b4630-df49-42a7-903a-973b63a4b211
+    component_id: sdc.salsa.site-footer
+    component_version: 23b98daa5c27ccf6
+    inputs:
+      copyright: '© Salsa am Sund'
+  d12f78a0-2cce-4d7d-a1f1-7aaf9ad92d80:
+    parent_uuid: cd4b4630-df49-42a7-903a-973b63a4b211
+    slot: navigation
+    uuid: d12f78a0-2cce-4d7d-a1f1-7aaf9ad92d80
+    component_id: block.system_menu_block.footer
+    component_version: 075503dbc228a45c
+    inputs:
+      label: Footer
+      label_display: '0'
+      level: 1
+      depth: null
+      expand_all_items: false
+  6ca4582c-07eb-42b0-ae5c-390e1870c57a:
+    parent_uuid: 94420671-2ec2-465e-bb83-8504c753ad44
+    slot: header
+    uuid: 6ca4582c-07eb-42b0-ae5c-390e1870c57a
+    component_id: sdc.salsa.site-header
+    component_version: 92a8760b9a931edf
+    inputs:
+      tagline: 'Salsa in Stralsund'
+  7b62b82a-e5e9-4f4b-876c-88a28caa6bbb:
+    parent_uuid: 6ca4582c-07eb-42b0-ae5c-390e1870c57a
+    slot: navigation
+    uuid: 7b62b82a-e5e9-4f4b-876c-88a28caa6bbb
+    component_id: block.system_menu_block.main
+    component_version: 322535c0078cf59c
+    inputs:
+      label: 'Main navigation'
+      label_display: '0'
+      level: 1
+      depth: null
+      expand_all_items: false

@@ -1,0 +1,7 @@
+services:
+  Drupal\workspace_events\EventOccurrenceRepository:
+    autowire: true
+  Drupal\workspace_events\EventDescriptionFormatter:
+    autowire: true
+  Drupal\workspace_events\Hook\EventFormHooks:
+    autowire: true

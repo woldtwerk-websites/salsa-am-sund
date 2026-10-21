@@ -1,0 +1,20 @@
+uuid: 098546f5-705c-458f-b300-94386cce8947
+langcode: de
+status: true
+dependencies:
+  module:
+    - canvas
+    - comment
+id: canvas_page.comment
+field_name: comment
+entity_type: canvas_page
+type: comment
+settings:
+  comment_type: page_comment
+module: comment
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

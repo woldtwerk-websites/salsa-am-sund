@@ -53,6 +53,45 @@ Always keep in mind to write efficient code that scales nicely. Avoid unnecessar
 sure to use caching where possible. Inform me if I suggest any poorly performing code
 or data structure and propose a better solution.
 
+## Testing
+
+Only test what matters: the custom logic in this repo.
+
+- Don't test Drupal core, contributed modules or other third-party code.
+- Don't write UI tests (no browser, rendering or markup tests).
+
+## Claude Code: delegate coding to opencode
+
+This section is for Claude Code only. opencode reads this file too: if you are
+opencode, ignore this section — you are the one who writes the code.
+
+Claude does not write code in this repo itself. Claude plans and reviews;
+opencode writes the code. Every coding task goes to opencode as a plan of
+concrete todos — files, functions, behaviour, tests to add — with the research
+and design decisions already made:
+
+```
+opencode run --auto -m 'opencode-go/deepseek-v4.1-flash#high' --session ses_<task> --title "<task>" "<plan>" </dev/null
+```
+
+- Name the session (`--session` creates it), so the user can watch the run
+  live with `opencode -s ses_<task>`.
+- Put the rules from this file that apply to the task into the prompt — ddev,
+  pnpm scripts, UI/logic split with vitest, URL state, never touch `.data/`,
+  `touch nuxt/nuxt.config.ts` after layer edits.
+- Run several opencode agents in parallel when tasks are independent, each in
+  its own git worktree under `.worktrees/<task>` (inside the repo, so ddev
+  sees it) and its own session. Tasks that touch `pnpm-workspace.yaml`, the
+  lockfile or `.ddev/` don't run alongside others. Review and merge the
+  results one at a time.
+- Review the diff (correctness, security, this file's rules) and run
+  `ddev exec pnpm run lint`, `ddev exec pnpm run typecheck` and the tests.
+- Send findings back as concrete todos with
+  `opencode run --auto -m 'opencode-go/deepseek-v4.1-flash#high' --session ses_<task> "<findings>"` until the review
+  passes.
+- `--auto` approves every permission opencode asks for, so commits, deploys,
+  migrations and deletions still need the user's go-ahead first.
+
 ## Skills
 
 When working in web always use these skills:

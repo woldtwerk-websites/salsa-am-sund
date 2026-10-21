@@ -1,0 +1,47 @@
+uuid: ed2fab82-4268-4b5b-987a-3e0b540702d8
+langcode: de
+status: true
+dependencies:
+  module:
+    - options
+  theme:
+    - salsa
+active_version: 6f58f575873ebb4e
+versioned_properties:
+  active:
+    settings:
+      prop_field_definitions:
+        columns:
+          required: true
+          field_type: list_string
+          field_storage_settings:
+            allowed_values_function: canvas_load_allowed_values_for_component_prop
+          field_instance_settings: {  }
+          field_widget: options_select
+          default_value:
+            -
+              value: '3'
+          expression: ℹ︎list_string␟value
+          derived_schema_metadata: {  }
+        gap:
+          required: true
+          field_type: list_string
+          field_storage_settings:
+            allowed_values_function: canvas_load_allowed_values_for_component_prop
+          field_instance_settings: {  }
+          field_widget: options_select
+          default_value:
+            -
+              value: md
+          expression: ℹ︎list_string␟value
+          derived_schema_metadata: {  }
+    fallback_metadata:
+      slot_definitions:
+        items:
+          title: Elemente
+          description: 'Karten oder andere Komponenten im Raster. Auf Mobilgeräten eine Spalte.'
+label: Raster
+id: sdc.salsa.grid
+provider: salsa
+source: sdc
+source_local_id: 'salsa:grid'

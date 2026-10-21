@@ -1,0 +1,34 @@
+{#
+/**
+ * @file
+ * Comment: author, formatted creation date and body.
+ *
+ * Available variables:
+ * - author: Rendered comment author (link or plain text).
+ * - created: Formatted creation date.
+ * - comment: The comment entity.
+ * - content: The comment body and links.
+ * - attributes: Attributes for the article.
+ * - content_attributes: Attributes for the body wrapper.
+ * - permalink: Permalink markup.
+ * - submitted: Combined "submitted by" string (not used here).
+ */
+#}
+{% set iso_date = comment.getCreatedTime()|format_date('html_datetime') %}
+
+<article{{ attributes.addClass('salsa-comment', 'salsa-surface-dark', 'rounded-xl', 'border', 'border-line', 'bg-ink', 'p-5', 'md:p-6') }}>
+  <footer class="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line/70 pb-3">
+    <span class="font-display text-lg font-bold italic text-sand">{{ author }}</span>
+    {% if created %}
+      <span class="text-sm text-mist" aria-hidden="true">·</span>
+      <time datetime="{{ iso_date }}" class="text-sm text-mist">{{ created }}</time>
+    {% endif %}
+    {% if permalink %}
+      <span class="ms-auto text-sm">{{ permalink }}</span>
+    {% endif %}
+  </footer>
+
+  <div{{ content_attributes.addClass('salsa-comment__body', 'prose', 'max-w-none') }}>
+    {{ content }}
+  </div>
+</article>

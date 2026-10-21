@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w240_4x3
+label: 'Responsiv 4:3 (240)'
+effects:
+  6753cfd0-35d0-41ab-92de-0b199990c3d6:
+    uuid: 6753cfd0-35d0-41ab-92de-0b199990c3d6
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 240
+      height: 180
+      anchor: center-center

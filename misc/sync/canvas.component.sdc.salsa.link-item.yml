@@ -1,0 +1,60 @@
+uuid: 749762a4-a219-45fc-b454-9d765d99c4c2
+langcode: de
+status: true
+dependencies:
+  module:
+    - link
+  theme:
+    - salsa
+active_version: ea7a71fd0834a0ff
+versioned_properties:
+  active:
+    settings:
+      prop_field_definitions:
+        label:
+          required: true
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: 'Kursplan als PDF'
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        href:
+          required: true
+          field_type: link
+          field_storage_settings: {  }
+          field_instance_settings:
+            title: 0
+            link_type: 17
+          field_widget: link_default
+          default_value:
+            -
+              uri: /kurse
+              options: {  }
+          expression: ℹ︎link␟url
+          derived_schema_metadata:
+            string_shape:
+              format: uri-reference
+        description:
+          required: false
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: 'Alle Zeiten und Level auf einen Blick.'
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+    fallback_metadata:
+      slot_definitions: {  }
+label: Link-Eintrag
+id: sdc.salsa.link-item
+provider: salsa
+source: sdc
+source_local_id: 'salsa:link-item'

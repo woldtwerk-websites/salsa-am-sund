@@ -1,0 +1,23 @@
+uuid: 7b6777f6-e03a-4f5d-a8f8-c7a4354e235a
+langcode: de
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_seo_analysis
+    - node.type.page
+  module:
+    - yoast_seo
+_core:
+  default_config_hash: t0dPQsaD3dKDQzjA6ZHd0s7-2T7Imu0sKan2miECUho
+id: node.page.field_seo_analysis
+field_name: field_seo_analysis
+entity_type: node
+bundle: page
+label: SEO-Analyse
+description: 'Wählen Sie das Hauptschlüsselwort aus, um das es auf dieser Seite geht.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: yoast_seo

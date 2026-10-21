@@ -1,0 +1,66 @@
+{% set phone_href = phone|default('')|replace({' ': '', '-': '', '/': '', '(': '', ')': ''}) %}
+{% set phone_2_href = phone_2|default('')|replace({' ': '', '-': '', '/': '', '(': '', ')': ''}) %}
+{% set is_external_map = map_href is not empty and map_href matches '#^(https?:)?//#' %}
+{% set heading_level = heading_level|default('h2') %}
+{% if heading_level not in ['h2', 'h3'] %}
+  {% set heading_level = 'h2' %}
+{% endif %}
+
+<div class="{{ tw_merge(['flex flex-col gap-8', ui.root|default('')]) }}">
+  <div>
+    {% if title %}
+      <{{ heading_level }} class="font-display text-3xl leading-tight font-extrabold italic md:text-4xl">{{ title }}</{{ heading_level }}>
+    {% endif %}
+
+    {% if address %}
+      <div class="prose mt-4 max-w-none">
+        {{ address }}
+      </div>
+    {% endif %}
+  </div>
+
+  <ul class="m-0 list-none space-y-4 p-0 font-body">
+    {% if phone %}
+      <li class="flex items-start gap-3">
+        <span class="mt-0.5 text-flame-gold" aria-hidden="true">{{ icon('salsa', 'phone', {size: 20}) }}</span>
+        <span>
+          <a href="tel:{{ phone_href }}" class="no-underline">{{ phone }}</a>
+        </span>
+      </li>
+    {% endif %}
+
+    {% if phone_2 %}
+      <li class="flex items-start gap-3">
+        <span class="mt-0.5 text-flame-gold" aria-hidden="true">{{ icon('salsa', 'phone', {size: 20}) }}</span>
+        <span>
+          <a href="tel:{{ phone_2_href }}" class="no-underline">{{ phone_2 }}</a>
+        </span>
+      </li>
+    {% endif %}
+
+    {% if email %}
+      <li class="flex items-start gap-3">
+        <span class="mt-0.5 text-flame-gold" aria-hidden="true">{{ icon('salsa', 'mail', {size: 20}) }}</span>
+        <span>
+          <a href="mailto:{{ email }}" class="no-underline break-all">{{ email }}</a>
+        </span>
+      </li>
+    {% endif %}
+
+    {% if map_href %}
+      <li class="flex items-start gap-3">
+        <span class="mt-0.5 text-flame-gold" aria-hidden="true">{{ icon('salsa', 'map-pin', {size: 20}) }}</span>
+        <span>
+          <a
+            href="{{ map_href }}"
+            class="inline-flex items-center gap-1.5 no-underline"
+            {% if is_external_map %}target="_blank" rel="noopener noreferrer"{% endif %}
+          >
+            {{ 'Route planen'|t }}
+            {{ icon('salsa', 'external-link', {size: 16}) }}
+          </a>
+        </span>
+      </li>
+    {% endif %}
+  </ul>
+</div>

@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w192_16x9
+label: 'Responsiv 16:9 (192)'
+effects:
+  519f9450-4dc4-4ea6-8940-a0f5094d2fa4:
+    uuid: 519f9450-4dc4-4ea6-8940-a0f5094d2fa4
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 192
+      height: 108
+      anchor: center-center

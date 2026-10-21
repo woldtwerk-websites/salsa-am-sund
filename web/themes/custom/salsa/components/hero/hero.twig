@@ -1,0 +1,49 @@
+{% set has_image = image is not empty and image.src is not empty %}
+
+<section class="{{ tw_merge(['salsa-surface-flame relative isolate overflow-hidden bg-flame-deep', ui.root|default('')]) }}">
+  <div class="salsa-ribbons" aria-hidden="true">
+    <span class="salsa-ribbon salsa-ribbon--1"></span>
+    <span class="salsa-ribbon salsa-ribbon--2"></span>
+    <span class="salsa-ribbon salsa-ribbon--3"></span>
+  </div>
+
+  <div class="relative z-10 mx-auto w-full max-w-6xl px-5 pt-16 pb-12 md:px-8 md:pt-24 md:pb-16">
+    {% if eyebrow %}
+      <p class="mb-5 inline-flex items-center gap-3 font-body text-xs font-semibold uppercase not-italic tracking-[0.3em] text-white md:text-sm">
+        <span class="inline-block h-px w-8 bg-flame-gold" aria-hidden="true"></span>
+        {{ eyebrow }}
+      </p>
+    {% endif %}
+
+    <h1 class="max-w-5xl font-display text-[clamp(2.25rem,9vw,7.5rem)] leading-[0.88] font-black italic uppercase tracking-[-0.02em] text-balance text-white [font-stretch:100%] sm:[font-stretch:104%] lg:[font-stretch:112%]">
+      {{ heading }}
+    </h1>
+
+    {% if text %}
+      <div class="prose prose-lg mt-7 max-w-2xl">
+        {{ text }}
+      </div>
+    {% endif %}
+
+    {% if actions is not empty %}
+      <div class="mt-9 flex flex-wrap items-center gap-3 [&_a]:text-white">
+        {{ actions }}
+      </div>
+    {% endif %}
+  </div>
+
+  {% if has_image %}
+    <div class="relative z-10 mt-4 h-36 w-full overflow-hidden md:h-52">
+      {% include 'canvas:image' ignore missing with {
+        src: image.src,
+        alt: image.alt,
+        width: image.width,
+        height: image.height,
+        class: 'h-full w-full object-cover object-bottom',
+        sizes: '100vw',
+        loading: 'eager',
+      } only %}
+      <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-night/90 via-night/20 to-transparent" aria-hidden="true"></div>
+    </div>
+  {% endif %}
+</section>

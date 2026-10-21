@@ -1,0 +1,17 @@
+uuid: 4c4f527b-da1e-400e-8279-a47484c9fcbd
+langcode: de
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: CFoQldhFeh-h4E2rOcfB4xmHBjWqCkxbwqND3zpUnH0
+active_version: 3b12c0b99a6caecc
+versioned_properties:
+  active:
+    settings: {  }
+    fallback_metadata:
+      slot_definitions: null
+label: Seiteninhalt
+id: marker.page_content
+provider: canvas
+source: marker
+source_local_id: page_content

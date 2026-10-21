@@ -1,0 +1,21 @@
+uuid: f13f2064-be67-4d52-8f28-4bfa4f2cb0d7
+langcode: de
+status: true
+dependencies:
+  theme:
+    - salsa
+active_version: e81e2cd5e5d292c4
+versioned_properties:
+  active:
+    settings:
+      prop_field_definitions: {  }
+    fallback_metadata:
+      slot_definitions:
+        content:
+          title: Inhalt
+          description: 'Der Inhalt der Seite, in der Regel eine Abschnitts-Komponente.'
+label: Hauptinhalt
+id: sdc.salsa.page-main
+provider: salsa
+source: sdc
+source_local_id: 'salsa:page-main'

@@ -1,0 +1,29 @@
+{#
+/**
+ * @file
+ * Full user profile.
+ *
+ * The page title is suppressed for entity.user.canonical in SalsaHooks; the
+ * profile component renders the <h1> instead.
+ *
+ * Available variables:
+ * - user: The user account.
+ * - content: The user fields.
+ * - attributes: Attributes for the wrapper.
+ * - salsa_profile_picture: Picture array prepared by SalsaHooks.
+ * - salsa_member_since: Formatted "Mitglied seit …" line.
+ */
+#}
+{% set profile_content = content|without('user_picture', 'member_for', 'mail', 'roles') %}
+{% set profile = {
+  name: user.getDisplayName(),
+  member_since: salsa_member_since|default(''),
+  content: profile_content,
+} %}
+{% if salsa_profile_picture is not empty %}
+  {% set profile = profile|merge({picture: salsa_profile_picture}) %}
+{% endif %}
+
+<div{{ attributes }}>
+  {{ include('salsa:profile', profile) }}
+</div>

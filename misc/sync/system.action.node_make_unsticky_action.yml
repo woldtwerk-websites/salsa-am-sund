@@ -1,0 +1,13 @@
+uuid: 2a247a87-da41-4fa3-a282-9adf1ace459d
+langcode: de
+status: true
+dependencies:
+  module:
+    - node
+_core:
+  default_config_hash: lDM9mvIGAu8Sw8rt-uCO4Sr7yX5VPrDPxYcawkbKd6k
+id: node_make_unsticky_action
+label: 'Inhalt nicht mehr anpinnen'
+type: node
+plugin: node_make_unsticky_action
+configuration: {  }

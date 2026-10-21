@@ -1,0 +1,72 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Abschnitt
+description: "Farbiger Seitenabschnitt mit Breite, vertikalem Abstand und optionaler Wellenlinie am oberen Rand."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  required:
+    - tone
+    - width
+    - spacing
+  properties:
+    tone:
+      type: string
+      title: Hintergrund
+      description: Farbe des Abschnitts.
+      enum:
+        - night
+        - ink
+        - flame
+        - sea
+        - sand
+      meta:enum:
+        night: Nacht
+        ink: Tinte
+        flame: Flamme
+        sea: Sund
+        sand: Sand
+      default: night
+      examples:
+        - night
+    width:
+      type: string
+      title: Breite
+      enum:
+        - narrow
+        - default
+        - wide
+      meta:enum:
+        narrow: Schmal
+        default: Standard
+        wide: Breit
+      default: default
+      examples:
+        - default
+    spacing:
+      type: string
+      title: Abstand
+      enum:
+        - sm
+        - md
+        - lg
+      meta:enum:
+        sm: Klein
+        md: Mittel
+        lg: Groß
+      default: md
+      examples:
+        - md
+    wave_top:
+      type: boolean
+      title: Wellenlinie oben
+      description: "Setzt eine weiche Wasserlinie des Sunds an den oberen Rand."
+      default: false
+    anchor:
+      type: string
+      title: Sprungmarke
+      description: "Optionale ID für Ankerlinks, z. B. kurse."
+slots:
+  content:
+    title: Inhalt
+    description: "Komponenten, die in diesem Abschnitt erscheinen."

@@ -1,0 +1,33 @@
+{% set level = level|default('h2') %}
+{% set style = style|default('title') %}
+{% set align = align|default('left') %}
+{% set flame = flame|default(false) %}
+{% set tone = tone|default('auto') %}
+
+{% if level not in ['h1', 'h2', 'h3', 'h4'] %}
+  {% set level = 'h2' %}
+{% endif %}
+
+{% set heading = html_cva(
+  base: ['font-display font-extrabold italic text-balance'],
+  variants: {
+    style: {
+      display: 'text-[clamp(2rem,7vw,6rem)] leading-[0.95] [font-stretch:100%] sm:[font-stretch:104%] lg:[font-stretch:108%]',
+      title: 'text-3xl leading-[1.05] md:text-4xl lg:text-5xl',
+      eyebrow: 'font-body text-xs font-semibold uppercase not-italic tracking-[0.28em] text-flame-gold md:text-sm',
+    },
+    align: {
+      left: 'text-left',
+      center: 'mx-auto text-center',
+    },
+    flame: {
+      default: 'text-flame-light',
+      light: 'text-flame',
+      none: '',
+    },
+  }
+) %}
+
+<{{ level }} class="{{ tw_merge([heading.apply({style: style, align: align, flame: flame ? (tone == 'light' ? 'light' : 'default') : 'none'}), ui.root|default('')]) }}">
+  {{ text }}
+</{{ level }}>

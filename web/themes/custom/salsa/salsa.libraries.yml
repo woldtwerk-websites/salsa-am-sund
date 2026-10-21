@@ -1,0 +1,8 @@
+global:
+  version: VERSION
+  css:
+    theme:
+      src/css/fonts.css:
+        preprocess: false
+      src/css/main.css:
+        preprocess: true

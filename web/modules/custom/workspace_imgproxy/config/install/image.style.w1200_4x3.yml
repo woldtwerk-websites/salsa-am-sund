@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w1200_4x3
+label: 'Responsiv 4:3 (1200)'
+effects:
+  7de14b92-e144-4d15-8c4a-f7f8682bbd05:
+    uuid: 7de14b92-e144-4d15-8c4a-f7f8682bbd05
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 1200
+      height: 900
+      anchor: center-center

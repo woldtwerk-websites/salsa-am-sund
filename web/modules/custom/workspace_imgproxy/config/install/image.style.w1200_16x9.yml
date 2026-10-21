@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w1200_16x9
+label: 'Responsiv 16:9 (1200)'
+effects:
+  1f342433-4968-4d23-8c31-820b8981f44c:
+    uuid: 1f342433-4968-4d23-8c31-820b8981f44c
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 1200
+      height: 675
+      anchor: center-center

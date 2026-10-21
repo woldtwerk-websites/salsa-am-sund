@@ -11,6 +11,34 @@
     },
     "repositories": [
         {
+            "type": "path",
+            "url": "web/modules/custom/*",
+            "options": {
+                "symlink": false
+            },
+            "only": [
+                "workspace/*"
+            ]
+        },
+        {
+            "type": "path",
+            "url": "web/themes/custom/*",
+            "options": {
+                "symlink": false
+            },
+            "only": [
+                "workspace/*"
+            ]
+        },
+        {
+            "only": ["workspace/*"],
+            "type": "path",
+            "url": "misc/scaffold",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
             "name": "drupal",
             "type": "composer",
             "url": "https://packages.drupal.org/8",
@@ -44,6 +72,7 @@
         "drupal/focal_point": "^2.1",
         "drupal/gin": "^5",
         "drupal/gin_login": "^2.1.4",
+        "drupal/honeypot": "^2.2",
         "drupal/klaro": "^3",
         "drupal/language_checklist": "^1",
         "drupal/linkit": "^7",
@@ -65,20 +94,33 @@
         "drupal/scheduler_content_moderation_integration": "^3.0.4",
         "drupal/seo_checklist": "^5.2.1",
         "drupal/simple_sitemap": "^4.2.2",
+        "drupal/smart_date": "^4.3",
         "drupal/svg_image": "^3.1",
         "drupal/symfony_mailer_lite": "^2.0.1",
         "drupal/tagify": "^2.0.4",
+        "drupal/tailwind_merge_classes": "^2.2",
         "drupal/token_or": "^2.2",
         "drupal/trash": "^3.0.13",
         "drupal/view_password": "^6",
-        "drupal/yoast_seo": "^2.1"
+        "drupal/yoast_seo": "^2.1",
+        "sabre/vobject": "^4.5 || ^5.0",
+        "workspace/scaffold": "dev-main",
+        "workspace/workspace_admin_ui": "*"
     },
     "require-dev": {
+        "behat/mink": "^1.11",
+        "behat/mink-browserkit-driver": "^2.2",
         "drupal/coder": "^9.0",
         "drush/drush": "^13.7",
         "mglaman/phpstan-drupal": "^2.2",
+        "mikey179/vfsstream": "^1.6.11",
+        "phpspec/prophecy-phpunit": "^2",
         "phpstan/extension-installer": "^1.4",
-        "phpstan/phpstan": "^2.3"
+        "phpstan/phpstan": "^2.3",
+        "phpunit/phpunit": "^11.5.50",
+        "symfony/browser-kit": "^7.4",
+        "symfony/css-selector": "^7.4",
+        "symfony/dom-crawler": "^7.4.12"
     },
     "conflict": {
         "drupal/drupal": "*"
@@ -123,7 +165,7 @@
                 "[web-root]/sites/example.settings.local.php": false,
                 "[project-root]/misc/deploy.yaml": false
             },
-            "allowed-packages": ["drupal/drupal_cms_blank", "drupal/drupal_cms_site_template_base", "drupal/drupal_cms_starter"]
+            "allowed-packages": ["drupal/drupal_cms_blank", "drupal/drupal_cms_site_template_base", "drupal/drupal_cms_starter", "workspace/scaffold"]
         },
         "installer-paths": {
             "web/core": ["type:drupal-core"],
@@ -150,6 +192,7 @@
         }
     },
     "scripts": {
+        "db:export": "drush sql:dump --ordered-dump --gzip --structure-tables-key=development --result-file=../misc/db/db.sql",
         "post-update-cmd": [
             "@php -r \"@unlink('vendor/bin/composer');\""
         ],

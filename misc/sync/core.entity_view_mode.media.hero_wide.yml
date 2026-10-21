@@ -1,0 +1,13 @@
+uuid: 653558bd-edb2-466b-bdbf-7d844fb970df
+langcode: de
+status: true
+dependencies:
+  module:
+    - media
+_core:
+  default_config_hash: ZfeAFB0XHD3WjB_xibJhxKG1vqXzxRxylIzd3QVRric
+id: media.hero_wide
+label: 'Hero Breit'
+description: ''
+targetEntityType: media
+cache: true

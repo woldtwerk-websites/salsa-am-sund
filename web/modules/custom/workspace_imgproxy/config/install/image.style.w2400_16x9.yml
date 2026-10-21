@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w2400_16x9
+label: 'Responsiv 16:9 (2400)'
+effects:
+  25506c0a-dbe0-4ecb-b53b-327928c89cf1:
+    uuid: 25506c0a-dbe0-4ecb-b53b-327928c89cf1
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 2400
+      height: 1350
+      anchor: center-center

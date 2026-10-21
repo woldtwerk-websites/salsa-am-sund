@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w960_4x3
+label: 'Responsiv 4:3 (960)'
+effects:
+  d2be33f5-d3fc-4a2e-8516-832a24bc0867:
+    uuid: d2be33f5-d3fc-4a2e-8516-832a24bc0867
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 960
+      height: 720
+      anchor: center-center

@@ -1,0 +1,29 @@
+uuid: 3b4d4e76-c505-42fe-b137-728e9014d02b
+langcode: de
+status: false
+dependencies: {  }
+_core:
+  default_config_hash: MJjsbqXicMVCBcsZutPlhZ3xOEVsra5WjX38rujhwcI
+id: stripe
+label: Streifen
+description: 'Integration des Zahlungsanbieters Stripe.'
+default: true
+purposes:
+  - cms
+cookies: {  }
+required: true
+opt_out: true
+only_once: false
+contextual_consent_only: false
+contextual_consent_text: ''
+info_url: 'https://stripe.com'
+privacy_policy_url: 'https://stripe.com/privacy'
+javascripts:
+  - stripe.com
+callback_code: ''
+on_init: ''
+on_accept: ''
+on_decline: ''
+wrapper_identifier: {  }
+attachments: {  }
+weight: 0

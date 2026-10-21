@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w1440_1x1
+label: 'Responsiv 1:1 (1440)'
+effects:
+  8e76073c-fc9f-4765-9449-c52f606f42d4:
+    uuid: 8e76073c-fc9f-4765-9449-c52f606f42d4
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 1440
+      height: 1440
+      anchor: center-center

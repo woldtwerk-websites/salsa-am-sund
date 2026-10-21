@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w320_16x9
+label: 'Responsiv 16:9 (320)'
+effects:
+  fd45facd-12aa-4aff-a2a8-c697e1004679:
+    uuid: fd45facd-12aa-4aff-a2a8-c697e1004679
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 320
+      height: 180
+      anchor: center-center

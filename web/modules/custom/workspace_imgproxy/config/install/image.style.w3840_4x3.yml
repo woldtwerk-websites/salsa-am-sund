@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w3840_4x3
+label: 'Responsiv 4:3 (3840)'
+effects:
+  5305e944-507c-449e-92dd-131e08109de3:
+    uuid: 5305e944-507c-449e-92dd-131e08109de3
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 3840
+      height: 2880
+      anchor: center-center

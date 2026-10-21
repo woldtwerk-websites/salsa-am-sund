@@ -1,0 +1,21 @@
+uuid: f47cf351-5160-4990-bd24-2055fdafd47c
+langcode: de
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_seo_title
+    - node.type.page
+_core:
+  default_config_hash: SRjnpYkMQK7gcx-DEu4Jmvi58RkwcEMuYyfdQLqQ3ZA
+id: node.page.field_seo_title
+field_name: field_seo_title
+entity_type: node
+bundle: page
+label: SEO-Titel
+description: 'Verwenden Sie dieses Feld, um den standardmäßigen HTML-Seitentitel für SEO zu überschreiben.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

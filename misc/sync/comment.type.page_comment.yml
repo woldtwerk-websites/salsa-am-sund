@@ -1,0 +1,8 @@
+uuid: 19313e5c-2761-4210-8d14-3b07dd447101
+langcode: de
+status: true
+dependencies: {  }
+id: page_comment
+label: Seitenkommentar
+target_entity_type_id: canvas_page
+description: 'Einträge auf Canvas-Seiten (z. B. Tanzpartnersuche).'

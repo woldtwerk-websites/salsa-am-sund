@@ -1,0 +1,13 @@
+uuid: 1659f7cb-72cb-4412-9c6a-bf2dd5e3e4e9
+langcode: de
+status: true
+dependencies:
+  module:
+    - media
+_core:
+  default_config_hash: zbCsOb-PnJ7UJGjpME30HuieR2wlTzU2MmoY6iEeghc
+id: media.3_4_large
+label: '3:4 Groß'
+description: ''
+targetEntityType: media
+cache: true

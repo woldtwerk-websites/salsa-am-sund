@@ -1,0 +1,203 @@
+uuid: c851b782-7c9f-4444-b1c5-ab3dd630c2ab
+langcode: de
+status: true
+dependencies:
+  config:
+    - filter.format.canvas_html_block
+  module:
+    - link
+    - options
+    - text
+  theme:
+    - salsa
+active_version: 94314cc37112c3cc
+versioned_properties:
+  active:
+    settings:
+      prop_field_definitions:
+        title:
+          required: true
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: 'So findest du uns'
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        address:
+          required: true
+          field_type: text_long
+          field_storage_settings: {  }
+          field_instance_settings:
+            allowed_formats:
+              - canvas_html_block
+          field_widget: text_textarea
+          default_value:
+            -
+              value: '<p>Studio am Sund<br>Hafenstraße 12<br>18439 Stralsund</p>'
+              format: canvas_html_block
+          expression: ℹ︎text_long␟processed
+          derived_schema_metadata:
+            string_shape:
+              contentMediaType: text/html
+              x-formatting-context: block
+        phone:
+          required: false
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: '+49 3831 123 456'
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        phone_2:
+          required: false
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: '+49 170 987 654'
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        email:
+          required: false
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: hallo@salsa-am-sund.de
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        map_href:
+          required: false
+          field_type: link
+          field_storage_settings: {  }
+          field_instance_settings:
+            title: 0
+            link_type: 17
+          field_widget: link_default
+          default_value:
+            -
+              uri: 'https://maps.google.com/?q=Hafenstra%C3%9Fe+12+Stralsund'
+              options: {  }
+          expression: ℹ︎link␟url
+          derived_schema_metadata:
+            string_shape:
+              format: uri-reference
+        heading_level:
+          required: false
+          field_type: list_string
+          field_storage_settings:
+            allowed_values_function: canvas_load_allowed_values_for_component_prop
+          field_instance_settings: {  }
+          field_widget: options_select
+          default_value:
+            -
+              value: h2
+          expression: ℹ︎list_string␟value
+          derived_schema_metadata: {  }
+    fallback_metadata:
+      slot_definitions: {  }
+  404070ec8a185b4c:
+    settings:
+      prop_field_definitions:
+        title:
+          required: true
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: 'So findest du uns'
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        address:
+          required: true
+          field_type: text_long
+          field_storage_settings: {  }
+          field_instance_settings:
+            allowed_formats:
+              - canvas_html_block
+          field_widget: text_textarea
+          default_value:
+            -
+              value: '<p>Studio am Sund<br>Hafenstraße 12<br>18439 Stralsund</p>'
+              format: canvas_html_block
+          expression: ℹ︎text_long␟processed
+          derived_schema_metadata:
+            string_shape:
+              contentMediaType: text/html
+              x-formatting-context: block
+        phone:
+          required: false
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: '+49 3831 123 456'
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        phone_2:
+          required: false
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: '+49 170 987 654'
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        email:
+          required: false
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: hallo@salsa-am-sund.de
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        map_href:
+          required: false
+          field_type: link
+          field_storage_settings: {  }
+          field_instance_settings:
+            title: 0
+            link_type: 17
+          field_widget: link_default
+          default_value:
+            -
+              uri: 'https://maps.google.com/?q=Hafenstra%C3%9Fe+12+Stralsund'
+              options: {  }
+          expression: ℹ︎link␟url
+          derived_schema_metadata:
+            string_shape:
+              format: uri-reference
+    fallback_metadata:
+      slot_definitions: {  }
+label: Kontakt
+id: sdc.salsa.contact
+provider: salsa
+source: sdc
+source_local_id: 'salsa:contact'

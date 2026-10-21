@@ -1,0 +1,41 @@
+{% set tone = tone|default('flame') %}
+{% set icon_name = icon|default('music') %}
+
+{% set notice = html_cva(
+  base: ['relative flex flex-col gap-4 rounded-2xl border p-5 sm:flex-row sm:items-start md:p-6'],
+  variants: {
+    tone: {
+      flame: 'salsa-surface-flame border-flame-red/60 bg-flame-deep',
+      sea: 'salsa-surface-dark border-sea/60 bg-sea-deep',
+      sand: 'salsa-surface-light border-sand/20 bg-sand',
+    },
+  }
+) %}
+
+{% set badge = html_cva(
+  base: ['inline-flex size-11 shrink-0 items-center justify-center rounded-full'],
+  variants: {
+    tone: {
+      flame: 'bg-white text-flame-red',
+      sea: 'bg-sea text-night',
+      sand: 'bg-night text-flame-gold',
+    },
+  }
+) %}
+
+<aside class="{{ tw_merge([notice.apply({tone: tone}), ui.root|default('')]) }}">
+  {% if icon_name != 'none' %}
+    <span class="{{ badge.apply({tone: tone}) }}" aria-hidden="true">
+      {{ icon('salsa', icon_name, {size: 22}) }}
+    </span>
+  {% endif %}
+
+  <div class="min-w-0">
+    {% if title %}
+      <h3 class="font-display text-xl leading-tight font-bold italic md:text-2xl">{{ title }}</h3>
+    {% endif %}
+    <div class="prose mt-2 max-w-none [&_a]:relative [&_a]:z-10">
+      {{ text }}
+    </div>
+  </div>
+</aside>

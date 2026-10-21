@@ -1,0 +1,20 @@
+{% set has_header = heading is not empty or intro is not empty %}
+
+<div class="{{ tw_merge(['w-full', ui.root|default('')]) }}">
+  {% if has_header %}
+    <div class="mb-8 max-w-2xl md:mb-10">
+      {% if heading %}
+        <h2 class="font-display text-[clamp(1.75rem,6vw,3rem)] leading-tight font-extrabold italic [font-stretch:100%] md:[font-stretch:108%]">{{ heading }}</h2>
+      {% endif %}
+      {% if intro %}
+        <div class="prose mt-4 max-w-none">
+          {{ intro }}
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="grid grid-cols-1 gap-4 *:min-w-0 md:grid-cols-2 md:gap-5">
+    {{ courses }}
+  </div>
+</div>

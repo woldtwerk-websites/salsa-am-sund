@@ -1,0 +1,30 @@
+{
+    "name": "workspace/scaffold",
+    "extra": {
+        "drupal-scaffold": {
+            "file-mapping": {
+                "[project-root]/.gitattributes": {
+                    "mode": "append",
+                    "append": "assets/.gitattributes"
+                },
+                "[project-root]/.vscode/launch.json": {
+                    "path": "assets/.vscode/launch.json",
+                    "overwrite": false
+                },
+                "[project-root]/.vscode/settings.json": {
+                    "path": "assets/.vscode/settings.json",
+                    "overwrite": false
+                },
+                "[project-root]/.vscode/tasks.json": {
+                    "path": "assets/.vscode/tasks.json",
+                    "overwrite": false
+                }
+            }
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

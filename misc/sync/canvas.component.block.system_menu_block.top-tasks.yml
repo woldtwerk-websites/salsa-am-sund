@@ -1,0 +1,63 @@
+uuid: 0cd6a0b8-6814-4b85-97e8-0c9fb3952865
+langcode: de
+status: false
+dependencies:
+  config:
+    - system.menu.top-tasks
+  module:
+    - system
+active_version: 16053edf0a8b501b
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: 'system_menu_block:top-tasks'
+        label: 'Wichtige Aufgaben'
+        label_display: '0'
+        provider: system
+        level: 1
+        depth: null
+        expand_all_items: false
+    fallback_metadata:
+      slot_definitions: null
+  c000dd48de2eacd3:
+    settings:
+      default_settings:
+        id: 'system_menu_block:top-tasks'
+        label: 'Top tasks'
+        label_display: '0'
+        provider: system
+        level: 1
+        depth: null
+        expand_all_items: false
+    fallback_metadata:
+      slot_definitions: null
+  16053edf0a8b501b:
+    settings:
+      default_settings:
+        id: 'system_menu_block:top-tasks'
+        label: 'Wichtige Aufgaben'
+        label_display: '0'
+        provider: system
+        level: 1
+        depth: null
+        expand_all_items: false
+    fallback_metadata:
+      slot_definitions: null
+  075a4459e81a9a3b:
+    settings:
+      default_settings:
+        id: 'system_menu_block:top-tasks'
+        label: 'Top tasks'
+        label_display: '0'
+        provider: system
+        level: 1
+        depth: null
+        expand_all_items: false
+    fallback_metadata:
+      slot_definitions: null
+label: 'Wichtige Aufgaben'
+id: block.system_menu_block.top-tasks
+provider: system
+source: block
+source_local_id: 'system_menu_block:top-tasks'

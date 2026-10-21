@@ -1,0 +1,22 @@
+<footer class="{{ tw_merge(['salsa-surface-dark relative mt-auto w-full border-t border-line bg-ink', ui.root|default('')]) }}">
+  <div class="absolute inset-x-0 top-0 h-0.5 bg-flame" aria-hidden="true"></div>
+
+  <div class="mx-auto grid w-full max-w-7xl gap-10 px-5 py-14 *:min-w-0 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:px-8">
+    <div class="prose max-w-none">
+      {{ content }}
+    </div>
+
+    {% if navigation is not empty %}
+      <div class="md:pt-1">
+        {{ navigation }}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="border-t border-line/60">
+    <div class="mx-auto flex w-full max-w-7xl flex-col gap-2 px-5 py-6 font-body text-sm text-mist sm:flex-row sm:items-center sm:justify-between md:px-8">
+      <p class="m-0">{{ copyright|default('© Salsa am Sund') }}</p>
+      <p class="m-0 text-xs uppercase tracking-[0.2em] text-mist">{{ 'Salsa am Sund · Stralsund'|t }}</p>
+    </div>
+  </div>
+</footer>

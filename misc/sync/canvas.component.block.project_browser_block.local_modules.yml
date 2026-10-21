@@ -1,0 +1,69 @@
+uuid: 7ac718be-eb5d-4eb6-af37-384ee8dd5f1f
+langcode: de
+status: false
+dependencies:
+  module:
+    - project_browser
+active_version: 852ada21666d49a5
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: 'project_browser_block:local_modules'
+        label: 'Lokale Module'
+        label_display: '0'
+        provider: project_browser
+        paginate: true
+        page_sizes: '12, 24, 36, 48'
+        sort_options: null
+        default_sort: null
+        filters: null
+    fallback_metadata:
+      slot_definitions: null
+  a021db7b91c873b5:
+    settings:
+      default_settings:
+        id: 'project_browser_block:local_modules'
+        label: 'Local modules'
+        label_display: '0'
+        provider: project_browser
+        paginate: true
+        page_sizes: '12, 24, 36, 48'
+        sort_options: null
+        default_sort: null
+        filters: null
+    fallback_metadata:
+      slot_definitions: null
+  852ada21666d49a5:
+    settings:
+      default_settings:
+        id: 'project_browser_block:local_modules'
+        label: 'Lokale Module'
+        label_display: '0'
+        provider: project_browser
+        paginate: true
+        page_sizes: '12, 24, 36, 48'
+        sort_options: null
+        default_sort: null
+        filters: null
+    fallback_metadata:
+      slot_definitions: null
+  9eba06ccb21f6648:
+    settings:
+      default_settings:
+        id: 'project_browser_block:local_modules'
+        label: 'Local modules'
+        label_display: '0'
+        provider: project_browser
+        paginate: true
+        page_sizes: '12, 24, 36, 48'
+        sort_options: null
+        default_sort: null
+        filters: null
+    fallback_metadata:
+      slot_definitions: null
+label: 'Lokale Module'
+id: block.project_browser_block.local_modules
+provider: project_browser
+source: block
+source_local_id: 'project_browser_block:local_modules'

@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w1920
+label: 'Responsiv frei (1920)'
+effects:
+  305d8462-bcb5-4144-beaa-6a991d8bdb5f:
+    uuid: 305d8462-bcb5-4144-beaa-6a991d8bdb5f
+    id: image_scale
+    weight: 1
+    data:
+      width: 1920
+      height: null
+      upscale: false

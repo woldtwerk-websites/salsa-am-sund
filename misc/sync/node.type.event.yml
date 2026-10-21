@@ -1,0 +1,11 @@
+uuid: e6d8a2a0-af56-40d2-ab91-9120a6409f0f
+langcode: de
+status: true
+dependencies: {  }
+name: Termin
+type: event
+description: 'Kurse, Partys und externe Veranstaltungen'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: false

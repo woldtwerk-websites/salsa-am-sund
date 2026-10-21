@@ -1,0 +1,33 @@
+uuid: afe6ad2e-cdbb-4344-9056-65300ef4c564
+langcode: de
+status: true
+dependencies:
+  config:
+    - field.storage.canvas_page.comment
+  module:
+    - canvas
+    - comment
+id: canvas_page.canvas_page.comment
+field_name: comment
+entity_type: canvas_page
+bundle: canvas_page
+label: Einträge
+description: ''
+required: false
+translatable: true
+default_value:
+  -
+    status: 0
+    cid: 0
+    last_comment_timestamp: 0
+    last_comment_name: null
+    last_comment_uid: 0
+    comment_count: 0
+default_value_callback: ''
+settings:
+  default_mode: 0
+  per_page: 50
+  anonymous: 1
+  form_location: true
+  preview: 0
+field_type: comment

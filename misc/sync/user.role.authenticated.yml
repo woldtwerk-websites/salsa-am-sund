@@ -1,0 +1,35 @@
+uuid: 1aa75c73-5e6e-464f-9739-cf2d1828f549
+langcode: de
+status: true
+dependencies:
+  module:
+    - coffee
+    - comment
+    - contact
+    - contextual
+    - file
+    - klaro
+    - media
+    - navigation
+    - node
+    - system
+_core:
+  default_config_hash: dJ0L2DNSj5q6XVZAGsuVDpJTh5UeYkIPwKrUOOpr8YI
+id: authenticated
+label: 'Angemeldeter Benutzer'
+weight: 1
+is_admin: false
+permissions:
+  - 'access administration pages'
+  - 'access coffee'
+  - 'access comments'
+  - 'access content'
+  - 'access contextual links'
+  - 'access navigation'
+  - 'access site-wide contact form'
+  - 'delete own files'
+  - 'post comments'
+  - 'use klaro'
+  - 'view media'
+  - 'view own unpublished content'
+  - 'view the administration theme'

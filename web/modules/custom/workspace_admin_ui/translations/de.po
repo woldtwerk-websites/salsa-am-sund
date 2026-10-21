@@ -1,0 +1,38 @@
+# German translation of the workspace_admin_ui module.
+#
+# English is the source language: the msgids are the literals passed to t(),
+# formatPlural() and TranslatableMarkup() in this module's PHP. Imported into
+# Drupal's locale storage by `composer locale:import-modules`, which runs on every
+# deploy.
+#
+# Informal "du".
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: workspace_admin_ui\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Switch back to your own account"
+msgstr "Zurück zu deinem eigenen Konto wechseln"
+
+msgid "Unmasquerade"
+msgstr "Maskerade beenden"
+
+msgid "User"
+msgstr "Benutzer"
+
+msgid "Editor"
+msgstr "Redakteur"
+
+msgid "Masquerade as @name"
+msgstr "Als @name maskieren"
+
+msgid "Masquerade"
+msgstr "Maskerade"
+
+msgid "Masquerade as a user or an editor"
+msgstr "Als Benutzer oder Redakteur maskieren"

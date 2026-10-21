@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w44_1x1
+label: 'Responsiv 1:1 (44)'
+effects:
+  a7130cd9-535a-4735-9158-cc66da036ed3:
+    uuid: a7130cd9-535a-4735-9158-cc66da036ed3
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 44
+      height: 44
+      anchor: center-center

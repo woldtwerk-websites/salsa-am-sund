@@ -1,0 +1,36 @@
+uuid: 3033456f-f2f7-4ce9-956b-3f94f731a7a4
+langcode: de
+status: true
+dependencies:
+  theme:
+    - salsa
+active_version: 23b98daa5c27ccf6
+versioned_properties:
+  active:
+    settings:
+      prop_field_definitions:
+        copyright:
+          required: true
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: '© Salsa am Sund'
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+    fallback_metadata:
+      slot_definitions:
+        content:
+          title: Inhalt
+          description: 'Zum Beispiel Kontaktangaben, Öffnungszeiten oder ein kurzer Text.'
+        navigation:
+          title: Navigation
+          description: 'Footer-Menü, üblicherweise der Menüblock „Footer“.'
+label: Seitenfuß
+id: sdc.salsa.site-footer
+provider: salsa
+source: sdc
+source_local_id: 'salsa:site-footer'

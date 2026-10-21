@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w480_4x3
+label: 'Responsiv 4:3 (480)'
+effects:
+  2d20b310-7c8e-4887-9dfd-25ad272a3aed:
+    uuid: 2d20b310-7c8e-4887-9dfd-25ad272a3aed
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 480
+      height: 360
+      anchor: center-center

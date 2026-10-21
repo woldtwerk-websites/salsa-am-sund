@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w800_4x3
+label: 'Responsiv 4:3 (800)'
+effects:
+  0d26cb83-8afe-44a2-823a-a3d8940b0ebb:
+    uuid: 0d26cb83-8afe-44a2-823a-a3d8940b0ebb
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 800
+      height: 600
+      anchor: center-center

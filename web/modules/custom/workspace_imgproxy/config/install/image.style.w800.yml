@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w800
+label: 'Responsiv frei (800)'
+effects:
+  564c2481-13f0-44ca-b628-165019b5929d:
+    uuid: 564c2481-13f0-44ca-b628-165019b5929d
+    id: image_scale
+    weight: 1
+    data:
+      width: 800
+      height: null
+      upscale: false

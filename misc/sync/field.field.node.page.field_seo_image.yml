@@ -1,0 +1,26 @@
+uuid: 22b7959c-9482-472b-b557-2a42667880da
+langcode: de
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_seo_image
+    - media.type.image
+    - node.type.page
+_core:
+  default_config_hash: 5nCRHA5kn3OCClWU9CbUH0gHASwKWF-rF85Grbb3vrg
+id: node.page.field_seo_image
+field_name: field_seo_image
+entity_type: node
+bundle: page
+label: SEO-Bild
+description: 'Laden Sie ein Bild hoch, das verwendet werden soll, wenn die Seite auf Social-Media-Websites geteilt wird.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:media'
+  handler_settings:
+    target_bundles:
+      image: image
+field_type: entity_reference

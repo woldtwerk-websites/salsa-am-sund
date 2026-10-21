@@ -1,0 +1,53 @@
+block.settings.salsa_events:
+  type: block_settings
+  label: 'Upcoming events block settings'
+  constraints:
+    FullyValidatable: ~
+  mapping:
+    types:
+      type: sequence
+      label: 'Event types'
+      sequence:
+        type: string
+        label: 'Event type'
+        constraints:
+          Choice:
+            choices:
+              - course
+              - party
+              - external_party
+    locations:
+      type: sequence
+      label: 'Locations'
+      sequence:
+        type: integer
+        label: 'Location term ID'
+        constraints:
+          Range:
+            min: 1
+    limit:
+      type: integer
+      label: 'Number of events'
+      constraints:
+        Range:
+          min: 1
+          max: 50
+    show_ical:
+      type: boolean
+      label: 'Show calendar subscription links'
+
+block.settings.salsa_course_schedule:
+  type: block_settings
+  label: 'Course schedule block settings'
+  constraints:
+    FullyValidatable: ~
+  mapping:
+    locations:
+      type: sequence
+      label: 'Locations'
+      sequence:
+        type: integer
+        label: 'Location term ID'
+        constraints:
+          Range:
+            min: 1

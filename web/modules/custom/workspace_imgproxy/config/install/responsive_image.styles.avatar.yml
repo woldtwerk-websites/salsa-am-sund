@@ -1,0 +1,28 @@
+langcode: de
+status: true
+dependencies:
+  config:
+    - image.style.w132_1x1
+    - image.style.w20_1x1
+    - image.style.w40_1x1
+    - image.style.w44_1x1
+    - image.style.w60_1x1
+    - image.style.w88_1x1
+id: avatar
+label: 'Avatar (20px und 44px)'
+image_style_mappings:
+  -
+    image_mapping_type: sizes
+    image_mapping:
+      sizes: 44px
+      sizes_image_styles:
+        - w132_1x1
+        - w88_1x1
+        - w60_1x1
+        - w44_1x1
+        - w40_1x1
+        - w20_1x1
+    breakpoint_id: responsive_image.viewport_sizing
+    multiplier: 1x
+breakpoint_group: responsive_image
+fallback_image_style: w20_1x1

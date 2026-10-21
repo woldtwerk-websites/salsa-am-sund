@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w1920_4x3
+label: 'Responsiv 4:3 (1920)'
+effects:
+  5467546b-ae03-4677-a017-e9c11d4c08b5:
+    uuid: 5467546b-ae03-4677-a017-e9c11d4c08b5
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 1920
+      height: 1440
+      anchor: center-center

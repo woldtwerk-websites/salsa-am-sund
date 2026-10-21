@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w1200
+label: 'Responsiv frei (1200)'
+effects:
+  b182a0a4-08b5-4b17-b6fd-f1e646db5b56:
+    uuid: b182a0a4-08b5-4b17-b6fd-f1e646db5b56
+    id: image_scale
+    weight: 1
+    data:
+      width: 1200
+      height: null
+      upscale: false

@@ -1,0 +1,10 @@
+uuid: cbb613f9-3045-4f25-a4b9-df30157bdb0c
+langcode: de
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: SAeixlV7Djy_Ggv_1P95TiqD4KUihA5icvU521tA84Y
+id: short
+label: 'Standard-Datum kurz'
+locked: false
+pattern: 'j M Y - H:i'

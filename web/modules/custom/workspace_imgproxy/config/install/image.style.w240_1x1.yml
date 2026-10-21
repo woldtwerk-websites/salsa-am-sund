@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w240_1x1
+label: 'Responsiv 1:1 (240)'
+effects:
+  3a28ed79-add1-4ec5-a2bc-6f4862e70fa5:
+    uuid: 3a28ed79-add1-4ec5-a2bc-6f4862e70fa5
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 240
+      height: 240
+      anchor: center-center

@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w3840_16x9
+label: 'Responsiv 16:9 (3840)'
+effects:
+  94035393-c709-4c20-b0f6-24ac6f785cbe:
+    uuid: 94035393-c709-4c20-b0f6-24ac6f785cbe
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 3840
+      height: 2160
+      anchor: center-center

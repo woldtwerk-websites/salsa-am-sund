@@ -1,0 +1,17 @@
+{#
+/**
+ * @file
+ * Text field rendered through the prose system.
+ *
+ * The surrounding route container and surface provide layout and colour.
+ *
+ * Available variables:
+ * - items: The field items.
+ * - attributes: Attributes for the field wrapper.
+ */
+#}
+<div{{ attributes.addClass('prose', 'max-w-none') }}>
+  {% for item in items %}
+    <div{{ item.attributes }}>{{ item.content }}</div>
+  {% endfor %}
+</div>

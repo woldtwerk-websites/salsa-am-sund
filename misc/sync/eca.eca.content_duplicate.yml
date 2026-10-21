@@ -1,0 +1,143 @@
+uuid: d194413b-048c-4be9-b296-4dfc58bec00d
+langcode: de
+status: true
+dependencies:
+  module:
+    - eca_content
+    - eca_misc
+    - eca_render
+    - modeler_api
+third_party_settings:
+  modeler_api:
+    modeler_id: modeler
+    label: 'Doppelter Inhalt'
+_core:
+  default_config_hash: DiENfFoUOsxM7uRRk3SwoS6CQV8sB55eSG6PswhFfhg
+id: content_duplicate
+weight: 0
+template: null
+events:
+  eca_render__entity_operations_link:
+    plugin: 'eca_render:entity_operations'
+    label: Betriebslinks
+    configuration:
+      entity_type_id: node
+      bundle: ''
+    successors:
+      -
+        id: eca_clone_entity_link
+        condition: ''
+  content_entity__prepareform_entity:
+    plugin: 'content_entity:prepareform'
+    label: 'Entitätsformular vorbereiten'
+    configuration:
+      type: 'node _all'
+    successors:
+      -
+        id: eca_token_load_query_arg_query
+        condition: ''
+  eca_render__local_tasks_tasks:
+    plugin: 'eca_render:local_tasks'
+    label: 'Lokale Aufgabe ändern'
+    configuration: {  }
+    successors:
+      -
+        id: eca_token_load_route_param_parmeter
+        condition: ''
+conditions:
+  eca_entity_is_accessible_link:
+    plugin: eca_entity_is_accessible
+    label: 'create access?'
+    configuration:
+      negate: false
+      operation: create
+      entity: temp
+gateways: {  }
+actions:
+  eca_render_build_link:
+    label: Link
+    plugin: eca_render_build
+    configuration:
+      name: ''
+      token_name: ''
+      weight: null
+      mode: append
+      value: |-
+        "#type": link
+        "#url": /[entity:entity_type]/add/[entity:bundle_id]?duplicate=[entity:id]
+        "#title": Duplicate
+      use_yaml: true
+      validate_yaml: false
+    successors: {  }
+  eca_token_load_entity_entity:
+    label: 'Laden Sie die ursprüngliche Entität'
+    plugin: eca_token_load_entity
+    configuration:
+      token_name: original
+      from: id
+      entity_type: node
+      entity_id: '[id]'
+      revision_id: ''
+      properties: ''
+      langcode: _interface
+      latest_revision: false
+      unchanged: false
+      object: entity
+    successors:
+      -
+        id: action_message_action_message
+        condition: ''
+  action_message_action_message:
+    label: 'Doppelte Nachricht anzeigen'
+    plugin: action_message_action
+    configuration:
+      message: 'Sie duplizieren „[original:label]“'
+      replace_tokens: true
+    successors:
+      -
+        id: eca_clone_entity_duplicate
+        condition: ''
+  eca_clone_entity_duplicate:
+    label: 'Doppelter Inhalt'
+    plugin: eca_clone_entity
+    configuration:
+      token_name: entity
+      label: ''
+      published: false
+      owner: ''
+      object: original
+    successors: {  }
+  eca_clone_entity_link:
+    label: Duplizieren
+    plugin: eca_clone_entity
+    configuration:
+      token_name: temp
+      label: ''
+      published: false
+      owner: ''
+      object: entity
+    successors:
+      -
+        id: eca_render_build_link
+        condition: eca_entity_is_accessible_link
+  eca_token_load_route_param_parmeter:
+    label: 'Routenparameter laden'
+    plugin: eca_token_load_route_param
+    configuration:
+      token_name: entity
+      request: 2
+      parameter_name: node
+    successors:
+      -
+        id: eca_clone_entity_link
+        condition: ''
+  eca_token_load_query_arg_query:
+    label: 'Entitäts-ID laden'
+    plugin: eca_token_load_query_arg
+    configuration:
+      token_name: id
+      argument_name: duplicate
+    successors:
+      -
+        id: eca_token_load_entity_entity
+        condition: ''

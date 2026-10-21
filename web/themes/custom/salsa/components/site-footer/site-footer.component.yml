@@ -1,0 +1,23 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Seitenfuß
+description: "Dunkler Seitenfuß mit Flammenkante, Inhalt, Footer-Navigation und Copyright."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  required:
+    - copyright
+  properties:
+    copyright:
+      type: string
+      title: Copyright
+      default: "© Salsa am Sund"
+      examples:
+        - "© Salsa am Sund"
+slots:
+  content:
+    title: Inhalt
+    description: "Zum Beispiel Kontaktangaben, Öffnungszeiten oder ein kurzer Text."
+  navigation:
+    title: Navigation
+    description: "Footer-Menü, üblicherweise der Menüblock „Footer“."

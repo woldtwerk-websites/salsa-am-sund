@@ -1,0 +1,45 @@
+salsa:
+  enabled: true
+  label: Salsa am Sund
+  description: "Line icons for the Salsa am Sund theme, based on Lucide."
+  links:
+    - https://lucide.dev
+    - https://github.com/lucide-icons/lucide
+  version: 0.544.0
+  license:
+    name: ISC
+    url: https://github.com/lucide-icons/lucide/blob/main/LICENSE
+    gpl-compatible: true
+  extractor: svg
+  config:
+    sources:
+      - icons/{icon_id}.svg
+  settings:
+    size:
+      title: Size
+      type: integer
+      default: 24
+      multipleOf: 2
+      minimum: 12
+      maximum: 96
+    class:
+      title: CSS classes
+      type: string
+    alt:
+      title: Alt text
+      type: string
+      description: "Accessibility alternative text. Leave empty for a decorative icon."
+  template: >-
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="{{ size|default(24) }}"
+      height="{{ size|default(24) }}"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="{{ stroke_width|default(2) }}"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      {% if class %}class="{{ class }}"{% endif %}
+      {% if alt %}role="img" aria-label="{{ alt }}"{% else %}aria-hidden="true" focusable="false"{% endif %}
+    >{{ content }}</svg>

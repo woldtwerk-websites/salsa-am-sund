@@ -1,0 +1,13 @@
+uuid: 104c9eb2-2e72-48b3-99ff-629303da8128
+langcode: de
+status: true
+dependencies:
+  module:
+    - media
+_core:
+  default_config_hash: pnJS9cW8aVLAkMjy-sTmfnFm5vwoFZNioBOg_YhgkQU
+id: media.16_9_wide
+label: '16:9 Breit'
+description: ''
+targetEntityType: media
+cache: true

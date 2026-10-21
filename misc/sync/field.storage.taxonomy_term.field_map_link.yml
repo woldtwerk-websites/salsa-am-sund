@@ -1,0 +1,19 @@
+uuid: 815c2490-0c70-499b-a1bf-9127bbfaf12e
+langcode: de
+status: true
+dependencies:
+  module:
+    - link
+    - taxonomy
+id: taxonomy_term.field_map_link
+field_name: field_map_link
+entity_type: taxonomy_term
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

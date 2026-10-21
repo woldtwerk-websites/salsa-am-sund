@@ -1,0 +1,36 @@
+uuid: d9fd4568-6a30-4200-b731-5d7cae23b484
+langcode: de
+status: true
+dependencies:
+  theme:
+    - salsa
+active_version: 92a8760b9a931edf
+versioned_properties:
+  active:
+    settings:
+      prop_field_definitions:
+        tagline:
+          required: false
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: 'Salsa in Stralsund'
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+    fallback_metadata:
+      slot_definitions:
+        navigation:
+          title: Navigation
+          description: 'Hauptmenü, üblicherweise der Menüblock „Main navigation“.'
+        actions:
+          title: Aktionen
+          description: 'Optionaler Button rechts im Seitenkopf.'
+label: Seitenkopf
+id: sdc.salsa.site-header
+provider: salsa
+source: sdc
+source_local_id: 'salsa:site-header'

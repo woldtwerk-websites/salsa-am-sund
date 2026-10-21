@@ -1,0 +1,43 @@
+uuid: 015a4b71-734c-44b3-9c67-6e66244d8575
+langcode: de
+status: true
+dependencies:
+  module:
+    - workspace_events
+active_version: 87fe9d00c8ae56fa
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: salsa_course_schedule
+        label: Kursplan
+        label_display: '0'
+        provider: workspace_events
+        locations: {  }
+    fallback_metadata:
+      slot_definitions: null
+  0fcafee6401fd631:
+    settings:
+      default_settings:
+        id: salsa_course_schedule
+        label: 'Course schedule'
+        label_display: '0'
+        provider: workspace_events
+        locations: {  }
+    fallback_metadata:
+      slot_definitions: null
+  cebbfbcfca27a7eb:
+    settings:
+      default_settings:
+        id: salsa_course_schedule
+        label: 'Course schedule'
+        label_display: '0'
+        provider: workspace_events
+        locations: {  }
+    fallback_metadata:
+      slot_definitions: null
+label: Kursplan
+id: block.salsa_course_schedule
+provider: workspace_events
+source: block
+source_local_id: salsa_course_schedule

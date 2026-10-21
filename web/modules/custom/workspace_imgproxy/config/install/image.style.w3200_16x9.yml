@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w3200_16x9
+label: 'Responsiv 16:9 (3200)'
+effects:
+  432453a7-a596-4d15-934b-51bcb11a95be:
+    uuid: 432453a7-a596-4d15-934b-51bcb11a95be
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 3200
+      height: 1800
+      anchor: center-center

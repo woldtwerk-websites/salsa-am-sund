@@ -1,0 +1,13 @@
+uuid: 840c40fd-0363-4527-ae71-cb8da57227de
+langcode: de
+status: true
+dependencies:
+  module:
+    - media
+_core:
+  default_config_hash: dVme8ZCrS-WvrjKnwAUzPb3E1oQcKYZr6dR9emOYgO4
+id: media.2_3_medium
+label: '2:3 Mittel'
+description: ''
+targetEntityType: media
+cache: true

@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w160_4x3
+label: 'Responsiv 4:3 (160)'
+effects:
+  d382668d-a7bf-4573-a4d1-ada8c9c419ba:
+    uuid: d382668d-a7bf-4573-a4d1-ada8c9c419ba
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 160
+      height: 120
+      anchor: center-center

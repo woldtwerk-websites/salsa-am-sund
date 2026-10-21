@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w800_16x9
+label: 'Responsiv 16:9 (800)'
+effects:
+  6d4bd71b-03c5-488b-a849-d20e4bea810b:
+    uuid: 6d4bd71b-03c5-488b-a849-d20e4bea810b
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 800
+      height: 450
+      anchor: center-center

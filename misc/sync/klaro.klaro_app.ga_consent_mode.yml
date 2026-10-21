@@ -1,0 +1,40 @@
+uuid: 397aaed1-6eaf-447b-98c5-fe4e9666a222
+langcode: de
+status: false
+dependencies: {  }
+_core:
+  default_config_hash: VdibtFj4X5ekW1PpEJx9ujvGgbz_v8oXOpZi2hi2OaA
+id: ga_consent_mode
+label: 'Google Analytics'
+description: 'Dienst zur Auswertung von Online-Besuchen der Webseite.'
+default: false
+purposes:
+  - analytics
+cookies:
+  -
+    regex: '^_ga(_.*)?'
+    path: ''
+    domain: ''
+  -
+    regex: ^_gid
+    path: ''
+    domain: ''
+  -
+    regex: ^IDE
+    path: ''
+    domain: ''
+required: false
+opt_out: false
+only_once: false
+contextual_consent_only: null
+contextual_consent_text: null
+info_url: 'https://marketingplatform.google.com/intl/de/about/analytics/'
+privacy_policy_url: 'https://policies.google.com/privacy'
+javascripts: {  }
+callback_code: ''
+on_init: ''
+on_accept: "gtag('consent', 'update', {\r\n  'analytics_storage': 'granted'\r\n});"
+on_decline: "gtag('consent', 'update', {\r\n  'analytics_storage': 'denied'\r\n});"
+wrapper_identifier: {  }
+attachments: {  }
+weight: 1

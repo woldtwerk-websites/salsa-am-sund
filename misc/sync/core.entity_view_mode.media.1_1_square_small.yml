@@ -1,0 +1,13 @@
+uuid: 08056119-6cb9-44a7-b758-bfc9427c1a9b
+langcode: de
+status: true
+dependencies:
+  module:
+    - media
+_core:
+  default_config_hash: uIta0ebP_LA4NPUuR-vmIiZL3Pno_PKmVzXbkpKMZW4
+id: media.1_1_square_small
+label: '1:1 (Quadrat) Klein'
+description: ''
+targetEntityType: media
+cache: true

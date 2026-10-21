@@ -1,0 +1,49 @@
+uuid: 4a5df010-db8b-40e3-97df-7831270a6f09
+langcode: de
+status: true
+dependencies:
+  module:
+    - system
+active_version: 97a554afe18ff98a
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: system_breadcrumb_block
+        label: Pfadnavigation
+        label_display: '0'
+        provider: system
+    fallback_metadata:
+      slot_definitions: null
+  86a25cdac9ce0ae8:
+    settings:
+      default_settings:
+        id: system_breadcrumb_block
+        label: Breadcrumbs
+        label_display: '0'
+        provider: system
+    fallback_metadata:
+      slot_definitions: null
+  97a554afe18ff98a:
+    settings:
+      default_settings:
+        id: system_breadcrumb_block
+        label: Pfadnavigation
+        label_display: '0'
+        provider: system
+    fallback_metadata:
+      slot_definitions: null
+  0d7e961dd03aa710:
+    settings:
+      default_settings:
+        id: system_breadcrumb_block
+        label: Breadcrumbs
+        label_display: '0'
+        provider: system
+    fallback_metadata:
+      slot_definitions: null
+label: Pfadnavigation
+id: block.system_breadcrumb_block
+provider: system
+source: block
+source_local_id: system_breadcrumb_block

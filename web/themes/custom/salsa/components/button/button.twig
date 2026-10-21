@@ -1,0 +1,37 @@
+{% set variant = variant|default('flame') %}
+{% set size = size|default('md') %}
+{% set icon_name = icon|default('none') %}
+{% set is_external = href matches '#^(https?:)?//#' %}
+
+{% set button = html_cva(
+  base: [
+    'group/btn inline-flex w-fit items-center justify-center gap-2.5 rounded-full font-semibold no-underline',
+    'transition duration-200 ease-out hover:no-underline',
+  ],
+  variants: {
+    variant: {
+      flame: 'bg-flame-deep text-white shadow-[0_14px_34px_-16px_rgb(143_15_22_/_0.9)] hover:brightness-95 hover:text-white',
+      outline: 'border border-[var(--surface-border)] bg-transparent text-[var(--surface-fg)] hover:bg-flame-gold/10',
+      ghost: 'bg-transparent text-[var(--surface-fg)] hover:text-[var(--surface-link)]',
+      light: 'bg-sand text-night shadow-[0_14px_34px_-16px_rgb(13_11_16_/_0.6)] hover:bg-white hover:text-night hover:ring-2 hover:ring-flame-gold',
+    },
+    size: {
+      md: 'px-6 py-3 text-base',
+      lg: 'px-8 py-4 text-lg',
+    },
+  }
+) %}
+
+<a
+  href="{{ href }}"
+  class="{{ tw_merge([button.apply({variant: variant, size: size}), ui.root|default('')]) }}"
+  {% if is_external %}target="_blank" rel="noopener noreferrer"{% endif %}
+>
+  <span>{{ label }}</span>
+  {% if icon_name != 'none' %}
+    {{ icon('salsa', icon_name, {
+      size: size == 'lg' ? 22 : 20,
+      class: tw_merge(['shrink-0 transition-transform duration-200 group-hover/btn:translate-x-0.5', ui.icon|default('')]),
+    }) }}
+  {% endif %}
+</a>

@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w192_1x1
+label: 'Responsiv 1:1 (192)'
+effects:
+  31b81cda-e7ce-4896-9a3c-676480cf876c:
+    uuid: 31b81cda-e7ce-4896-9a3c-676480cf876c
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 192
+      height: 192
+      anchor: center-center

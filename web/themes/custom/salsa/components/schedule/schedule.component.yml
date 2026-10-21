@@ -1,0 +1,26 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Wochenplan
+description: "Wochenplan mit Einleitung und zweispaltiger Liste von Kursen."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  properties:
+    heading:
+      type: string
+      title: Überschrift
+      examples:
+        - "Unser Wochenplan"
+    intro:
+      type: string
+      title: Einleitung
+      contentMediaType: text/html
+      x-formatting-context: block
+      examples:
+        - "<p>Alle Kurse finden im Studio am Sund statt. Drop-ins sind nach Absprache möglich.</p>"
+slots:
+  courses:
+    title: Kurse
+    description: "Kurs-Komponenten, die im Wochenplan erscheinen."
+    expected:
+      - sdc.salsa.course

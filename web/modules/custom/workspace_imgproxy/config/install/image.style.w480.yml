@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w480
+label: 'Responsiv frei (480)'
+effects:
+  ddd5e65a-a06f-4d51-802b-6b22a9cd738a:
+    uuid: ddd5e65a-a06f-4d51-802b-6b22a9cd738a
+    id: image_scale
+    weight: 1
+    data:
+      width: 480
+      height: null
+      upscale: false

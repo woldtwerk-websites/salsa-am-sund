@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w240_16x9
+label: 'Responsiv 16:9 (240)'
+effects:
+  7bbc6121-7ffe-4c44-9bb3-609a26686193:
+    uuid: 7bbc6121-7ffe-4c44-9bb3-609a26686193
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 240
+      height: 135
+      anchor: center-center

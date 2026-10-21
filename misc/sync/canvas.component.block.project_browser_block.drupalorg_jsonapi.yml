@@ -1,0 +1,69 @@
+uuid: a735ae69-c8e3-46b5-97fd-35590a57bbc8
+langcode: de
+status: false
+dependencies:
+  module:
+    - project_browser
+active_version: 7009d2c1324949c1
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: 'project_browser_block:drupalorg_jsonapi'
+        label: 'Von der Community bereitgestellte Zusatzmodule'
+        label_display: '0'
+        provider: project_browser
+        paginate: true
+        page_sizes: '12, 24, 36, 48'
+        sort_options: null
+        default_sort: null
+        filters: null
+    fallback_metadata:
+      slot_definitions: null
+  b584c47544967b68:
+    settings:
+      default_settings:
+        id: 'project_browser_block:drupalorg_jsonapi'
+        label: 'Contrib modules'
+        label_display: '0'
+        provider: project_browser
+        paginate: true
+        page_sizes: '12, 24, 36, 48'
+        sort_options: null
+        default_sort: null
+        filters: null
+    fallback_metadata:
+      slot_definitions: null
+  7009d2c1324949c1:
+    settings:
+      default_settings:
+        id: 'project_browser_block:drupalorg_jsonapi'
+        label: 'Von der Community bereitgestellte Zusatzmodule'
+        label_display: '0'
+        provider: project_browser
+        paginate: true
+        page_sizes: '12, 24, 36, 48'
+        sort_options: null
+        default_sort: null
+        filters: null
+    fallback_metadata:
+      slot_definitions: null
+  9b8e8aa404b93168:
+    settings:
+      default_settings:
+        id: 'project_browser_block:drupalorg_jsonapi'
+        label: 'Contrib modules'
+        label_display: '0'
+        provider: project_browser
+        paginate: true
+        page_sizes: '12, 24, 36, 48'
+        sort_options: null
+        default_sort: null
+        filters: null
+    fallback_metadata:
+      slot_definitions: null
+label: 'Von der Community bereitgestellte Zusatzmodule'
+id: block.project_browser_block.drupalorg_jsonapi
+provider: project_browser
+source: block
+source_local_id: 'project_browser_block:drupalorg_jsonapi'

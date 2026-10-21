@@ -1,0 +1,21 @@
+services:
+  workspace_admin_ui.toolbar_link_builder:
+    class: Drupal\workspace_admin_ui\ToolbarLinkBuilder
+    decorates: user.toolbar_link_builder
+    arguments:
+      - '@current_user'
+      - '@masquerade'
+
+  Drupal\workspace_admin_ui\EventSubscriber\MasqueradeMessageSubscriber:
+    autowire: true
+    tags:
+      - { name: event_subscriber }
+
+  workspace_admin_ui.access_policy.masquerade_toolbar:
+    class: Drupal\workspace_admin_ui\Access\MasqueradeToolbarAccessPolicy
+    arguments:
+      - '@masquerade'
+      - '@session'
+      - '@request_stack'
+    tags:
+      - { name: access_policy }

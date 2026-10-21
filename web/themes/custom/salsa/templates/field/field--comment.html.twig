@@ -1,0 +1,33 @@
+{#
+/**
+ * @file
+ * Comment field: list of comments plus the comment form.
+ *
+ * Available variables:
+ * - comments: Rendered comments.
+ * - comment_form: The comment form.
+ * - attributes: Attributes for the section.
+ * - title_attributes, content_attributes, label, label_hidden: Standard field
+ *   variables.
+ */
+#}
+<section{{ attributes.addClass('salsa-comments', 'mt-12', 'border-t', 'border-line', 'pt-10') }}>
+  {% if comments %}
+    {{ title_prefix }}
+    <h2{{ title_attributes.addClass('mb-6 text-3xl text-sand md:text-4xl') }}>{{ label }}</h2>
+    {{ title_suffix }}
+
+    <div class="space-y-4">
+      {{ comments }}
+    </div>
+  {% endif %}
+
+  {% if comment_form %}
+    <h2{{ content_attributes.addClass('mt-10 mb-5 font-display text-3xl font-extrabold italic text-sand md:text-4xl') }}>
+      {{ 'Eintrag schreiben'|t }}
+    </h2>
+    <div class="rounded-2xl border border-line bg-ink p-5 md:p-7">
+      {{ comment_form }}
+    </div>
+  {% endif %}
+</section>

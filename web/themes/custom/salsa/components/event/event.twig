@@ -1,0 +1,56 @@
+{% set months = {
+  1: 'JAN'|t, 2: 'FEB'|t, 3: 'MRZ'|t, 4: 'APR'|t, 5: 'MAI'|t, 6: 'JUN'|t,
+  7: 'JUL'|t, 8: 'AUG'|t, 9: 'SEP'|t, 10: 'OKT'|t, 11: 'NOV'|t, 12: 'DEZ'|t
+} %}
+{% set day_number = date|date('j') %}
+{% set month_number = date|date('n') %}
+{% set year = date|date('Y') %}
+{% set is_link = href is not empty %}
+{% set is_external = is_link and href matches '#^(https?:)?//#' %}
+
+<div class="@container h-full min-w-0">
+<article class="{{ tw_merge(['salsa-surface-dark group relative flex h-full min-w-0 flex-col gap-5 rounded-2xl border border-line bg-ink-2 p-5 transition-colors duration-300 hover:border-flame-gold/50 @md:flex-row @md:p-6', ui.root|default('')]) }}">
+  <div class="shrink-0 @md:w-32">
+    <time datetime="{{ date }}" class="flex items-start gap-2 @md:flex-col @md:gap-0">
+      <span class="font-display text-5xl leading-none font-black italic tracking-tight text-flame-light @md:text-6xl">{{ day_number }}</span>
+      <span class="font-body text-sm font-semibold uppercase tracking-[0.2em] text-flame-gold @md:mt-2">
+        {{ months[month_number] }}<span class="sr-only"> {{ year }}</span>
+      </span>
+      <span class="font-body text-xs text-mist @md:mt-1" aria-hidden="true">{{ year }}</span>
+    </time>
+    {% if time %}
+      <p class="mt-3 inline-flex items-center gap-1.5 text-sm text-mist">
+        {{ icon('salsa', 'clock', {size: 16}) }}
+        {{ time }}
+      </p>
+    {% endif %}
+  </div>
+
+  <div class="min-w-0 flex-1">
+    <h3 class="font-display text-2xl leading-tight font-bold italic text-sand @md:text-3xl">
+      {% if is_link %}
+        <a
+          href="{{ href }}"
+          class="text-inherit no-underline after:absolute after:inset-0 after:content-[''] hover:text-flame-gold"
+          {% if is_external %}target="_blank" rel="noopener noreferrer"{% endif %}
+        >{{ title }}</a>
+      {% else %}
+        {{ title }}
+      {% endif %}
+    </h3>
+
+    {% if location %}
+      <p class="mt-2 inline-flex max-w-full flex-wrap items-center gap-1.5 text-sm text-mist">
+        {{ icon('salsa', 'map-pin', {size: 16}) }}
+        {{ location }}
+      </p>
+    {% endif %}
+
+    {% if text %}
+      <div class="prose mt-3 max-w-none [&_a]:relative [&_a]:z-10">
+        {{ text }}
+      </div>
+    {% endif %}
+  </div>
+</article>
+</div>

@@ -1,0 +1,24 @@
+{#
+/**
+ * @file
+ * On-brand page title for non-Canvas routes.
+ *
+ * Canvas pages render their own <h1> in the hero component; SalsaHooks empties
+ * this title for the entity.canvas_page.canonical route.
+ *
+ * Available variables:
+ * - title: The page title.
+ * - title_attributes: Attributes for the title element.
+ * - title_prefix, title_suffix: Contextual output.
+ */
+#}
+{% if title %}
+  {% set attributes = title_attributes|default(create_attribute()) %}
+  <div class="mx-auto w-full max-w-6xl px-5 pt-10 pb-2 md:px-8 md:pt-14">
+    {{ title_prefix }}
+    <h1{{ attributes.addClass('font-display text-4xl leading-[1.02] font-extrabold italic text-balance text-sand md:text-5xl lg:text-6xl') }}>
+      {{ title }}
+    </h1>
+    {{ title_suffix }}
+  </div>
+{% endif %}

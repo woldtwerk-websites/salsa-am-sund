@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w120_16x9
+label: 'Responsiv 16:9 (120)'
+effects:
+  bb0f00d6-af8f-4324-924c-b31203a50dec:
+    uuid: bb0f00d6-af8f-4324-924c-b31203a50dec
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 120
+      height: 68
+      anchor: center-center

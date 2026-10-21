@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w2400
+label: 'Responsiv frei (2400)'
+effects:
+  8d4493ea-d63b-4bc3-b33e-7f4a05952e2a:
+    uuid: 8d4493ea-d63b-4bc3-b33e-7f4a05952e2a
+    id: image_scale
+    weight: 1
+    data:
+      width: 2400
+      height: null
+      upscale: false

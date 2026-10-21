@@ -1,0 +1,49 @@
+uuid: 7c8a73db-cfc4-40ee-a815-c3fe8c0dac14
+langcode: de
+status: false
+dependencies:
+  module:
+    - navigation
+active_version: e9df192a8465536a
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: navigation_user
+        label: Benutzer
+        label_display: '0'
+        provider: navigation
+    fallback_metadata:
+      slot_definitions: null
+  5d4be6131e6fe4a6:
+    settings:
+      default_settings:
+        id: navigation_user
+        label: User
+        label_display: '0'
+        provider: navigation
+    fallback_metadata:
+      slot_definitions: null
+  e9df192a8465536a:
+    settings:
+      default_settings:
+        id: navigation_user
+        label: Benutzer
+        label_display: '0'
+        provider: navigation
+    fallback_metadata:
+      slot_definitions: null
+  a359c146ca796d35:
+    settings:
+      default_settings:
+        id: navigation_user
+        label: User
+        label_display: '0'
+        provider: navigation
+    fallback_metadata:
+      slot_definitions: null
+label: Benutzer
+id: block.navigation_user
+provider: navigation
+source: block
+source_local_id: navigation_user

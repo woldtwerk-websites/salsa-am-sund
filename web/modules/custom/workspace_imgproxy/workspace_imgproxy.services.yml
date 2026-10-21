@@ -1,0 +1,12 @@
+services:
+  logger.channel.workspace_imgproxy:
+    parent: logger.channel_base
+    arguments:
+      - workspace_imgproxy
+
+  Drupal\workspace_imgproxy\UrlBuilder:
+    arguments:
+      - '@settings'
+  Drupal\workspace_imgproxy\StyleOptions:
+    arguments:
+      - '@logger.channel.workspace_imgproxy'

@@ -1,0 +1,56 @@
+{% set lightbox_ratio = image.width and image.height ? (image.width / image.height)|round(4) : 1 %}
+{% set lightbox_id = 'salsa-lb-' ~ (image.src ~ (caption|default('')) ~ image.width ~ image.height)|clean_id %}
+
+<figure class="{{ tw_merge(['group m-0 min-w-0', ui.root|default('')]) }}">
+  <button
+    type="button"
+    popovertarget="{{ lightbox_id }}"
+    class="block aspect-square w-full cursor-zoom-in overflow-hidden rounded-xl border border-line/60 bg-ink-2 p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame-gold"
+  >
+    <span class="sr-only">{{ 'Bild vergrößern: @alt'|t({'@alt': image.alt|default(caption)|default('Bild')}) }}</span>
+    {# The thumbnail is decorative inside the button; the button carries the
+       accessible name. #}
+    <img
+      src="{{ file_url(image.src) }}"
+      alt=""
+      {% if image.width %}width="{{ image.width }}"{% endif %}
+      {% if image.height %}height="{{ image.height }}"{% endif %}
+      loading="lazy"
+      decoding="async"
+      class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+    >
+  </button>
+
+  {% if caption %}
+    <figcaption class="mt-2 font-body text-xs leading-snug text-[var(--surface-muted)]">{{ caption }}</figcaption>
+  {% endif %}
+
+  <div id="{{ lightbox_id }}" popover class="salsa-lightbox salsa-surface-dark">
+    <button
+      type="button"
+      popovertarget="{{ lightbox_id }}"
+      popovertargetaction="hide"
+      class="salsa-lightbox__close"
+      aria-label="{{ 'Bild schließen'|t }}"
+      autofocus
+    >
+      {{ icon('salsa', 'x', {size: 22}) }}
+    </button>
+
+    <figure class="salsa-lightbox__figure" style="--lb-ratio: {{ lightbox_ratio }}">
+      {% include 'canvas:image' ignore missing with {
+        src: image.src,
+        alt: image.alt,
+        width: image.width,
+        height: image.height,
+        class: 'salsa-lightbox__image',
+        sizes: '90vw',
+        loading: 'eager',
+        decoding: 'async',
+      } only %}
+      {% if caption %}
+        <figcaption class="salsa-lightbox__caption">{{ caption }}</figcaption>
+      {% endif %}
+    </figure>
+  </div>
+</figure>

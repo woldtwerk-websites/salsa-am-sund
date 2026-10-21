@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w640_16x9
+label: 'Responsiv 16:9 (640)'
+effects:
+  7c56a5a5-9603-4b0c-aa25-24a6c2a30175:
+    uuid: 7c56a5a5-9603-4b0c-aa25-24a6c2a30175
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 640
+      height: 360
+      anchor: center-center

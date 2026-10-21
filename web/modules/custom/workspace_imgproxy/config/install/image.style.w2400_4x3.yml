@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w2400_4x3
+label: 'Responsiv 4:3 (2400)'
+effects:
+  da7c8574-46c0-4e00-88b6-ea3f57f70525:
+    uuid: da7c8574-46c0-4e00-88b6-ea3f57f70525
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 2400
+      height: 1800
+      anchor: center-center

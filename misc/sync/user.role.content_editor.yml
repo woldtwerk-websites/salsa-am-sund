@@ -1,0 +1,103 @@
+uuid: 675d423b-ff40-463f-9bbb-76a2a665767c
+langcode: de
+status: true
+dependencies:
+  config:
+    - dashboard.dashboard.welcome
+    - filter.format.canvas_html_block
+    - filter.format.canvas_html_inline
+    - filter.format.content_format
+    - media.type.document
+    - media.type.image
+    - media.type.remote_video
+    - media.type.svg_image
+    - media.type.video
+    - node.type.event
+    - node.type.page
+    - taxonomy.vocabulary.location
+    - workflows.workflow.basic_editorial
+  module:
+    - canvas
+    - comment
+    - content_moderation
+    - dashboard
+    - filter
+    - media
+    - media_library_bulk_upload
+    - node
+    - path
+    - redirect
+    - scheduler
+    - smart_date_recur
+    - system
+    - taxonomy
+    - trash
+_core:
+  default_config_hash: g-zSnaBXJnH7VoimReFb6KcLjIgHCU-hisiShtZ9hjQ
+id: content_editor
+label: Redakteur
+weight: 2
+is_admin: false
+permissions:
+  - 'access administration pages'
+  - 'access comments'
+  - 'access content overview'
+  - 'access media overview'
+  - 'access taxonomy overview'
+  - 'access trash'
+  - 'administer comments'
+  - 'administer menu'
+  - 'administer redirects'
+  - 'administer url aliases'
+  - 'create canvas_page'
+  - 'create document media'
+  - 'create event content'
+  - 'create image media'
+  - 'create page content'
+  - 'create remote_video media'
+  - 'create svg_image media'
+  - 'create terms in location'
+  - 'create url aliases'
+  - 'create video media'
+  - 'delete any document media'
+  - 'delete any event content'
+  - 'delete any image media'
+  - 'delete any page content'
+  - 'delete any remote_video media'
+  - 'delete any svg_image media'
+  - 'delete any video media'
+  - 'delete canvas_page'
+  - 'delete page revisions'
+  - 'delete terms in location'
+  - 'edit any document media'
+  - 'edit any event content'
+  - 'edit any image media'
+  - 'edit any page content'
+  - 'edit any remote_video media'
+  - 'edit any svg_image media'
+  - 'edit any video media'
+  - 'edit canvas_page'
+  - 'edit terms in location'
+  - 'make smart dates recur'
+  - 'post comments'
+  - 'publish auto-saves'
+  - 'revert all revisions'
+  - 'schedule publishing of nodes'
+  - 'skip comment approval'
+  - 'use basic_editorial transition create_new_draft'
+  - 'use basic_editorial transition publish'
+  - 'use basic_editorial transition unpublish'
+  - 'use media document bulk upload form'
+  - 'use media image bulk upload form'
+  - 'use media remote_video bulk upload form'
+  - 'use media svg_image bulk upload form'
+  - 'use media video bulk upload form'
+  - 'use text format canvas_html_block'
+  - 'use text format canvas_html_inline'
+  - 'use text format content_format'
+  - 'view all revisions'
+  - 'view any unpublished content'
+  - 'view own unpublished content'
+  - 'view own unpublished media'
+  - 'view scheduled content'
+  - 'view welcome dashboard'

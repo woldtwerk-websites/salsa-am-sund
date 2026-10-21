@@ -1,0 +1,5 @@
+name: 'workspace_iconify_extractor'
+type: module
+description: 'Icon extractor for iconify icons'
+package: Custom
+core_version_requirement: ^10 || ^11

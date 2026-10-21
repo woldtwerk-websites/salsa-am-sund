@@ -1,0 +1,57 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Kontakt
+description: "Kontaktblock mit Adresse, Telefonnummern, E-Mail und Link zur Route."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  required:
+    - title
+    - address
+  properties:
+    title:
+      type: string
+      title: Überschrift
+      examples:
+        - "So findest du uns"
+    address:
+      type: string
+      title: Adresse
+      contentMediaType: text/html
+      x-formatting-context: block
+      examples:
+        - "<p>Studio am Sund<br>Hafenstraße 12<br>18439 Stralsund</p>"
+    phone:
+      type: string
+      title: Telefon
+      examples:
+        - "+49 3831 123 456"
+    phone_2:
+      type: string
+      title: Zweite Telefonnummer
+      examples:
+        - "+49 170 987 654"
+    email:
+      type: string
+      title: E-Mail
+      examples:
+        - "hallo@salsa-am-sund.de"
+    map_href:
+      type: string
+      title: Routenlink
+      format: uri-reference
+      examples:
+        - "https://maps.google.com/?q=Hafenstra%C3%9Fe+12+Stralsund"
+    heading_level:
+      type: string
+      title: Überschriftenebene
+      description: "h2 im Inhaltsbereich, h3 z. B. im Seitenfuß."
+      enum:
+        - h2
+        - h3
+      meta:enum:
+        h2: "H2 – Abschnitt"
+        h3: "H3 – Unterabschnitt"
+      default: h2
+      examples:
+        - h2

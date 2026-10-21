@@ -1,0 +1,48 @@
+langcode: de
+status: true
+dependencies:
+  config:
+    - image.style.w1200_16x9
+    - image.style.w120_16x9
+    - image.style.w1440_16x9
+    - image.style.w160_16x9
+    - image.style.w1920_16x9
+    - image.style.w192_16x9
+    - image.style.w2400_16x9
+    - image.style.w240_16x9
+    - image.style.w3200_16x9
+    - image.style.w320_16x9
+    - image.style.w3840_16x9
+    - image.style.w400_16x9
+    - image.style.w480_16x9
+    - image.style.w640_16x9
+    - image.style.w800_16x9
+    - image.style.w960_16x9
+id: ratio_16x9
+label: 'Seitenverhältnis 16:9'
+image_style_mappings:
+  -
+    image_mapping_type: sizes
+    image_mapping:
+      sizes: 100vw
+      sizes_image_styles:
+        - w3840_16x9
+        - w3200_16x9
+        - w2400_16x9
+        - w1920_16x9
+        - w1440_16x9
+        - w1200_16x9
+        - w960_16x9
+        - w800_16x9
+        - w640_16x9
+        - w480_16x9
+        - w400_16x9
+        - w320_16x9
+        - w240_16x9
+        - w192_16x9
+        - w160_16x9
+        - w120_16x9
+    breakpoint_id: responsive_image.viewport_sizing
+    multiplier: 1x
+breakpoint_group: responsive_image
+fallback_image_style: w480_16x9

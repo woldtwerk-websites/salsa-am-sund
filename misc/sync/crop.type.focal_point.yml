@@ -1,0 +1,14 @@
+uuid: 4829f73b-6b41-49ea-8f77-e4bdb7caf9e4
+langcode: de
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: flCi9IdafdLXlJqvoHguutUOiC05-aynK4niYN4YZ3o
+label: 'Bildmittelpunkt (Focal Point)'
+id: focal_point
+description: 'Der vom Focal-Point-Modul verwendete Zuschnittstyp'
+aspect_ratio: ''
+soft_limit_width: null
+soft_limit_height: null
+hard_limit_width: null
+hard_limit_height: null

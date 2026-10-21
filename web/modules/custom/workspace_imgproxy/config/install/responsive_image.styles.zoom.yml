@@ -1,0 +1,32 @@
+langcode: de
+status: true
+dependencies:
+  config:
+    - image.style.w1200
+    - image.style.w1440
+    - image.style.w1920
+    - image.style.w2400
+    - image.style.w480
+    - image.style.w640
+    - image.style.w800
+    - image.style.w960
+id: zoom
+label: 'Zoom (Originalverhältnis)'
+image_style_mappings:
+  -
+    image_mapping_type: sizes
+    image_mapping:
+      sizes: '(min-width: 1152px) 1152px, 90vw'
+      sizes_image_styles:
+        - w2400
+        - w1920
+        - w1440
+        - w1200
+        - w960
+        - w800
+        - w640
+        - w480
+    breakpoint_id: responsive_image.viewport_sizing
+    multiplier: 1x
+breakpoint_group: responsive_image
+fallback_image_style: w960

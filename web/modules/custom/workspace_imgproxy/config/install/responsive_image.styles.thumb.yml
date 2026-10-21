@@ -1,0 +1,18 @@
+langcode: de
+status: true
+dependencies:
+  config:
+    - image.style.w48_1x1
+id: thumb
+label: 'Miniatur (48px)'
+image_style_mappings:
+  -
+    image_mapping_type: sizes
+    image_mapping:
+      sizes: 48px
+      sizes_image_styles:
+        - w48_1x1
+    breakpoint_id: responsive_image.viewport_sizing
+    multiplier: 1x
+breakpoint_group: responsive_image
+fallback_image_style: w48_1x1

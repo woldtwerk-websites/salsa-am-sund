@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w320_4x3
+label: 'Responsiv 4:3 (320)'
+effects:
+  4846b139-abc8-4bcc-a5a1-caacf7729c95:
+    uuid: 4846b139-abc8-4bcc-a5a1-caacf7729c95
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 320
+      height: 240
+      anchor: center-center

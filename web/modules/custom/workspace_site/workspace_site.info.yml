@@ -1,0 +1,9 @@
+name: 'Salsa am Sund – Site'
+type: module
+description: 'Canvas-compatible blocks for the Salsa am Sund site.'
+package: Custom
+core_version_requirement: ^11.3
+dependencies:
+  - drupal:comment
+  - drupal:contact
+  - canvas:canvas

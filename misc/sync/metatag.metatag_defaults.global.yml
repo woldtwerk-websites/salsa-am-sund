@@ -1,0 +1,17 @@
+uuid: 743478e6-3f58-4870-8923-e1cdb4ea14be
+langcode: de
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: WvJ8GdOlR92rltPuTkF7CXBM_dgXfjMkh2wu6wm_BdE
+id: global
+label: Global
+tags:
+  referrer: unsafe-url
+  title: '[current-page:title] | [site:name]'
+  canonical_url: '[current-page:url]'
+  shortlink: '[current-page:url:unaliased]'
+  rights: 'Copyright © All rights reserved.'
+  og_url: '[current-page:url:absolute]'
+  og_site_name: '[site:name]'
+  twitter_cards_type: summary

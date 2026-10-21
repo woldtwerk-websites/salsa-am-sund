@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w3840_1x1
+label: 'Responsiv 1:1 (3840)'
+effects:
+  6da60328-29ec-4cb9-a02b-36271b67de7a:
+    uuid: 6da60328-29ec-4cb9-a02b-36271b67de7a
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 3840
+      height: 3840
+      anchor: center-center

@@ -1,0 +1,47 @@
+uuid: 6d643ee6-877c-4794-b5f3-e877677f4eb0
+langcode: de
+status: false
+dependencies: {  }
+active_version: d3165ca25570688f
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: dashboard_placeholder
+        label: Platzhalter
+        label_display: '0'
+        provider: dashboard
+    fallback_metadata:
+      slot_definitions: null
+  aed41745cbe29aab:
+    settings:
+      default_settings:
+        id: dashboard_placeholder
+        label: Placeholder
+        label_display: '0'
+        provider: dashboard
+    fallback_metadata:
+      slot_definitions: null
+  d3165ca25570688f:
+    settings:
+      default_settings:
+        id: dashboard_placeholder
+        label: Platzhalter
+        label_display: '0'
+        provider: dashboard
+    fallback_metadata:
+      slot_definitions: null
+  3407e482df58ee01:
+    settings:
+      default_settings:
+        id: dashboard_placeholder
+        label: Placeholder
+        label_display: '0'
+        provider: dashboard
+    fallback_metadata:
+      slot_definitions: null
+label: Platzhalter
+id: block.dashboard_placeholder
+provider: dashboard
+source: block
+source_local_id: dashboard_placeholder

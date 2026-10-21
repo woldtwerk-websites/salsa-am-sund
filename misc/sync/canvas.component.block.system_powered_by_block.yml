@@ -1,0 +1,49 @@
+uuid: 2f6bea6a-ec95-49be-b98c-76a290c628c7
+langcode: de
+status: true
+dependencies:
+  module:
+    - system
+active_version: f60b34087077fa15
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: system_powered_by_block
+        label: 'Angetrieben durch Drupal'
+        label_display: '0'
+        provider: system
+    fallback_metadata:
+      slot_definitions: null
+  065fc349f8809d76:
+    settings:
+      default_settings:
+        id: system_powered_by_block
+        label: 'Powered by Drupal'
+        label_display: '0'
+        provider: system
+    fallback_metadata:
+      slot_definitions: null
+  f60b34087077fa15:
+    settings:
+      default_settings:
+        id: system_powered_by_block
+        label: 'Angetrieben durch Drupal'
+        label_display: '0'
+        provider: system
+    fallback_metadata:
+      slot_definitions: null
+  5d275553b2355691:
+    settings:
+      default_settings:
+        id: system_powered_by_block
+        label: 'Powered by Drupal'
+        label_display: '0'
+        provider: system
+    fallback_metadata:
+      slot_definitions: null
+label: 'Angetrieben durch Drupal'
+id: block.system_powered_by_block
+provider: system
+source: block
+source_local_id: system_powered_by_block

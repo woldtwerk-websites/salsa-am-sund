@@ -1,0 +1,51 @@
+uuid: 8d8aded3-5a1e-4b23-97c0-7bc0649fbda5
+langcode: de
+status: true
+dependencies:
+  module:
+    - eca_config
+    - eca_user
+    - modeler_api
+third_party_settings:
+  modeler_api:
+    modeler_id: modeler
+    label: 'Medientypberechtigungen erteilen'
+    documentation: 'Wenn ein neuer Medientyp erstellt wird, werden den Inhaltseditoren automatisch Berechtigungen zum Arbeiten damit erteilt.'
+    version: 1.0.0
+_core:
+  default_config_hash: OtkxlPLR64pQpuCjv3fGwtVO0rFEyWaTw3ZF3jP4vWU
+id: grant_media_type_permissions
+weight: 0
+template: null
+events:
+  config__save_1_1:
+    plugin: 'config:save'
+    label: 'Medientyp erstellt'
+    configuration:
+      config_name: media.type.
+      sync_mode: ''
+      write_mode: new
+    successors:
+      -
+        id: eca_switch_account_0dshb6m
+        condition: ''
+conditions: {  }
+gateways: {  }
+actions:
+  eca_config_action_1p0ypjk:
+    label: 'Berechtigungen erteilen'
+    plugin: eca_config_action
+    configuration:
+      action_id: 'entity_method:user.role:grantPermissions'
+      config_name: user.role.content_editor
+      data: '["create [config:id] media", "delete any [config:id] media", "edit any [config:id] media", "use media [config:id] bulk upload form"]'
+    successors: {  }
+  eca_switch_account_0dshb6m:
+    label: 'Werden Sie vorübergehend Administrator'
+    plugin: eca_switch_account
+    configuration:
+      user_id: '1'
+    successors:
+      -
+        id: eca_config_action_1p0ypjk
+        condition: ''

@@ -1,0 +1,15 @@
+uuid: c371d6b9-f0b5-4879-9c1d-b25d1c45f04d
+langcode: de
+status: true
+dependencies:
+  module:
+    - canvas
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: true
+id: canvas_page.canvas_page
+target_entity_type_id: canvas_page
+target_bundle: canvas_page
+default_langcode: site_default
+language_alterable: false

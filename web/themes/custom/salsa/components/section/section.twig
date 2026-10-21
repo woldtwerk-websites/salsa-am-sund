@@ -1,0 +1,50 @@
+{% set tone = tone|default('night') %}
+{% set width = width|default('default') %}
+{% set spacing = spacing|default('md') %}
+
+{% set section = html_cva(
+  base: ['relative isolate w-full overflow-hidden'],
+  variants: {
+    tone: {
+      night: 'salsa-surface-dark bg-night',
+      ink: 'salsa-surface-dark bg-ink',
+      flame: 'salsa-surface-flame bg-flame-deep',
+      sea: 'salsa-surface-dark bg-sea-deep',
+      sand: 'salsa-surface-light bg-sand',
+    },
+    spacing: {
+      sm: 'py-10 md:py-14',
+      md: 'py-16 md:py-24',
+      lg: 'py-24 md:py-32',
+    },
+  }
+) %}
+
+{% set inner = html_cva(
+  base: ['salsa-section-content relative z-10 mx-auto w-full px-5 md:px-8'],
+  variants: {
+    width: {
+      narrow: 'max-w-3xl',
+      default: 'max-w-6xl',
+      wide: 'max-w-[90rem]',
+    },
+  }
+) %}
+
+<section
+  {% if anchor %}id="{{ anchor }}"{% endif %}
+  class="{{ tw_merge([section.apply({tone: tone, spacing: spacing}), ui.root|default('')]) }}"
+>
+  {% if wave_top %}
+    <div class="salsa-wave {{ tone == 'sand' ? 'text-sea/50' : 'text-flame-gold/40' }}" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none" fill="none">
+        <path d="M0 40C180 8 360 8 540 40s360 32 540 0 300-24 360-12" stroke="currentColor" stroke-width="2"/>
+        <path d="M0 58C180 26 360 26 540 58s360 32 540 0 300-24 360-12" stroke="currentColor" stroke-width="1" opacity=".45"/>
+      </svg>
+    </div>
+  {% endif %}
+
+  <div class="{{ tw_merge([inner.apply({width: width}), ui.inner|default('')]) }}">
+    {{ content }}
+  </div>
+</section>

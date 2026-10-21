@@ -1,0 +1,33 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Zitat
+description: "Großes Zitat in Display-Schrift mit Flammen-Anführungszeichen."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  required:
+    - quote
+    - size
+  properties:
+    quote:
+      type: string
+      title: Zitat
+      examples:
+        - "Beim Salsa zählt nicht, wie du anfängst. Es zählt, dass du bleibst."
+    attribution:
+      type: string
+      title: Quelle
+      examples:
+        - "Marta & Jonas, Salsa am Sund"
+    size:
+      type: string
+      title: Größe
+      enum:
+        - md
+        - xl
+      meta:enum:
+        md: Standard
+        xl: Groß
+      default: md
+      examples:
+        - md

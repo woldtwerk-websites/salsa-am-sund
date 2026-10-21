@@ -1,0 +1,16 @@
+uuid: d6c389da-d53b-4431-950d-09f80369db0c
+langcode: de
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: QgF3JDg2h0tf2gaqzc4mNvlHttNkUpmxk1LZefP82hE
+id: document
+label: Dokument
+description: 'Ein lokal gespeichertes Dokument, beispielsweise eine PDF-Datei.'
+source: file
+queue_thumbnail_downloads: false
+new_revision: true
+source_configuration:
+  source_field: field_media_document
+field_map:
+  name: name

@@ -1,0 +1,8 @@
+langcode: en
+status: true
+dependencies: {  }
+name: Orte
+vid: location
+description: ''
+weight: 0
+new_revision: false

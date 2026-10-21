@@ -1,0 +1,9 @@
+name: Admin UI
+type: module
+description: Masquerade shortcuts in the toolbar, the Unmasquerade link in the toolbar user menu, and Taxonomy and URL aliases under Content in gin's sidebar.
+package: Custom
+core_version_requirement: ^11
+dependencies:
+  - drupal:toolbar
+  - drupal:user
+  - masquerade:masquerade

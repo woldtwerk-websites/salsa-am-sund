@@ -1,0 +1,49 @@
+uuid: 3731f3cd-a4f1-4f85-9be1-bdc7914ae54c
+langcode: de
+status: false
+dependencies:
+  module:
+    - user
+active_version: 1890b7dfd13faa57
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: user_login_block
+        label: Benutzeranmeldung
+        label_display: '0'
+        provider: user
+    fallback_metadata:
+      slot_definitions: null
+  d04497f93a2e2a15:
+    settings:
+      default_settings:
+        id: user_login_block
+        label: 'User login'
+        label_display: '0'
+        provider: user
+    fallback_metadata:
+      slot_definitions: null
+  1890b7dfd13faa57:
+    settings:
+      default_settings:
+        id: user_login_block
+        label: Benutzeranmeldung
+        label_display: '0'
+        provider: user
+    fallback_metadata:
+      slot_definitions: null
+  888aba0d384b6b7c:
+    settings:
+      default_settings:
+        id: user_login_block
+        label: 'User login'
+        label_display: '0'
+        provider: user
+    fallback_metadata:
+      slot_definitions: null
+label: Benutzeranmeldung
+id: block.user_login_block
+provider: user
+source: block
+source_local_id: user_login_block

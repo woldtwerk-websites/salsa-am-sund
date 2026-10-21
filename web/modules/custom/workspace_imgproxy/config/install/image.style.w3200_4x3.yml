@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w3200_4x3
+label: 'Responsiv 4:3 (3200)'
+effects:
+  5063049b-50f5-4ce5-be87-0ae020c23186:
+    uuid: 5063049b-50f5-4ce5-be87-0ae020c23186
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 3200
+      height: 2400
+      anchor: center-center

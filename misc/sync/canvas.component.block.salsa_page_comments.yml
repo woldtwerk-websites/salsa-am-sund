@@ -1,0 +1,31 @@
+uuid: ee992236-965f-4004-a8bf-8c71d0d8cf3c
+langcode: de
+status: true
+dependencies:
+  module:
+    - workspace_site
+active_version: cae108e89b723cab
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: salsa_page_comments
+        label: 'Page comments'
+        label_display: '0'
+        provider: workspace_site
+    fallback_metadata:
+      slot_definitions: null
+  46bb5ed53ae8b05d:
+    settings:
+      default_settings:
+        id: salsa_page_comments
+        label: 'Page comments'
+        label_display: '0'
+        provider: workspace_site
+    fallback_metadata:
+      slot_definitions: null
+label: 'Page comments'
+id: block.salsa_page_comments
+provider: workspace_site
+source: block
+source_local_id: salsa_page_comments

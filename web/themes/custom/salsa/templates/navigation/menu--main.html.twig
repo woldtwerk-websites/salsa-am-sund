@@ -1,0 +1,78 @@
+{#
+/**
+ * @file
+ * Main navigation: horizontal on desktop with hover/focus dropdowns, stacked
+ * and collapsed on mobile.
+ *
+ * Submenus are native <details name="salsa-main-menu"> accordions: no
+ * JavaScript. The parent link stays a link; the summary is the chevron toggle.
+ *
+ * Available variables:
+ * - items: Nested menu items.
+ * - attributes: Attributes for the root list.
+ * - menu_name: Machine name of the menu.
+ */
+#}
+{% import _self as menus %}
+{% set root_attributes = attributes|default(create_attribute()) %}
+
+{{ menus.menu_links(items, root_attributes, 1) }}
+
+{% macro menu_links(items, attributes, level) %}
+  {% import _self as menus %}
+  {% if items %}
+    {% if level == 1 %}
+      <ul{{ attributes.addClass('salsa-menu', 'm-0', 'flex', 'list-none', 'flex-col', 'gap-1', 'p-0', 'lg:flex-row', 'lg:items-center') }}>
+    {% elseif level == 2 %}
+      <ul class="salsa-menu__submenu m-0 mt-1 flex list-none flex-col gap-1 p-0 ps-4 md:absolute md:start-0 md:top-full md:z-50 md:mt-2 md:min-w-56 md:rounded-xl md:border md:border-line md:bg-ink-2 md:p-2 md:ps-2 md:shadow-2xl">
+    {% else %}
+      <ul class="m-0 mt-1 flex list-none flex-col gap-1 p-0 ps-4">
+    {% endif %}
+      {% for item in items %}
+        {% set has_children = item.below is not empty %}
+        {% set is_active = item.in_active_trail %}
+        {% set link_classes = [
+          'salsa-menu__link',
+          'group/link flex items-center gap-2 rounded-lg px-3 py-2 text-base no-underline transition-colors',
+          is_active ? 'text-flame-gold bg-sand/5' : 'text-sand hover:text-flame-gold hover:bg-sand/10',
+          level == 2 ? 'text-sm' : '',
+        ]|filter(class => class is not empty) %}
+
+        <li class="salsa-menu__item relative {{ has_children ? 'group' : '' }}" data-menu-level="{{ level }}">
+          {% if has_children and level == 1 %}
+            <div class="salsa-menu__row flex items-center gap-0.5">
+              {% if item.url is not empty %}
+                <a href="{{ item.url }}" class="{{ link_classes|join(' ') }}"{% if is_active %} aria-current="page"{% endif %}>
+                  <span>{{ item.title }}</span>
+                </a>
+              {% else %}
+                <span class="{{ link_classes|join(' ') }}">{{ item.title }}</span>
+              {% endif %}
+
+              <details name="salsa-main-menu" class="salsa-submenu">
+                <summary class="salsa-submenu__summary inline-flex size-9 shrink-0 cursor-pointer list-none items-center justify-center rounded-lg text-sand transition-colors hover:bg-sand/10 hover:text-flame-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame-gold [&::-webkit-details-marker]:hidden" aria-label="{{ 'Untermenü: @title'|t({'@title': item.title}) }}">
+                  {{ icon('salsa', 'chevron-down', {
+                    size: 18,
+                    class: 'salsa-submenu__chevron shrink-0 transition-transform duration-200',
+                  }) }}
+                </summary>
+
+                {{ menus.menu_links(item.below, null, level + 1) }}
+              </details>
+            </div>
+          {% elseif item.url is not empty %}
+            <a href="{{ item.url }}" class="{{ link_classes|join(' ') }}"{% if is_active %} aria-current="page"{% endif %}>
+              <span>{{ item.title }}</span>
+            </a>
+          {% else %}
+            <span class="{{ link_classes|join(' ') }}">{{ item.title }}</span>
+          {% endif %}
+
+          {% if has_children and level != 1 %}
+            {{ menus.menu_links(item.below, null, level + 1) }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %}

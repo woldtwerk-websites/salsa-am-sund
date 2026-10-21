@@ -22,7 +22,7 @@ Desktop.ini
 $RECYCLE.BIN/
 
 # Site-specific settings and files.
-/web/sites/*/settings*.php
+/web/sites/*/settings.*.php
 /web/sites/*/services*.yml
 /web/sites/*/files
 /web/sites/*/private
@@ -42,7 +42,11 @@ node_modules
 
 skills-lock.json
 
+.vscode
+
 .agents
 .claude
 .opencode
 CLAUDE.md
+
+!misc/db/db.sql.gz

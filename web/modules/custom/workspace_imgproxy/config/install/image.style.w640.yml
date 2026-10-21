@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w640
+label: 'Responsiv frei (640)'
+effects:
+  cf575a42-5eb3-4369-b3ed-5cd2d116b14f:
+    uuid: cf575a42-5eb3-4369-b3ed-5cd2d116b14f
+    id: image_scale
+    weight: 1
+    data:
+      width: 640
+      height: null
+      upscale: false

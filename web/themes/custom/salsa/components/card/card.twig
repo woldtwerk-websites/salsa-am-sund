@@ -1,0 +1,63 @@
+{% set tone = tone|default('ink') %}
+{% set has_image = image is not empty and image.src is not empty %}
+{% set is_link = href is not empty %}
+{% set is_external = is_link and href matches '#^(https?:)?//#' %}
+
+{% set card = html_cva(
+  base: ['group relative flex h-full flex-col overflow-hidden rounded-2xl border transition duration-300'],
+  variants: {
+    tone: {
+      ink: 'salsa-surface-dark border-line bg-ink-2 hover:border-flame-gold/50 hover:shadow-[0_24px_60px_-32px_rgb(224_38_27_/_0.8)]',
+      flame: 'salsa-surface-flame border-flame-red/40 bg-flame-deep hover:shadow-[0_24px_60px_-28px_rgb(143_15_22_/_0.9)]',
+      sea: 'salsa-surface-dark border-sea/40 bg-sea-deep hover:border-sea hover:shadow-[0_24px_60px_-32px_rgb(31_138_150_/_0.8)]',
+    },
+    link: {
+      'true': 'hover:-translate-y-1',
+      'false': '',
+    },
+  }
+) %}
+
+<div class="@container h-full min-w-0">
+<article class="{{ tw_merge([card.apply({tone: tone, link: is_link ? 'true' : 'false'}), ui.root|default('')]) }}">
+  {% if has_image %}
+    <div class="relative aspect-[16/9] w-full overflow-hidden">
+      {% include 'canvas:image' ignore missing with {
+        src: image.src,
+        alt: image.alt,
+        width: image.width,
+        height: image.height,
+        class: 'h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]',
+        sizes: '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw',
+        loading: 'lazy',
+      } only %}
+    </div>
+  {% endif %}
+
+  <div class="flex min-w-0 flex-1 flex-col p-5 @md:p-6">
+    <h3 class="font-display text-2xl leading-tight font-bold italic text-balance @md:text-3xl">
+      {% if is_link %}
+        <a
+          href="{{ href }}"
+          class="text-inherit no-underline after:absolute after:inset-0 after:content-[''] hover:text-inherit"
+          {% if is_external %}target="_blank" rel="noopener noreferrer"{% endif %}
+        >{{ title }}</a>
+      {% else %}
+        {{ title }}
+      {% endif %}
+    </h3>
+
+    {% if text %}
+      <div class="prose mt-3 max-w-none [&_a]:relative [&_a]:z-10">
+        {{ text }}
+      </div>
+    {% endif %}
+
+    {% if footer is not empty %}
+      <div class="mt-auto border-t border-current/15 pt-4 text-sm">
+        {{ footer }}
+      </div>
+    {% endif %}
+  </div>
+</article>
+</div>

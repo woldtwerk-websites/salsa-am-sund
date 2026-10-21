@@ -1,0 +1,13 @@
+uuid: cabf264c-322e-4ae1-a4ec-1a697759d5b9
+langcode: de
+status: true
+dependencies:
+  module:
+    - node
+_core:
+  default_config_hash: AtN311PK7pVwNFVe7be6DabmiwfNEbWODEYcHCaewdk
+id: node.card
+label: Karte
+description: ''
+targetEntityType: node
+cache: true

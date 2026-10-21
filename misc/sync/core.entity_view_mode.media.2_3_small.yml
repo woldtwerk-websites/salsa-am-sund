@@ -1,0 +1,13 @@
+uuid: 09de318d-5895-46f2-a489-8a128ba7da0f
+langcode: de
+status: true
+dependencies:
+  module:
+    - media
+_core:
+  default_config_hash: v6BAXpYIb-JM73xaZHSQZBEa2G3ixlNBidDwNATmfcI
+id: media.2_3_small
+label: '2:3 Klein'
+description: ''
+targetEntityType: media
+cache: true

@@ -1,0 +1,49 @@
+uuid: c1c10cae-f51c-4ef6-9538-06419322d375
+langcode: de
+status: false
+dependencies:
+  module:
+    - navigation
+active_version: eed560895f5711bd
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: navigation_shortcuts
+        label: Navigationskurzbefehle
+        label_display: '0'
+        provider: navigation
+    fallback_metadata:
+      slot_definitions: null
+  e380286bda149edf:
+    settings:
+      default_settings:
+        id: navigation_shortcuts
+        label: 'Navigation Shortcuts'
+        label_display: '0'
+        provider: navigation
+    fallback_metadata:
+      slot_definitions: null
+  eed560895f5711bd:
+    settings:
+      default_settings:
+        id: navigation_shortcuts
+        label: Navigationskurzbefehle
+        label_display: '0'
+        provider: navigation
+    fallback_metadata:
+      slot_definitions: null
+  a2ddb9f467280871:
+    settings:
+      default_settings:
+        id: navigation_shortcuts
+        label: 'Navigation Shortcuts'
+        label_display: '0'
+        provider: navigation
+    fallback_metadata:
+      slot_definitions: null
+label: Navigationskurzbefehle
+id: block.navigation_shortcuts
+provider: navigation
+source: block
+source_local_id: navigation_shortcuts

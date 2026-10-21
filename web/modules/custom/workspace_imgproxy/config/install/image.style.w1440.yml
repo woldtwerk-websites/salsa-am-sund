@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w1440
+label: 'Responsiv frei (1440)'
+effects:
+  6980d662-7796-4c68-a0fd-73b2c4578f92:
+    uuid: 6980d662-7796-4c68-a0fd-73b2c4578f92
+    id: image_scale
+    weight: 1
+    data:
+      width: 1440
+      height: null
+      upscale: false

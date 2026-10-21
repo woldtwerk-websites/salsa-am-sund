@@ -1,0 +1,21 @@
+uuid: 6fde4e74-e5c7-4e2b-ba7e-761290441255
+langcode: de
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_description
+    - node.type.page
+_core:
+  default_config_hash: cNlFl-oRIOsqwCDvw0RGnOEdWtwcp0WgKTsZXtuZ63E
+id: node.page.field_description
+field_name: field_description
+entity_type: node
+bundle: page
+label: Beschreibung
+description: 'Beschreiben Sie den Seiteninhalt. Dies erscheint als Beschreibung in den Suchmaschinenergebnissen.'
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

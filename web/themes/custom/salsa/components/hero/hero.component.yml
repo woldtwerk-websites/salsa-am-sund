@@ -1,0 +1,44 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Hero
+description: "Flammer Startbereich mit driftenden Bändern, großer Wortmarken-Überschrift und optionaler Skyline des Sunds."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  required:
+    - heading
+  properties:
+    eyebrow:
+      type: string
+      title: Kicker
+      description: "Kurze Zeile über der Überschrift."
+      examples:
+        - "Salsa in Stralsund"
+    heading:
+      type: string
+      title: Überschrift
+      description: "Große H1 des Startbereichs."
+      examples:
+        - "SALSA am SUND"
+    text:
+      type: string
+      title: Text
+      contentMediaType: text/html
+      x-formatting-context: block
+      examples:
+        - "<p>Dein Abend am Wasser: Rhythmus, Wärme und Bewegung. Kurse für Anfänger und Fortgeschrittene – mitten in Stralsund.</p>"
+    image:
+      $ref: json-schema-definitions://canvas.module/image
+      title: Skyline
+      type: object
+      examples:
+        - src: "assets/stralsund-skyline.jpg"
+          alt: "Silhouette der Stralsunder Altstadt über dem Sund bei Abendlicht"
+          width: 510
+          height: 131
+slots:
+  actions:
+    title: Aktionen
+    description: "Buttons, die direkt unter dem Hero-Text erscheinen."
+    expected:
+      - sdc.salsa.button

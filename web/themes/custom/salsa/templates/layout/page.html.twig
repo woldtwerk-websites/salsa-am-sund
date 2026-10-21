@@ -1,0 +1,30 @@
+{#
+/**
+ * @file
+ * Fallback page template for Salsa am Sund.
+ *
+ * Canvas replaces this template with its page variant whenever a page
+ * template exists. This layout is used for routes that are not managed by
+ * Canvas (for example user, search or contact pages).
+ *
+ * Available variables:
+ * - page: Region render arrays keyed by region name.
+ */
+#}
+<div class="flex min-h-svh flex-col bg-night text-sand">
+  {% if page.header %}
+    <header class="relative z-40">
+      {{ page.header }}
+    </header>
+  {% endif %}
+
+  <main id="main-content" class="flex-1" tabindex="-1">
+    {{ page.content }}
+  </main>
+
+  {% if page.footer %}
+    <footer class="mt-auto">
+      {{ page.footer }}
+    </footer>
+  {% endif %}
+</div>

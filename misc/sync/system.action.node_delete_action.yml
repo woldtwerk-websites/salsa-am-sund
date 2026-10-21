@@ -1,0 +1,13 @@
+uuid: 4576e7a3-db43-4cb8-8e0b-69e743be4ee2
+langcode: de
+status: true
+dependencies:
+  module:
+    - node
+_core:
+  default_config_hash: t43OqwzP3CTbcAagSsWKNy6KwMm_zShXo3c4-So6rQg
+id: node_delete_action
+label: 'Inhalt löschen'
+type: node
+plugin: 'entity:delete_action:node'
+configuration: {  }

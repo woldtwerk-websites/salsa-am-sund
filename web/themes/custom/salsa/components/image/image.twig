@@ -1,0 +1,37 @@
+{% set ratio = ratio|default('auto') %}
+{% set rounded = rounded|default(true) %}
+{% set is_auto = ratio == 'auto' %}
+
+{% set frame = html_cva(
+  base: ['w-full overflow-hidden'],
+  variants: {
+    ratio: {
+      auto: '',
+      '16:9': 'aspect-video',
+      '4:3': 'aspect-[4/3]',
+      '1:1': 'aspect-square',
+    },
+    rounded: {
+      'true': 'rounded-2xl',
+      'false': 'rounded-none',
+    },
+  }
+) %}
+
+<figure class="{{ tw_merge(['m-0 w-full', ui.root|default('')]) }}">
+  <div class="{{ tw_merge([frame.apply({ratio: ratio, rounded: rounded ? 'true' : 'false'}), ui.frame|default('')]) }}">
+    {% include 'canvas:image' ignore missing with {
+      src: image.src,
+      alt: image.alt,
+      width: image.width,
+      height: image.height,
+      class: is_auto ? 'h-auto w-full' : 'h-full w-full object-cover',
+      sizes: '100vw',
+      loading: 'lazy',
+    } only %}
+  </div>
+
+  {% if caption %}
+    <figcaption class="mt-2 font-body text-sm leading-snug text-[var(--surface-muted)]">{{ caption }}</figcaption>
+  {% endif %}
+</figure>

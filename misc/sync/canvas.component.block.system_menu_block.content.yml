@@ -1,0 +1,63 @@
+uuid: eddd1ebb-272b-4f45-9f29-73f2afa12c8c
+langcode: de
+status: false
+dependencies:
+  config:
+    - system.menu.content
+  module:
+    - system
+active_version: 22ece1e4c0a21682
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: 'system_menu_block:content'
+        label: Inhalt
+        label_display: '0'
+        provider: system
+        level: 1
+        depth: null
+        expand_all_items: false
+    fallback_metadata:
+      slot_definitions: null
+  45df126492a2370e:
+    settings:
+      default_settings:
+        id: 'system_menu_block:content'
+        label: Content
+        label_display: '0'
+        provider: system
+        level: 1
+        depth: null
+        expand_all_items: false
+    fallback_metadata:
+      slot_definitions: null
+  22ece1e4c0a21682:
+    settings:
+      default_settings:
+        id: 'system_menu_block:content'
+        label: Inhalt
+        label_display: '0'
+        provider: system
+        level: 1
+        depth: null
+        expand_all_items: false
+    fallback_metadata:
+      slot_definitions: null
+  ee4bc7d55cd804f0:
+    settings:
+      default_settings:
+        id: 'system_menu_block:content'
+        label: Content
+        label_display: '0'
+        provider: system
+        level: 1
+        depth: null
+        expand_all_items: false
+    fallback_metadata:
+      slot_definitions: null
+label: Inhalt
+id: block.system_menu_block.content
+provider: system
+source: block
+source_local_id: 'system_menu_block:content'

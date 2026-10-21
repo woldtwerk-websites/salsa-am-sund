@@ -1,0 +1,49 @@
+uuid: 85be707a-6274-4218-b664-63e2422d7958
+langcode: de
+status: false
+dependencies:
+  module:
+    - dashboard
+active_version: 6bdf0f2fcfccedac
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: dashboard_site_status
+        label: 'Status der Website'
+        label_display: '0'
+        provider: dashboard
+    fallback_metadata:
+      slot_definitions: null
+  6fdf0435f031c188:
+    settings:
+      default_settings:
+        id: dashboard_site_status
+        label: 'Site Status'
+        label_display: '0'
+        provider: dashboard
+    fallback_metadata:
+      slot_definitions: null
+  6bdf0f2fcfccedac:
+    settings:
+      default_settings:
+        id: dashboard_site_status
+        label: 'Status der Website'
+        label_display: '0'
+        provider: dashboard
+    fallback_metadata:
+      slot_definitions: null
+  16a9a158411bac7a:
+    settings:
+      default_settings:
+        id: dashboard_site_status
+        label: 'Site Status'
+        label_display: '0'
+        provider: dashboard
+    fallback_metadata:
+      slot_definitions: null
+label: 'Status der Website'
+id: block.dashboard_site_status
+provider: dashboard
+source: block
+source_local_id: dashboard_site_status

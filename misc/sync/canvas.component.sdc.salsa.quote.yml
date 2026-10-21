@@ -1,0 +1,56 @@
+uuid: f5f21448-0625-4e28-9dcf-b8204673c30c
+langcode: de
+status: true
+dependencies:
+  module:
+    - options
+  theme:
+    - salsa
+active_version: 990707a8b3cc853c
+versioned_properties:
+  active:
+    settings:
+      prop_field_definitions:
+        quote:
+          required: true
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: 'Beim Salsa zählt nicht, wie du anfängst. Es zählt, dass du bleibst.'
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        attribution:
+          required: false
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: 'Marta & Jonas, Salsa am Sund'
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        size:
+          required: true
+          field_type: list_string
+          field_storage_settings:
+            allowed_values_function: canvas_load_allowed_values_for_component_prop
+          field_instance_settings: {  }
+          field_widget: options_select
+          default_value:
+            -
+              value: md
+          expression: ℹ︎list_string␟value
+          derived_schema_metadata: {  }
+    fallback_metadata:
+      slot_definitions: {  }
+label: Zitat
+id: sdc.salsa.quote
+provider: salsa
+source: sdc
+source_local_id: 'salsa:quote'

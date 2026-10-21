@@ -1,0 +1,32 @@
+langcode: de
+status: true
+dependencies:
+  config:
+    - image.style.w1200_16x9
+    - image.style.w240_16x9
+    - image.style.w320_16x9
+    - image.style.w400_16x9
+    - image.style.w480_16x9
+    - image.style.w640_16x9
+    - image.style.w800_16x9
+    - image.style.w960_16x9
+id: card
+label: 'Karte (Raster)'
+image_style_mappings:
+  -
+    image_mapping_type: sizes
+    image_mapping:
+      sizes: '(min-width: 1280px) 390px, (min-width: 1024px) 31vw, (min-width: 640px) 47vw, 100vw'
+      sizes_image_styles:
+        - w1200_16x9
+        - w960_16x9
+        - w800_16x9
+        - w640_16x9
+        - w480_16x9
+        - w400_16x9
+        - w320_16x9
+        - w240_16x9
+    breakpoint_id: responsive_image.viewport_sizing
+    multiplier: 1x
+breakpoint_group: responsive_image
+fallback_image_style: w480_16x9

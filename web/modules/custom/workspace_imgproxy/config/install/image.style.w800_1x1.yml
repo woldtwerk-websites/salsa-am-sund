@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w800_1x1
+label: 'Responsiv 1:1 (800)'
+effects:
+  8255f980-e4ae-41f8-8351-f19233f2f725:
+    uuid: 8255f980-e4ae-41f8-8351-f19233f2f725
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 800
+      height: 800
+      anchor: center-center

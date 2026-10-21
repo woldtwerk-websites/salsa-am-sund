@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w640_1x1
+label: 'Responsiv 1:1 (640)'
+effects:
+  444471d0-d8a2-4da0-b929-123b97d7f3e0:
+    uuid: 444471d0-d8a2-4da0-b929-123b97d7f3e0
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 640
+      height: 640
+      anchor: center-center

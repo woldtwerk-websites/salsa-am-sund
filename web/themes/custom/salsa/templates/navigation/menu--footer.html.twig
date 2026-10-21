@@ -1,0 +1,30 @@
+{#
+/**
+ * @file
+ * Footer navigation: a quiet inline list.
+ *
+ * Available variables:
+ * - items: Nested menu items (only the first level is rendered here).
+ * - attributes: Attributes for the root list.
+ */
+#}
+{% if items %}
+  {% set root_attributes = attributes|default(create_attribute()) %}
+  <ul{{ root_attributes.addClass('salsa-menu--footer', 'm-0', 'flex', 'list-none', 'flex-wrap', 'items-center', 'gap-x-6', 'gap-y-2', 'p-0') }}>
+    {% for item in items %}
+      <li>
+        {% if item.url is not empty %}
+          <a
+            href="{{ item.url }}"
+            class="inline-flex min-h-6 items-center gap-1.5 py-1 text-sm text-mist no-underline transition-colors hover:text-flame-gold"
+            {% if item.in_active_trail %}aria-current="page"{% endif %}
+          >
+            {{ item.title }}
+          </a>
+        {% else %}
+          <span class="text-sm text-mist">{{ item.title }}</span>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}

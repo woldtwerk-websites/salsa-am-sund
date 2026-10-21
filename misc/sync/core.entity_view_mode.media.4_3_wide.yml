@@ -1,0 +1,13 @@
+uuid: 0aa64786-8d4e-420c-926f-826c8988f9f0
+langcode: de
+status: true
+dependencies:
+  module:
+    - media
+_core:
+  default_config_hash: p7g2PyETibEB0CxdXFdXJpEZbMuwrr5HkNBdBV8oK7o
+id: media.4_3_wide
+label: '4:3 Breit'
+description: ''
+targetEntityType: media
+cache: true

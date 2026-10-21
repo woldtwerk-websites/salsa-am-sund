@@ -1,0 +1,15 @@
+_core:
+  default_config_hash: HlN7eAN2N4JIHsYv56V4E7sqC9bS609KwvGFjyD_mgk
+langcode: de
+uuid: c066a228-ad00-428b-8067-437412c863f5
+name: salsa-am-sund
+mail: info@woldtwerk.de
+slogan: ''
+page:
+  403: /user/login
+  404: ''
+  front: /startseite
+admin_compact_mode: false
+weight_select_max: 100
+default_langcode: de
+mail_notification: null

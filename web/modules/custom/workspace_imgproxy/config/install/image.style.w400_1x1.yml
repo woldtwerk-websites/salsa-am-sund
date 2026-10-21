@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w400_1x1
+label: 'Responsiv 1:1 (400)'
+effects:
+  d267ef94-0332-4844-9188-8247e49f5807:
+    uuid: d267ef94-0332-4844-9188-8247e49f5807
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 400
+      height: 400
+      anchor: center-center

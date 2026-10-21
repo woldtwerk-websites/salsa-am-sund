@@ -1,0 +1,12 @@
+uuid: dfe00635-571b-41cd-bfaa-d436e252dfb3
+langcode: de
+status: true
+dependencies:
+  module:
+    - node
+    - trash
+id: node_purge_action
+label: 'Permanently delete content item'
+type: node
+plugin: 'entity:purge_action:node'
+configuration: {  }

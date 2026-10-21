@@ -1,0 +1,24 @@
+{#
+/**
+ * @file
+ * Menu block without wrapper chrome.
+ *
+ * The block title is intentionally not printed: navigation menus in this theme
+ * are labelled on the <nav> element instead, which keeps the visual design
+ * clean without losing the landmark name for assistive technology.
+ *
+ * Available variables:
+ * - configuration: Block configuration, including the label.
+ * - attributes: Attributes for the block wrapper.
+ * - content: The rendered menu.
+ */
+#}
+{% set label = configuration.label|default('Navigation'|t) %}
+
+<nav{{ attributes|without('role', 'aria-labelledby').setAttribute('aria-label', label).addClass('salsa-menu-block') }}>
+  {{ title_prefix }}
+  {{ title_suffix }}
+  {% block content %}
+    {{ content }}
+  {% endblock %}
+</nav>

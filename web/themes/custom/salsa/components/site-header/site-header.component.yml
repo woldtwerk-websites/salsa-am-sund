@@ -1,0 +1,20 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Seitenkopf
+description: "Klebriger Seitenkopf mit Wortmarke, Hauptnavigation und optionaler Handlungsaufforderung."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  properties:
+    tagline:
+      type: string
+      title: Zusatzzeile
+      examples:
+        - "Salsa in Stralsund"
+slots:
+  navigation:
+    title: Navigation
+    description: "Hauptmenü, üblicherweise der Menüblock „Main navigation“."
+  actions:
+    title: Aktionen
+    description: "Optionaler Button rechts im Seitenkopf."

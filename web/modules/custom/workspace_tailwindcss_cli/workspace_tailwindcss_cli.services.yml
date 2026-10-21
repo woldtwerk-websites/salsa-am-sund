@@ -1,0 +1,13 @@
+services:
+  logger.channel.workspace_tailwindcss_cli:
+    parent: logger.channel_base
+    arguments: ['workspace_tailwindcss_cli']
+
+  workspace_tailwindcss_cli.css.optimizer:
+    class: Drupal\workspace_tailwindcss_cli\Asset\TailwindCSSCliOptimizer
+    decorates: asset.css.optimizer
+    arguments:
+      - '@file_url_generator'
+      - '@extension.path.resolver'
+      - '@logger.channel.workspace_tailwindcss_cli'
+      - '%app.root%'

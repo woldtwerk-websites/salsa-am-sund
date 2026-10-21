@@ -1,0 +1,26 @@
+{% set size = size|default('md') %}
+
+{% set quote_component = html_cva(
+  base: ['relative max-w-3xl font-display italic text-balance'],
+  variants: {
+    size: {
+      md: 'text-2xl leading-tight md:text-3xl',
+      xl: 'text-3xl leading-[1.1] md:text-5xl',
+    },
+  }
+) %}
+
+<figure class="{{ tw_merge(['relative', ui.root|default('')]) }}">
+  <span class="pointer-events-none absolute -top-8 -start-1 select-none font-display text-7xl leading-none font-black text-flame-light md:-top-12 md:text-8xl" aria-hidden="true">“</span>
+
+  <blockquote class="{{ tw_merge([quote_component.apply({size: size}), ui.quote|default('')]) }}">
+    <p class="m-0">{{ quote }}</p>
+  </blockquote>
+
+  {% if attribution %}
+    <figcaption class="mt-5 font-body text-sm not-italic tracking-wide text-[var(--surface-muted)]">
+      <span class="me-2 inline-block h-px w-8 bg-flame-gold align-middle" aria-hidden="true"></span>
+      {{ attribution }}
+    </figcaption>
+  {% endif %}
+</figure>

@@ -1,0 +1,82 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Überschrift
+description: "Display-Überschrift in Archivo, wahlweise mit Flammenverlauf."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  required:
+    - text
+    - level
+    - style
+    - align
+  properties:
+    text:
+      type: string
+      title: Text
+      description: "Der sichtbare Text der Überschrift."
+      examples:
+        - "Jeden Dienstag auf dem Parkett"
+    level:
+      type: string
+      title: HTML-Ebene
+      description: "Semantische Ebene der Überschrift."
+      enum:
+        - h1
+        - h2
+        - h3
+        - h4
+      meta:enum:
+        h1: "H1 – Seitenüberschrift"
+        h2: "H2 – Abschnitt"
+        h3: "H3 – Unterabschnitt"
+        h4: "H4 – Klein"
+      default: h2
+      examples:
+        - h2
+    style:
+      type: string
+      title: Stil
+      enum:
+        - display
+        - title
+        - eyebrow
+      meta:enum:
+        display: Display
+        title: Titel
+        eyebrow: Kicker
+      default: title
+      examples:
+        - title
+    align:
+      type: string
+      title: Ausrichtung
+      enum:
+        - left
+        - center
+      meta:enum:
+        left: Links
+        center: Zentriert
+      default: left
+      examples:
+        - left
+    flame:
+      type: boolean
+      title: Flammenverlauf
+      description: "Füllt den Text mit dem Rot-Orange-Gold-Verlauf."
+      default: false
+    tone:
+      type: string
+      title: Hintergrund
+      description: "Automatisch entspricht dem dunklen Seitenhintergrund."
+      enum:
+        - auto
+        - light
+        - dark
+      meta:enum:
+        auto: Automatisch
+        light: Heller Hintergrund
+        dark: Dunkler Hintergrund
+      default: auto
+      examples:
+        - auto

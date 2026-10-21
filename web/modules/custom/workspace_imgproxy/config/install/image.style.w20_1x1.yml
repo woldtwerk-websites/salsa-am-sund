@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w20_1x1
+label: 'Responsiv 1:1 (20)'
+effects:
+  ec18c1b1-5279-42a4-a1c9-520a85081369:
+    uuid: ec18c1b1-5279-42a4-a1c9-520a85081369
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 20
+      height: 20
+      anchor: center-center

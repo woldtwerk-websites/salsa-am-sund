@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w960
+label: 'Responsiv frei (960)'
+effects:
+  dbc062f1-3c94-4e61-991a-0286be3aa2d4:
+    uuid: dbc062f1-3c94-4e61-991a-0286be3aa2d4
+    id: image_scale
+    weight: 1
+    data:
+      width: 960
+      height: null
+      upscale: false

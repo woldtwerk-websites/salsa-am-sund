@@ -1,0 +1,88 @@
+uuid: fe00c59e-cc1a-4c9b-8eb5-4ae53034d67b
+langcode: de
+status: true
+dependencies:
+  module:
+    - eca_base
+    - eca_content
+    - eca_misc
+    - eca_user
+    - modeler_api
+third_party_settings:
+  modeler_api:
+    modeler_id: modeler
+    label: 'Unveröffentlicht 404'
+_core:
+  default_config_hash: O_6eC7cBshnL2GQ4tjXJku87Bzk-4GS0K41mZ3clVOQ
+id: unpublished_404
+weight: 0
+template: null
+events:
+  kernel__exception_status_code_exception:
+    plugin: 'kernel:exception_status_code'
+    label: 'Nicht erfasste Ausnahme'
+    configuration: {  }
+    successors:
+      -
+        id: eca_void_and_condition_and
+        condition: eca_scalar_403
+conditions:
+  eca_scalar_403:
+    plugin: eca_scalar
+    label: '403?'
+    configuration:
+      negate: false
+      left: '[event:code]'
+      right: '403'
+      operator: equal
+      type: value
+      case: false
+  eca_entity_field_value_unpublished_1:
+    plugin: eca_entity_field_value
+    label: 'unpublished?'
+    configuration:
+      negate: true
+      expected_value: '1'
+      field_name: status
+      operator: equal
+      type: value
+      case: false
+      entity: node
+gateways: {  }
+actions:
+  eca_void_and_condition_and:
+    label: UND
+    plugin: eca_void_and_condition
+    configuration: {  }
+    successors:
+      -
+        id: eca_switch_account_1
+        condition: ''
+  eca_switch_account_1:
+    label: 'Wechseln Sie zu Benutzer 1'
+    plugin: eca_switch_account
+    configuration:
+      user_id: '1'
+    successors:
+      -
+        id: eca_token_load_route_param_route
+        condition: ''
+  eca_token_load_route_param_route:
+    label: 'Inhalt von der Route laden'
+    plugin: eca_token_load_route_param
+    configuration:
+      token_name: node
+      request: 2
+      parameter_name: node
+    successors:
+      -
+        id: eca_throw_exception_exception
+        condition: eca_entity_field_value_unpublished_1
+  eca_throw_exception_exception:
+    label: 'Ausnahme nicht gefunden'
+    plugin: eca_throw_exception
+    configuration:
+      exception_type: Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+      response_message: ''
+      log_exception: true
+    successors: {  }

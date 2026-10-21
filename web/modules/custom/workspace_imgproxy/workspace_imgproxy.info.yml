@@ -1,0 +1,8 @@
+name: imgproxy
+type: module
+description: Emits imgproxy URLs for image styles instead of rendering derivatives.
+package: Custom
+core_version_requirement: ^11
+dependencies:
+  - drupal:image
+  - drupal:responsive_image

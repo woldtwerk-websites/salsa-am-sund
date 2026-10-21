@@ -1,0 +1,23 @@
+uuid: 6fb9a06f-6e98-4578-a5a9-ba80248d6619
+langcode: de
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_link
+    - node.type.event
+  module:
+    - link
+id: node.event.field_link
+field_name: field_link
+entity_type: node
+bundle: event
+label: 'Weitere Infos (Link)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 1
+  link_type: 17
+field_type: link

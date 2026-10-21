@@ -1,0 +1,12 @@
+uuid: c2ce83ec-81c9-45c5-843b-80c1173c205a
+langcode: de
+status: true
+dependencies: {  }
+id: kontakt
+label: Kontakt
+recipients:
+  - info@salsa-am-sund.de
+reply: ''
+weight: 0
+message: 'Danke für deine Nachricht! Wir melden uns so schnell wie möglich.'
+redirect: /deine-nachricht

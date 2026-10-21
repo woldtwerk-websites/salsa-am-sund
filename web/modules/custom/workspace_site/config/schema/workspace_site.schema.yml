@@ -1,0 +1,19 @@
+block.settings.salsa_contact_form:
+  type: block_settings
+  label: 'Contact form block settings'
+  constraints:
+    FullyValidatable: ~
+  mapping:
+    contact_form:
+      type: string
+      label: 'Contact form'
+      constraints:
+        NotBlank: ~
+        ConfigExists:
+          prefix: 'contact.form.'
+
+block.settings.salsa_page_comments:
+  type: block_settings
+  label: 'Page comments block settings'
+  constraints:
+    FullyValidatable: ~

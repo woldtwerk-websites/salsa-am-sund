@@ -1,0 +1,29 @@
+uuid: f7d1280f-cfd0-4178-9448-a2d70d895d7f
+langcode: de
+status: false
+dependencies: {  }
+_core:
+  default_config_hash: 4cLeRA-nTOv36-yQ6I74lAyqMtQwyQrqMFGqhZlsH_U
+id: ai_alt_text_generation
+label: 'Drupal AI Alt Text Erstellung'
+description: 'Dieser Dienst erzeugt mithilfe von KI-Vision-Modellen Alt-Texte für Bilder. Das Bild und die Metadaten werden dafür an den ausgewählten KI-Dienst gesendet.'
+default: false
+purposes:
+  - cms
+cookies: {  }
+required: false
+opt_out: false
+only_once: false
+contextual_consent_only: false
+contextual_consent_text: 'Transfer image and meta data to chosen AI service?'
+info_url: ''
+privacy_policy_url: ''
+javascripts: {  }
+callback_code: ''
+on_init: ''
+on_accept: ''
+on_decline: ''
+wrapper_identifier:
+  - .ai-alt-text-generation
+attachments: {  }
+weight: 0

@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies: {  }
+name: Termin
+type: event
+description: 'Kurse, Partys und externe Veranstaltungen'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: false

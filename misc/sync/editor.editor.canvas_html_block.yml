@@ -1,0 +1,52 @@
+uuid: d882d6ed-560d-4760-8f26-561ce95cfff3
+langcode: de
+status: false
+dependencies:
+  config:
+    - filter.format.canvas_html_block
+  module:
+    - ckeditor5
+  enforced:
+    module:
+      - canvas
+_core:
+  default_config_hash: 161h1NmSTrhUsBKNdoicmX3D4N0FxOru_zGC4AJYBYM
+format: canvas_html_block
+editor: ckeditor5
+settings:
+  toolbar:
+    items:
+      - heading
+      - '|'
+      - bold
+      - italic
+      - underline
+      - alignment
+      - link
+      - '|'
+      - bulletedList
+      - numberedList
+      - blockQuote
+  plugins:
+    ckeditor5_alignment:
+      enabled_alignments:
+        - center
+        - justify
+        - left
+        - right
+    ckeditor5_heading:
+      enabled_headings:
+        - heading2
+        - heading3
+        - heading4
+    ckeditor5_list:
+      properties:
+        reversed: false
+        startIndex: false
+        styles: false
+      multiBlock: false
+    linkit_extension:
+      linkit_enabled: true
+      linkit_profile: default
+image_upload:
+  status: false

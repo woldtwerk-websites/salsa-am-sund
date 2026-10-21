@@ -1,0 +1,9 @@
+uuid: 6e016717-f4fb-4594-bb25-f90716b78a01
+langcode: de
+status: true
+dependencies: {  }
+name: Orte
+vid: location
+description: ''
+weight: 0
+new_revision: false

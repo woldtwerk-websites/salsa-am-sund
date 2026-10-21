@@ -1,0 +1,58 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Kurs
+description: "Ein Kurs im Wochenplan: Tag, Uhrzeit, Titel, Level und Ort."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  required:
+    - day
+    - time
+    - title
+  properties:
+    day:
+      type: string
+      title: Wochentag
+      enum:
+        - montag
+        - dienstag
+        - mittwoch
+        - donnerstag
+        - freitag
+        - samstag
+        - sonntag
+      meta:enum:
+        montag: Montag
+        dienstag: Dienstag
+        mittwoch: Mittwoch
+        donnerstag: Donnerstag
+        freitag: Freitag
+        samstag: Samstag
+        sonntag: Sonntag
+      default: montag
+      examples:
+        - dienstag
+    time:
+      type: string
+      title: Uhrzeit
+      examples:
+        - "18:15 – 19:15 Uhr"
+    title:
+      type: string
+      title: Kursname
+      examples:
+        - "Anfänger"
+    level:
+      type: string
+      title: Level
+      examples:
+        - "Level 0"
+    location:
+      type: string
+      title: Ort
+      examples:
+        - "Studio am Sund, Hafenstraße 12"
+    location_href:
+      type: string
+      title: Ortslink
+      format: uri-reference

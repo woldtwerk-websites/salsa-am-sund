@@ -1,0 +1,14 @@
+{% set size = size|default('base') %}
+{% set align = align|default('left') %}
+{% set tone = tone|default('auto') %}
+
+{% set prose_classes = [
+  'prose',
+  size == 'lg' ? 'prose-lg' : '',
+  tone == 'light' ? 'prose-light' : (tone == 'dark' ? 'prose-invert' : ''),
+  align == 'center' ? 'mx-auto text-center' : '',
+]|filter(class => class is not empty) %}
+
+<div class="{{ tw_merge([prose_classes|join(' '), ui.root|default('')]) }}">
+  {{ text }}
+</div>

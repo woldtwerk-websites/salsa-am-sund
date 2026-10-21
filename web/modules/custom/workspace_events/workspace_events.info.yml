@@ -1,0 +1,19 @@
+name: 'Salsa am Sund – Events'
+type: module
+description: 'Events ("Termine") for courses and parties, including a filterable iCal feed.'
+package: Custom
+core_version_requirement: ^11.3
+'interface translation project': workspace_events
+'interface translation server pattern': modules/custom/workspace_events/translations/%language.po
+dependencies:
+  - drupal:content_moderation
+  - drupal:link
+  - drupal:node
+  - drupal:options
+  - drupal:path
+  - drupal:taxonomy
+  - drupal:text
+  - canvas:canvas
+  - pathauto:pathauto
+  - smart_date:smart_date
+  - smart_date:smart_date_recur

@@ -1,0 +1,30 @@
+{#
+/**
+ * @file
+ * Compact user profile: avatar and name inline (e.g. in comments).
+ *
+ * Available variables:
+ * - user: The user account.
+ * - attributes: Attributes for the wrapper.
+ * - salsa_profile_picture: Picture array prepared by SalsaHooks.
+ * - salsa_initials: Fallback initials.
+ */
+#}
+<article{{ attributes.addClass('flex items-center gap-3') }}>
+  <span class="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line/70 bg-ink">
+    {% if salsa_profile_picture.src is not empty %}
+      <img
+        src="{{ salsa_profile_picture.src }}"
+        alt=""
+        class="h-full w-full object-cover"
+        loading="lazy"
+        decoding="async"
+      >
+    {% else %}
+      <span class="flex h-full w-full items-center justify-center bg-flame-light font-display text-sm font-black italic text-night" aria-hidden="true">
+        {{ salsa_initials }}
+      </span>
+    {% endif %}
+  </span>
+  <span class="font-display text-base font-bold italic text-sand">{{ user.getDisplayName() }}</span>
+</article>

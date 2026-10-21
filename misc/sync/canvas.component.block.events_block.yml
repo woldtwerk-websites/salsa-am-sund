@@ -1,0 +1,49 @@
+uuid: 8f5158c7-0d17-4ef3-ac51-c835ba91c1f0
+langcode: de
+status: false
+dependencies:
+  module:
+    - drupical
+active_version: fa8c706002f4b002
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: events_block
+        label: Veranstaltungsfeed
+        label_display: '0'
+        provider: drupical
+    fallback_metadata:
+      slot_definitions: null
+  05ba14e03914cc57:
+    settings:
+      default_settings:
+        id: events_block
+        label: 'Events Feed'
+        label_display: '0'
+        provider: drupical
+    fallback_metadata:
+      slot_definitions: null
+  fa8c706002f4b002:
+    settings:
+      default_settings:
+        id: events_block
+        label: Veranstaltungsfeed
+        label_display: '0'
+        provider: drupical
+    fallback_metadata:
+      slot_definitions: null
+  7f0d7c64a7196c20:
+    settings:
+      default_settings:
+        id: events_block
+        label: 'Events Feed'
+        label_display: '0'
+        provider: drupical
+    fallback_metadata:
+      slot_definitions: null
+label: Veranstaltungsfeed
+id: block.events_block
+provider: drupical
+source: block
+source_local_id: events_block

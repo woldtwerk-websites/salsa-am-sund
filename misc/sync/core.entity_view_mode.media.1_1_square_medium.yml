@@ -1,0 +1,13 @@
+uuid: 5f785ef1-8254-46de-81aa-e10a7ae9a250
+langcode: de
+status: true
+dependencies:
+  module:
+    - media
+_core:
+  default_config_hash: k7w8PG2jgrRx0d71Gdy11dc1FBKid6E2SxT43es_4Fg
+id: media.1_1_square_medium
+label: '1:1 (Quadrat) Mittel'
+description: ''
+targetEntityType: media
+cache: true

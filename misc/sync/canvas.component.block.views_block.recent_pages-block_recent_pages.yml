@@ -1,0 +1,59 @@
+uuid: 984f60b4-0819-40b5-934e-27fabdab251d
+langcode: de
+status: false
+dependencies:
+  config:
+    - views.view.recent_pages
+  module:
+    - views
+active_version: c9a2b44532bb6074
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: 'views_block:recent_pages-block_recent_pages'
+        label: 'Aktuelle Seiten'
+        label_display: '0'
+        provider: views
+        views_label: ''
+        items_per_page: null
+    fallback_metadata:
+      slot_definitions: null
+  074f8f147cb3e40b:
+    settings:
+      default_settings:
+        id: 'views_block:recent_pages-block_recent_pages'
+        label: 'Recent pages'
+        label_display: '0'
+        provider: views
+        views_label: ''
+        items_per_page: null
+    fallback_metadata:
+      slot_definitions: null
+  c9a2b44532bb6074:
+    settings:
+      default_settings:
+        id: 'views_block:recent_pages-block_recent_pages'
+        label: 'Aktuelle Seiten'
+        label_display: '0'
+        provider: views
+        views_label: ''
+        items_per_page: null
+    fallback_metadata:
+      slot_definitions: null
+  627255e24580a6dd:
+    settings:
+      default_settings:
+        id: 'views_block:recent_pages-block_recent_pages'
+        label: 'Recent pages'
+        label_display: '0'
+        provider: views
+        views_label: ''
+        items_per_page: null
+    fallback_metadata:
+      slot_definitions: null
+label: 'Aktuelle Seiten'
+id: block.views_block.recent_pages-block_recent_pages
+provider: views
+source: block
+source_local_id: 'views_block:recent_pages-block_recent_pages'

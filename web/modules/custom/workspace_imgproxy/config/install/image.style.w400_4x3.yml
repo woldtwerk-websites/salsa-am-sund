@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w400_4x3
+label: 'Responsiv 4:3 (400)'
+effects:
+  cc8d63d3-2f69-4a6c-bf1d-4d56a7429c63:
+    uuid: cc8d63d3-2f69-4a6c-bf1d-4d56a7429c63
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 400
+      height: 300
+      anchor: center-center

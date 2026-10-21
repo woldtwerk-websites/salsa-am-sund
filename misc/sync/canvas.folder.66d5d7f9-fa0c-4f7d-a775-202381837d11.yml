@@ -1,0 +1,61 @@
+uuid: 66d5d7f9-fa0c-4f7d-a775-202381837d11
+langcode: de
+status: true
+dependencies:
+  config:
+    - canvas.component.block.salsa_contact_form
+    - canvas.component.block.salsa_course_schedule
+    - canvas.component.block.salsa_events
+    - canvas.component.block.salsa_page_comments
+    - canvas.component.sdc.salsa.button
+    - canvas.component.sdc.salsa.card
+    - canvas.component.sdc.salsa.contact
+    - canvas.component.sdc.salsa.course
+    - canvas.component.sdc.salsa.event
+    - canvas.component.sdc.salsa.gallery
+    - canvas.component.sdc.salsa.gallery-image
+    - canvas.component.sdc.salsa.grid
+    - canvas.component.sdc.salsa.heading
+    - canvas.component.sdc.salsa.hero
+    - canvas.component.sdc.salsa.image
+    - canvas.component.sdc.salsa.link-item
+    - canvas.component.sdc.salsa.link-list
+    - canvas.component.sdc.salsa.notice
+    - canvas.component.sdc.salsa.page-main
+    - canvas.component.sdc.salsa.profile
+    - canvas.component.sdc.salsa.quote
+    - canvas.component.sdc.salsa.schedule
+    - canvas.component.sdc.salsa.section
+    - canvas.component.sdc.salsa.site-footer
+    - canvas.component.sdc.salsa.site-header
+    - canvas.component.sdc.salsa.text
+name: 'Salsa am Sund'
+configEntityTypeId: component
+weight: 0
+items:
+  - block.salsa_contact_form
+  - block.salsa_course_schedule
+  - block.salsa_events
+  - block.salsa_page_comments
+  - sdc.salsa.button
+  - sdc.salsa.card
+  - sdc.salsa.contact
+  - sdc.salsa.course
+  - sdc.salsa.event
+  - sdc.salsa.gallery
+  - sdc.salsa.gallery-image
+  - sdc.salsa.grid
+  - sdc.salsa.heading
+  - sdc.salsa.hero
+  - sdc.salsa.image
+  - sdc.salsa.link-item
+  - sdc.salsa.link-list
+  - sdc.salsa.notice
+  - sdc.salsa.page-main
+  - sdc.salsa.profile
+  - sdc.salsa.quote
+  - sdc.salsa.schedule
+  - sdc.salsa.section
+  - sdc.salsa.site-footer
+  - sdc.salsa.site-header
+  - sdc.salsa.text

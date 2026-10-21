@@ -1,0 +1,13 @@
+uuid: bf95e72b-dfb7-4477-a3f2-02240fc33635
+langcode: de
+status: true
+dependencies:
+  module:
+    - user
+_core:
+  default_config_hash: DyypzTfThX10FFQw-399qPfEbLLyrhXgQrKPVsmAoJ4
+id: user_block_user_action
+label: 'Ausgewählte Benutzer sperren'
+type: user
+plugin: user_block_user_action
+configuration: {  }

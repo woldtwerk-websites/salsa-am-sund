@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w132_1x1
+label: 'Responsiv 1:1 (132)'
+effects:
+  d23d79ea-7801-4ddc-9feb-337941b8b9e7:
+    uuid: d23d79ea-7801-4ddc-9feb-337941b8b9e7
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 132
+      height: 132
+      anchor: center-center

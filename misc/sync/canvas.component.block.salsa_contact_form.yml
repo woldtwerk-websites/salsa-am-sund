@@ -1,0 +1,33 @@
+uuid: c467ee54-25fc-4860-bbaf-6e521cda0d14
+langcode: de
+status: true
+dependencies:
+  module:
+    - workspace_site
+active_version: 131c405b8c8a7204
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: salsa_contact_form
+        label: Kontaktformular
+        label_display: '0'
+        provider: workspace_site
+        contact_form: kontakt
+    fallback_metadata:
+      slot_definitions: null
+  1e8a8cc5f1ca3c78:
+    settings:
+      default_settings:
+        id: salsa_contact_form
+        label: Kontaktformular
+        label_display: '0'
+        provider: workspace_site
+        contact_form: kontakt
+    fallback_metadata:
+      slot_definitions: null
+label: Kontaktformular
+id: block.salsa_contact_form
+provider: workspace_site
+source: block
+source_local_id: salsa_contact_form

@@ -1,0 +1,58 @@
+uuid: f3cb5e4f-9d71-4796-9587-decc058ecc6c
+langcode: de
+status: true
+dependencies:
+  module:
+    - workspace_events
+active_version: 6f25f05785394744
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: salsa_events
+        label: 'Nächste Termine'
+        label_display: '0'
+        provider: workspace_events
+        types:
+          - party
+          - external_party
+        locations: {  }
+        limit: 3
+        show_ical: true
+    fallback_metadata:
+      slot_definitions: null
+  4807a7d0c6c110f6:
+    settings:
+      default_settings:
+        id: salsa_events
+        label: 'Upcoming events'
+        label_display: '0'
+        provider: workspace_events
+        types:
+          - party
+          - external_party
+        locations: {  }
+        limit: 3
+        show_ical: true
+    fallback_metadata:
+      slot_definitions: null
+  2b6422ed9e324187:
+    settings:
+      default_settings:
+        id: salsa_events
+        label: 'Upcoming events'
+        label_display: '0'
+        provider: workspace_events
+        types:
+          - party
+          - external_party
+        locations: {  }
+        limit: 3
+        show_ical: true
+    fallback_metadata:
+      slot_definitions: null
+label: 'Nächste Termine'
+id: block.salsa_events
+provider: workspace_events
+source: block
+source_local_id: salsa_events

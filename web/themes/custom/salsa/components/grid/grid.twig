@@ -1,0 +1,21 @@
+{% set columns = columns|default('3') %}
+{% set gap = gap|default('md') %}
+
+{% set grid = html_cva(
+  base: ['grid w-full min-w-0 grid-cols-1 *:min-w-0'],
+  variants: {
+    columns: {
+      '2': 'sm:grid-cols-2',
+      '3': 'sm:grid-cols-2 lg:grid-cols-3',
+      '4': 'sm:grid-cols-2 lg:grid-cols-4',
+    },
+    gap: {
+      md: 'gap-5 md:gap-6',
+      lg: 'gap-8 md:gap-10',
+    },
+  }
+) %}
+
+<div class="{{ tw_merge([grid.apply({columns: columns, gap: gap}), ui.root|default('')]) }}">
+  {{ items }}
+</div>

@@ -1,0 +1,78 @@
+uuid: c2287638-b786-4df9-8fdb-b0f3e041ee36
+langcode: de
+status: true
+dependencies:
+  module:
+    - options
+  theme:
+    - salsa
+active_version: ef866426fa30fcf7
+versioned_properties:
+  active:
+    settings:
+      prop_field_definitions:
+        tone:
+          required: true
+          field_type: list_string
+          field_storage_settings:
+            allowed_values_function: canvas_load_allowed_values_for_component_prop
+          field_instance_settings: {  }
+          field_widget: options_select
+          default_value:
+            -
+              value: night
+          expression: ℹ︎list_string␟value
+          derived_schema_metadata: {  }
+        width:
+          required: true
+          field_type: list_string
+          field_storage_settings:
+            allowed_values_function: canvas_load_allowed_values_for_component_prop
+          field_instance_settings: {  }
+          field_widget: options_select
+          default_value:
+            -
+              value: default
+          expression: ℹ︎list_string␟value
+          derived_schema_metadata: {  }
+        spacing:
+          required: true
+          field_type: list_string
+          field_storage_settings:
+            allowed_values_function: canvas_load_allowed_values_for_component_prop
+          field_instance_settings: {  }
+          field_widget: options_select
+          default_value:
+            -
+              value: md
+          expression: ℹ︎list_string␟value
+          derived_schema_metadata: {  }
+        wave_top:
+          required: false
+          field_type: boolean
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: boolean_checkbox
+          default_value: null
+          expression: ℹ︎boolean␟value
+          derived_schema_metadata: {  }
+        anchor:
+          required: false
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value: null
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+    fallback_metadata:
+      slot_definitions:
+        content:
+          title: Inhalt
+          description: 'Komponenten, die in diesem Abschnitt erscheinen.'
+label: Abschnitt
+id: sdc.salsa.section
+provider: salsa
+source: sdc
+source_local_id: 'salsa:section'

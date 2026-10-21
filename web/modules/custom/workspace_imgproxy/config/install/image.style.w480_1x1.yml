@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w480_1x1
+label: 'Responsiv 1:1 (480)'
+effects:
+  cce0c62a-c674-45e5-8806-d20b624afe74:
+    uuid: cce0c62a-c674-45e5-8806-d20b624afe74
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 480
+      height: 480
+      anchor: center-center

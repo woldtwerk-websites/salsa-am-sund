@@ -1,0 +1,24 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Galerie-Bild
+description: "Quadratisches Galerie-Vorschaubild, das eine native Popover-Lightbox öffnet."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  required:
+    - image
+  properties:
+    image:
+      $ref: json-schema-definitions://canvas.module/image
+      title: Bild
+      type: object
+      examples:
+        - src: "assets/tanzpaar.jpg"
+          alt: "Tanzpaar in einer Salsa-Pose vor hellem Hintergrund"
+          width: 210
+          height: 293
+    caption:
+      type: string
+      title: Bildunterschrift
+      examples:
+        - "Erste Schritte im Schnupperkurs"

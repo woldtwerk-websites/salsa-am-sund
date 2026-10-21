@@ -1,0 +1,53 @@
+<header
+  class="{{ tw_merge(['salsa-site-header salsa-surface-dark sticky z-50 w-full border-b border-line/60 bg-night/85 backdrop-blur-xl', ui.root|default('')]) }}"
+>
+  <div class="mx-auto flex min-h-20 w-full max-w-7xl items-center gap-4 px-5 md:px-8">
+    <a
+      href="{{ front_url|default('/') }}"
+      class="group flex shrink-0 items-center gap-3 no-underline"
+      aria-label="{{ 'Salsa am Sund – Startseite'|t }}"
+    >
+      <span class="flex items-baseline gap-2 whitespace-nowrap">
+        <span class="text-flame-light font-display text-2xl leading-none font-black italic uppercase tracking-[-0.02em] [font-stretch:112%] md:text-3xl">Salsa</span>
+        <span class="font-display text-base leading-none font-semibold italic text-sand md:text-lg">am <span class="text-flame-gold">Sund</span></span>
+      </span>
+    </a>
+
+    {% if tagline %}
+      <span class="hidden border-s border-line ps-4 font-body text-xs uppercase tracking-[0.2em] text-mist xl:inline">
+        {{ tagline }}
+      </span>
+    {% endif %}
+
+    <div id="salsa-site-nav" popover class="salsa-site-nav">
+      <button
+        type="button"
+        popovertarget="salsa-site-nav"
+        popovertargetaction="hide"
+        class="salsa-site-nav__close ms-auto inline-flex size-11 items-center justify-center rounded-full border border-line text-sand transition-colors hover:border-flame-gold hover:text-flame-gold lg:hidden"
+      >
+        <span class="sr-only">{{ 'Menü schließen'|t }}</span>
+        {{ icon('salsa', 'x', {size: 22}) }}
+      </button>
+
+      {{ navigation }}
+    </div>
+
+    {% if actions is not empty %}
+      <div class="ms-2 hidden shrink-0 items-center gap-3 xl:flex">
+        {{ actions }}
+      </div>
+    {% endif %}
+
+    <button
+      type="button"
+      popovertarget="salsa-site-nav"
+      popovertargetaction="toggle"
+      class="salsa-site-nav__burger ms-auto inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-line text-sand transition-colors hover:border-flame-gold hover:text-flame-gold lg:hidden"
+    >
+      <span class="sr-only">{{ 'Menü öffnen'|t }}</span>
+      <span class="salsa-nav-icon salsa-nav-icon--open">{{ icon('salsa', 'menu', {size: 22}) }}</span>
+      <span class="salsa-nav-icon salsa-nav-icon--close">{{ icon('salsa', 'x', {size: 22}) }}</span>
+    </button>
+  </div>
+</header>

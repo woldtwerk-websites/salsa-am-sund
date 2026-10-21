@@ -1,0 +1,23 @@
+uuid: 6375e0d5-d2a4-4f77-aec5-6c90d482057f
+langcode: de
+status: true
+dependencies:
+  module:
+    - comment
+    - contact
+    - klaro
+    - media
+    - system
+_core:
+  default_config_hash: j5zLMOdJBqC0bMvSdth5UebkprJB8g_2FXHqhfpJzow
+id: anonymous
+label: Gast
+weight: 0
+is_admin: false
+permissions:
+  - 'access comments'
+  - 'access content'
+  - 'access site-wide contact form'
+  - 'post comments'
+  - 'use klaro'
+  - 'view media'

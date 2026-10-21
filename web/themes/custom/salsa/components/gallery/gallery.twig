@@ -1,0 +1,30 @@
+{% set columns = columns|default('3') %}
+
+{% set grid = html_cva(
+  base: ['grid min-w-0 grid-cols-2 gap-3 *:min-w-0 md:gap-4'],
+  variants: {
+    columns: {
+      '3': 'sm:grid-cols-3',
+      '4': 'sm:grid-cols-3 lg:grid-cols-4',
+    },
+  }
+) %}
+
+<div class="{{ tw_merge(['w-full', ui.root|default('')]) }}">
+  {% if heading or text %}
+    <div class="mb-7 max-w-2xl">
+      {% if heading %}
+        <h2 class="font-display text-[clamp(1.75rem,7vw,2.5rem)] leading-tight font-extrabold italic [font-stretch:100%] md:[font-stretch:108%]">{{ heading }}</h2>
+      {% endif %}
+      {% if text %}
+        <div class="prose mt-3 max-w-none">
+          {{ text }}
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="{{ grid.apply({columns: columns}) }}">
+    {{ images }}
+  </div>
+</div>

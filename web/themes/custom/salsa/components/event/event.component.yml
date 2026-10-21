@@ -1,0 +1,43 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Termin
+description: "Veranstaltung mit großem Datum, Uhrzeit, Ort und Beschreibung."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  required:
+    - date
+    - title
+  properties:
+    date:
+      type: string
+      title: Datum
+      format: date
+      examples:
+        - "2026-10-26"
+    time:
+      type: string
+      title: Uhrzeit
+      examples:
+        - "20:00 Uhr"
+    title:
+      type: string
+      title: Titel
+      examples:
+        - "Salsa-Nacht am Sund"
+    location:
+      type: string
+      title: Ort
+      examples:
+        - "Kulturhaus Stralsund, Foyer"
+    text:
+      type: string
+      title: Beschreibung
+      contentMediaType: text/html
+      x-formatting-context: block
+      examples:
+        - "<p>Live-Musik, offene Tanzfläche und Getränke bis Mitternacht. Eintritt frei, Spende willkommen.</p>"
+    href:
+      type: string
+      title: Link
+      format: uri-reference

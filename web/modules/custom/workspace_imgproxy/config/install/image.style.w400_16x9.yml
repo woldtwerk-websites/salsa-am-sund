@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w400_16x9
+label: 'Responsiv 16:9 (400)'
+effects:
+  8abab58b-b9f5-45ee-be15-3d7148229f08:
+    uuid: 8abab58b-b9f5-45ee-be15-3d7148229f08
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 400
+      height: 225
+      anchor: center-center

@@ -1,0 +1,10 @@
+uuid: bf09ddc0-e704-401b-a741-5e19a5bdedf6
+langcode: de
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: DdVZR131nyy6OVL9mBguPmzKgAzSs-6NjqEdbkF55NI
+id: external_content
+label: 'Eingebettete externe Inhalte'
+description: ''
+weight: 6

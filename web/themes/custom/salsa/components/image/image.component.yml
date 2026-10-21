@@ -1,0 +1,48 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Bild
+description: "Einzelnes Bild mit optionaler Bildunterschrift, Seitenverhältnis und runden Ecken."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  required:
+    - image
+    - ratio
+    - rounded
+  properties:
+    image:
+      $ref: json-schema-definitions://canvas.module/image
+      title: Bild
+      type: object
+      examples:
+        - src: "assets/stralsund-skyline.jpg"
+          alt: "Silhouette der Stralsunder Altstadt über dem Sund bei Abendlicht"
+          width: 510
+          height: 131
+    caption:
+      type: string
+      title: Bildunterschrift
+      examples:
+        - "Blick über den Sund bei Abendlicht"
+    ratio:
+      type: string
+      title: Seitenverhältnis
+      enum:
+        - auto
+        - "16:9"
+        - "4:3"
+        - "1:1"
+      meta:enum:
+        auto: Original
+        "16:9": "16:9"
+        "4:3": "4:3"
+        "1:1": Quadrat
+      default: auto
+      examples:
+        - auto
+    rounded:
+      type: boolean
+      title: Runde Ecken
+      default: true
+      examples:
+        - true

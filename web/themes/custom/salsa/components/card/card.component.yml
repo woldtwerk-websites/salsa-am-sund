@@ -1,0 +1,54 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Karte
+description: "Inhaltskarte mit Bild, Titel, Text und optionalem Link. Die ganze Karte ist anklickbar."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  required:
+    - title
+    - tone
+  properties:
+    title:
+      type: string
+      title: Titel
+      examples:
+        - "Tanzabend am Sund"
+    text:
+      type: string
+      title: Text
+      contentMediaType: text/html
+      x-formatting-context: block
+      examples:
+        - "<p>Jeden ersten Freitag im Monat: offene Tanzfläche, DJ und Blick aufs Wasser.</p>"
+    image:
+      $ref: json-schema-definitions://canvas.module/image
+      title: Bild
+      type: object
+      examples:
+        - src: "assets/tanzabend.jpg"
+          alt: "Tanzende Menschen bei einem Salsa-Abend"
+          width: 1024
+          height: 576
+    href:
+      type: string
+      title: Link
+      format: uri-reference
+    tone:
+      type: string
+      title: Farbton
+      enum:
+        - ink
+        - flame
+        - sea
+      meta:enum:
+        ink: Tinte
+        flame: Flamme
+        sea: Sund
+      default: ink
+      examples:
+        - ink
+slots:
+  footer:
+    title: Fußzeile
+    description: "Optionale Zusatzinformationen unter dem Text, z. B. Uhrzeit oder Level."

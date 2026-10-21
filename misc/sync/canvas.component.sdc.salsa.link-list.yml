@@ -1,0 +1,33 @@
+uuid: 1c5c0179-ff8d-41b9-b02a-1f59910c6831
+langcode: de
+status: true
+dependencies:
+  theme:
+    - salsa
+active_version: 3e71a0671508c6fa
+versioned_properties:
+  active:
+    settings:
+      prop_field_definitions:
+        heading:
+          required: false
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: 'Gut zu wissen'
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+    fallback_metadata:
+      slot_definitions:
+        links:
+          title: Links
+          description: 'Link-Einträge für die Liste.'
+label: Linkliste
+id: sdc.salsa.link-list
+provider: salsa
+source: sdc
+source_local_id: 'salsa:link-list'

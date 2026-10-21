@@ -1,0 +1,119 @@
+uuid: c4a5c0cf-5e7e-4ac4-8916-1545d85a57d4
+langcode: de
+status: true
+dependencies:
+  config:
+    - canvas.component.block.page_title_block
+    - canvas.component.block.system_menu_block.footer
+    - canvas.component.block.system_menu_block.main
+    - canvas.component.block.system_messages_block
+    - canvas.component.marker.page_content
+    - canvas.component.sdc.salsa.button
+    - canvas.component.sdc.salsa.contact
+    - canvas.component.sdc.salsa.page-main
+    - canvas.component.sdc.salsa.site-footer
+    - canvas.component.sdc.salsa.site-header
+    - filter.format.canvas_html_block
+  module:
+    - link
+    - options
+    - text
+id: salsa
+label: 'Salsa am Sund'
+description: null
+component_tree:
+  66e1eab9-2a4f-4e2b-b23d-5470e09da116:
+    uuid: 66e1eab9-2a4f-4e2b-b23d-5470e09da116
+    component_id: sdc.salsa.site-header
+    component_version: 92a8760b9a931edf
+    inputs:
+      tagline: 'Salsa · Bachata · Merengue in Stralsund'
+  12881c61-2656-40bf-b6c5-a6baf2411a04:
+    parent_uuid: 66e1eab9-2a4f-4e2b-b23d-5470e09da116
+    slot: navigation
+    uuid: 12881c61-2656-40bf-b6c5-a6baf2411a04
+    component_id: block.system_menu_block.main
+    component_version: ad9e394f36025d55
+    inputs:
+      label: Hauptnavigation
+      label_display: '0'
+      level: 1
+      depth: 2
+      expand_all_items: true
+  98a5ce8f-5e23-49dd-beb9-4fd9194b29be:
+    parent_uuid: 66e1eab9-2a4f-4e2b-b23d-5470e09da116
+    slot: actions
+    uuid: 98a5ce8f-5e23-49dd-beb9-4fd9194b29be
+    component_id: sdc.salsa.button
+    component_version: 8749cc36697dcaf8
+    inputs:
+      label: Kontakt
+      href:
+        uri: 'internal:/deine-nachricht'
+        options: {  }
+      variant: flame
+      size: md
+      icon: none
+  1ef0a0cc-e137-4560-827d-e78f2f35cf1d:
+    uuid: 1ef0a0cc-e137-4560-827d-e78f2f35cf1d
+    component_id: sdc.salsa.page-main
+    component_version: e81e2cd5e5d292c4
+    inputs: {  }
+  f0f697a8-ff23-4d67-a625-83b64f6295b1:
+    parent_uuid: 1ef0a0cc-e137-4560-827d-e78f2f35cf1d
+    slot: content
+    uuid: f0f697a8-ff23-4d67-a625-83b64f6295b1
+    component_id: block.system_messages_block
+    component_version: 3bd858aebcf6e479
+    inputs:
+      label: Statusmeldungen
+      label_display: '0'
+  0650a669-4de4-4aad-8787-9ad4c34293b9:
+    parent_uuid: 1ef0a0cc-e137-4560-827d-e78f2f35cf1d
+    slot: content
+    uuid: 0650a669-4de4-4aad-8787-9ad4c34293b9
+    component_id: block.page_title_block
+    component_version: b498b948bf2fbc86
+    inputs:
+      label: Seitentitel
+      label_display: '0'
+  65b4a00f-f8de-4356-8a3d-006cc9753fb4:
+    parent_uuid: 1ef0a0cc-e137-4560-827d-e78f2f35cf1d
+    slot: content
+    uuid: 65b4a00f-f8de-4356-8a3d-006cc9753fb4
+    component_id: marker.page_content
+    component_version: 3b12c0b99a6caecc
+    inputs: {  }
+  df89b1a9-67b4-4b04-9ac7-9aecd6e1813f:
+    uuid: df89b1a9-67b4-4b04-9ac7-9aecd6e1813f
+    component_id: sdc.salsa.site-footer
+    component_version: 23b98daa5c27ccf6
+    inputs:
+      copyright: '© Salsa am Sund · Kerstin Stettner & Nils Schröder'
+  e7deaaf8-65ee-4f39-8a81-c64571a67fa6:
+    parent_uuid: df89b1a9-67b4-4b04-9ac7-9aecd6e1813f
+    slot: content
+    uuid: e7deaaf8-65ee-4f39-8a81-c64571a67fa6
+    component_id: sdc.salsa.contact
+    component_version: 94314cc37112c3cc
+    inputs:
+      title: 'Salsa am Sund'
+      address:
+        value: '<p>Kerstin &amp; Nils<br>Stralsund</p>'
+        format: canvas_html_block
+      phone: '0163 455 67 96'
+      phone_2: '0152 57 82 44 68'
+      email: info@salsa-am-sund.de
+      heading_level: h3
+  f233bdb5-14f8-4aea-9b61-a88490026364:
+    parent_uuid: df89b1a9-67b4-4b04-9ac7-9aecd6e1813f
+    slot: navigation
+    uuid: f233bdb5-14f8-4aea-9b61-a88490026364
+    component_id: block.system_menu_block.footer
+    component_version: 03014301795c4f80
+    inputs:
+      label: Footer
+      label_display: '0'
+      level: 1
+      depth: 1
+      expand_all_items: false

@@ -1,0 +1,849 @@
+@import "tailwindcss";
+@import "./prose.css";
+
+@source "../../components";
+@source "../../templates";
+
+/* Official Tailwind Typography element modifiers, CSS-only. */
+@custom-variant prose-headings (& :is(:where(h1,h2,h3,h4,h5,h6,th):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-h1 (& :is(:where(h1):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-h2 (& :is(:where(h2):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-h3 (& :is(:where(h3):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-h4 (& :is(:where(h4):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-h5 (& :is(:where(h5):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-h6 (& :is(:where(h6):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-p (& :is(:where(p):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-a (& :is(:where(a):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-blockquote (& :is(:where(blockquote):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-figure (& :is(:where(figure):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-figcaption (& :is(:where(figcaption):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-strong (& :is(:where(strong):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-em (& :is(:where(em):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-kbd (& :is(:where(kbd):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-code (& :is(:where(code):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-pre (& :is(:where(pre):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-ol (& :is(:where(ol):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-ul (& :is(:where(ul):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-li (& :is(:where(li):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-table (& :is(:where(table):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-thead (& :is(:where(thead):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-tr (& :is(:where(tr):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-th (& :is(:where(th):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-td (& :is(:where(td):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-img (& :is(:where(img):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-video (& :is(:where(video):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-hr (& :is(:where(hr):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+@custom-variant prose-lead (& :is(:where([class~="lead"]):not(:where([class~="not-prose"],[class~="not-prose"] *))));
+
+/* -------------------------------------------------------------------------
+ * Design tokens — "Evening at the Sund"
+ * ---------------------------------------------------------------------- */
+@theme {
+  /* Night sky and raised surfaces. */
+  --color-night: #0d0b10;
+  --color-ink: #17131c;
+  --color-ink-2: #221b29;
+  --color-line: #3a2f43;
+
+  /* Warm light. */
+  --color-sand: #f6efe6;
+  --color-mist: #b9adbf;
+
+  /* Flame. */
+  --color-flame-red: #e0261b;
+  --color-flame-orange: #f46a1f;
+  --color-flame-gold: #ffb72b;
+
+  /* The Sund. */
+  --color-sea: #1f8a96;
+  --color-sea-deep: #0f3c4a;
+
+  --font-display: "Archivo", "Archivo Narrow", system-ui, sans-serif;
+  --font-body: "Instrument Sans", "Instrument Sans Variable", system-ui, sans-serif;
+
+  --radius-card: 1.25rem;
+}
+
+/* -------------------------------------------------------------------------
+ * Brand utilities
+ * ---------------------------------------------------------------------- */
+@utility bg-flame {
+  background-color: var(--color-flame-red);
+  background-image: linear-gradient(
+    115deg,
+    #b3121a 0%,
+    #e0261b 30%,
+    #f46a1f 62%,
+    #ffb72b 100%
+  );
+}
+
+/* Darker flame surface for sections, heroes and buttons that carry light
+ * text. Every stop keeps white text at 4.5:1 or better (see README). */
+@utility bg-flame-deep {
+  background-color: #b3121a;
+  background-image: linear-gradient(
+    115deg,
+    #8f0f16 0%,
+    #b3121a 45%,
+    #e0261b 100%
+  );
+}
+
+/* Gradient text starts at flame-red (not the darker brand red) so that large
+ * display text keeps at least 3:1 against the night background. */
+@utility text-flame {
+  background-image: linear-gradient(
+    115deg,
+    #e0261b 0%,
+    #f46a1f 55%,
+    #ffb72b 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Accessible gradient text for dark surfaces: all stops are >= 4.5:1 on
+ * night (#0d0b10) and ink-2 (#221b29). */
+@utility text-flame-light {
+  background-image: linear-gradient(
+    115deg,
+    #ff5a3c 0%,
+    #f46a1f 55%,
+    #ffb72b 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility bg-flame-light {
+  background-color: #ff5a3c;
+  background-image: linear-gradient(
+    115deg,
+    #ff5a3c 0%,
+    #f46a1f 55%,
+    #ffb72b 100%
+  );
+}
+
+@utility bg-grain {
+  background-image: radial-gradient(
+      circle at 20% 10%,
+      rgb(255 183 43 / 0.06),
+      transparent 40%
+    ),
+    radial-gradient(circle at 80% 90%, rgb(31 138 150 / 0.08), transparent 45%);
+}
+
+/* -------------------------------------------------------------------------
+ * Base
+ * ---------------------------------------------------------------------- */
+@layer base {
+  :root {
+    --salsa-header-h: 5rem;
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(
+      var(--salsa-header-h) + var(--drupal-displace-offset-top, 0px) + 1rem
+    );
+  }
+
+  body {
+    @apply bg-night font-body antialiased;
+    color: var(--surface-fg, var(--color-sand));
+    min-height: 100svh;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display font-extrabold italic;
+    font-stretch: 108%;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    @apply underline decoration-flame-orange/50 decoration-1 underline-offset-4;
+    color: var(--surface-link, var(--color-flame-gold));
+    transition:
+      color 150ms ease,
+      text-decoration-color 150ms ease;
+  }
+
+  a:hover {
+    @apply decoration-flame-gold;
+    color: var(--surface-fg, var(--color-sand));
+  }
+
+  ::selection {
+    background-color: var(--color-flame-orange);
+    color: var(--color-night);
+  }
+
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-flame-gold);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+
+  hr {
+    @apply border-line;
+  }
+
+  /* Drupal's visually hidden helper (also used by core markup). */
+  .visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+
+  /* Drupal skip link. */
+  .skip-link {
+    @apply bg-flame text-night absolute start-4 z-[100] -translate-y-full rounded-b-lg px-4 py-2 font-semibold no-underline;
+  }
+
+  .skip-link:focus {
+    @apply translate-y-0 text-night;
+  }
+
+  /* ---------------------------------------------------------------------
+   * Drupal form elements (contact, comment, search, user forms).
+   * ------------------------------------------------------------------ */
+  .form-item,
+  .form-wrapper {
+    @apply mb-5;
+  }
+
+  .form-item label,
+  .form-item__label,
+  fieldset legend {
+    @apply mb-1.5 block text-sm font-semibold;
+    color: var(--surface-fg, var(--color-sand));
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="password"],
+  input[type="search"],
+  input[type="number"],
+  input[type="date"],
+  input[type="datetime-local"],
+  textarea,
+  select {
+    @apply w-full rounded-lg border px-4 py-3 text-base shadow-inner;
+    border-color: var(--surface-border, var(--color-line));
+    background-color: var(--surface-field-bg, var(--color-ink));
+    color: var(--surface-fg, var(--color-sand));
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--surface-muted, var(--color-mist));
+    opacity: 0.8;
+  }
+
+  input[type="text"]:hover,
+  input[type="email"]:hover,
+  input[type="tel"]:hover,
+  input[type="url"]:hover,
+  input[type="password"]:hover,
+  input[type="search"]:hover,
+  input[type="number"]:hover,
+  textarea:hover,
+  select:hover {
+    border-color: var(--surface-muted, var(--color-mist));
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="tel"]:focus,
+  input[type="url"]:focus,
+  input[type="password"]:focus,
+  input[type="search"]:focus,
+  input[type="number"]:focus,
+  textarea:focus,
+  select:focus {
+    border-color: var(--surface-link, var(--color-flame-gold));
+    background-color: var(--surface-field-bg, var(--color-ink));
+    outline: 2px solid var(--surface-link, var(--color-flame-gold));
+    outline-offset: 1px;
+  }
+
+  textarea {
+    min-height: 9rem;
+    resize: vertical;
+  }
+
+  select {
+    @apply pe-10;
+    background-image: linear-gradient(45deg, transparent 50%, var(--surface-link, var(--color-flame-gold)) 50%),
+      linear-gradient(135deg, var(--surface-link, var(--color-flame-gold)) 50%, transparent 50%);
+    background-position:
+      calc(100% - 1.25rem) calc(50% + 2px),
+      calc(100% - 0.95rem) calc(50% + 2px);
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    appearance: none;
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    @apply size-5 rounded align-middle accent-flame-orange;
+    border-color: var(--surface-border, var(--color-line));
+    background-color: var(--surface-field-bg, var(--color-ink));
+  }
+
+  /* view_password contrib toggle: at least 24x24 CSS px (SC 2.5.8). */
+  button.shwpd {
+    display: inline-flex;
+    min-block-size: 1.5rem;
+    min-inline-size: 1.5rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .form-required::after {
+    content: "*";
+    @apply ms-1;
+    color: var(--surface-link, var(--color-flame-gold));
+  }
+
+  .description,
+  .form-item .description,
+  .form-item__description {
+    @apply mt-1.5 max-w-[65ch] text-sm leading-relaxed;
+    color: var(--surface-muted, var(--color-mist));
+  }
+
+  .form-item--error-message,
+  .form-item--error-message strong {
+    @apply mt-1 block text-sm font-semibold;
+    color: var(--surface-link, var(--color-flame-gold));
+  }
+
+  .form-submit,
+  .button,
+  button[type="submit"] {
+    @apply bg-flame-deep inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-7 py-3 font-semibold text-white no-underline;
+    @apply shadow-[0_12px_32px_-14px_rgb(143_15_22_/_0.9)];
+    @apply transition duration-200 hover:brightness-95 hover:text-white;
+    border: 0;
+  }
+
+  fieldset {
+    @apply mb-6 rounded-xl border p-5;
+    border-color: var(--surface-border, var(--color-line));
+    background-color: color-mix(
+      in srgb,
+      var(--surface-field-bg, var(--color-ink)) 70%,
+      transparent
+    );
+    color: var(--surface-fg, var(--color-sand));
+  }
+
+  form details {
+    margin-block: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--surface-border, var(--color-line));
+    border-radius: 0.75rem;
+    background-color: color-mix(
+      in srgb,
+      var(--surface-field-bg, var(--color-ink)) 70%,
+      transparent
+    );
+    color: var(--surface-fg, var(--color-sand));
+  }
+
+  form details > summary {
+    cursor: pointer;
+    color: var(--surface-fg, var(--color-sand));
+    font-weight: 600;
+  }
+
+  /* content_moderation's core theme CSS paints a white box. */
+  .entity-moderation-form {
+    margin-block: 1.5rem;
+    padding: 1rem;
+    list-style: none;
+    border: 1px dashed var(--surface-border, var(--color-line));
+    border-radius: 0.75rem;
+    background-color: var(--surface-field-bg, var(--color-ink));
+    color: var(--surface-fg, var(--color-sand));
+  }
+
+  .entity-moderation-form .form-item {
+    margin-block: 0;
+  }
+
+  .entity-moderation-form .form-item label {
+    color: var(--surface-fg, var(--color-sand));
+  }
+
+  .messages {
+    @apply mb-6 rounded-xl border p-4;
+    border-color: var(--surface-border, var(--color-line));
+    color: var(--surface-fg, var(--color-sand));
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * Decorative bits used by components
+ * ---------------------------------------------------------------------- */
+@layer components {
+  /* Surface context: descendants inherit these for base text, links and forms. */
+  :root {
+    --surface-fg: var(--color-sand);
+    --surface-muted: var(--color-mist);
+    --surface-link: var(--color-flame-gold);
+    --surface-border: var(--color-line);
+    --surface-field-bg: var(--color-ink);
+  }
+
+  .salsa-surface-dark,
+  .prose-invert {
+    --surface-fg: var(--color-sand);
+    --surface-muted: var(--color-mist);
+    --surface-link: var(--color-flame-gold);
+    --surface-border: var(--color-line);
+    --surface-field-bg: var(--color-ink);
+  }
+
+  .salsa-surface-dark,
+  .salsa-surface-light,
+  .salsa-surface-flame {
+    color: var(--surface-fg);
+  }
+
+  .salsa-surface-light,
+  .prose-light {
+    --surface-fg: var(--color-night);
+    --surface-muted: rgb(13 11 16 / 0.68);
+    --surface-link: #b3121a;
+    --surface-border: var(--color-line);
+    --surface-field-bg: #fff;
+  }
+
+  .salsa-surface-flame,
+  .prose-on-flame {
+    --surface-fg: #fff;
+    --surface-muted: #fff;
+    --surface-link: #fff;
+    --surface-border: rgb(255 255 255 / 0.35);
+    --surface-field-bg: rgb(13 11 16 / 0.45);
+  }
+
+  /* Water line of the Sund, used as a soft section divider. */
+  .salsa-wave {
+    @apply pointer-events-none absolute inset-x-0 top-0 h-12 overflow-hidden text-flame-gold/40 md:h-16;
+  }
+
+  .salsa-wave svg {
+    @apply h-full w-full;
+  }
+
+  /* Layered, slowly drifting ribbons behind the hero. */
+  .salsa-ribbons {
+    @apply pointer-events-none absolute inset-0 overflow-hidden;
+    contain: paint;
+  }
+
+  .salsa-ribbon {
+    position: absolute;
+    display: block;
+    border-radius: 999px;
+    filter: blur(28px);
+    opacity: 0.28;
+    will-change: transform;
+    animation: salsa-drift 26s ease-in-out infinite alternate;
+  }
+
+  .salsa-ribbon--1 {
+    inset-block-start: -18%;
+    inset-inline-start: -10%;
+    width: 70%;
+    height: 46%;
+    background: linear-gradient(120deg, rgb(13 11 16 / 0.9), rgb(143 15 22 / 0.55));
+    rotate: -12deg;
+    animation-duration: 28s;
+  }
+
+  .salsa-ribbon--2 {
+    inset-block-start: 18%;
+    inset-inline-end: -18%;
+    width: 64%;
+    height: 40%;
+    background: linear-gradient(250deg, rgb(224 38 27 / 0.35), rgb(179 18 26 / 0.2));
+    rotate: 8deg;
+    animation-duration: 34s;
+    animation-delay: -6s;
+  }
+
+  .salsa-ribbon--3 {
+    inset-block-end: -24%;
+    inset-inline-start: 18%;
+    width: 72%;
+    height: 42%;
+    background: linear-gradient(90deg, rgb(15 60 74 / 0.85), rgb(31 138 150 / 0.3));
+    rotate: -4deg;
+    animation-duration: 40s;
+    animation-delay: -14s;
+  }
+
+  @keyframes salsa-drift {
+    0% {
+      transform: translate3d(-3%, -2%, 0) rotate(-1deg) scale(1);
+    }
+    50% {
+      transform: translate3d(4%, 3%, 0) rotate(2deg) scale(1.06);
+    }
+    100% {
+      transform: translate3d(-1%, 6%, 0) rotate(-2deg) scale(1.02);
+    }
+  }
+
+  /* Vertical rhythm between components placed in a section. */
+  .salsa-section-content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3rem);
+  }
+
+  /* Generic container for route content injected at the Canvas marker. */
+  .salsa-route-content {
+    @apply mx-auto w-full max-w-6xl px-5 py-10 md:px-8 md:py-14;
+  }
+
+  /* Native popover used by the gallery lightbox. */
+  .salsa-lightbox[popover] {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    inline-size: fit-content;
+    block-size: fit-content;
+    max-inline-size: min(92vw, 80rem);
+    max-block-size: 92svh;
+    padding: 0;
+    border: 1px solid var(--color-line);
+    border-radius: 1rem;
+    background: var(--color-ink);
+    color: var(--color-sand);
+    overflow: hidden;
+  }
+
+  .salsa-lightbox[popover]:not(:popover-open) {
+    display: none;
+  }
+
+  .salsa-lightbox[popover]:popover-open {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .salsa-lightbox[popover]::backdrop {
+    background: rgb(13 11 16 / 0.9);
+    backdrop-filter: blur(6px);
+  }
+
+  .salsa-lightbox__close {
+    position: absolute;
+    inset-block-start: 0.75rem;
+    inset-inline-end: 0.75rem;
+    z-index: 10;
+    display: inline-flex;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: rgb(13 11 16 / 0.75);
+    color: var(--color-sand);
+    transition: color 150ms ease, border-color 150ms ease;
+  }
+
+  .salsa-lightbox__close:hover {
+    border-color: var(--color-flame-gold);
+    color: var(--color-flame-gold);
+  }
+
+  /* The grid column is the image width; the caption wraps to that width. */
+  .salsa-lightbox__figure {
+    display: inline-grid;
+    inline-size: fit-content;
+    max-inline-size: min(100%, calc((92svh - 8rem) * var(--lb-ratio, 1)));
+    max-block-size: 92svh;
+    min-block-size: 0;
+    margin: 0;
+  }
+
+  .salsa-lightbox__image {
+    display: block;
+    inline-size: auto;
+    block-size: auto;
+    max-inline-size: 100%;
+    max-block-size: calc(92svh - 8rem);
+    object-fit: contain;
+  }
+
+  .salsa-lightbox__caption {
+    box-sizing: border-box;
+    inline-size: 0;
+    min-inline-size: 100%;
+    padding: 0.75rem 1rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--color-mist);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .salsa-ribbon {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * Site header: native popover navigation
+ * ---------------------------------------------------------------------- */
+.salsa-site-header {
+  top: var(--drupal-displace-offset-top, 0px);
+}
+
+.salsa-site-nav[popover] {
+  position: fixed;
+  inset-block-start: calc(
+    var(--drupal-displace-offset-top, 0px) + var(--salsa-header-h)
+  );
+  inset-inline: 0;
+  inset-block-end: auto;
+  width: 100%;
+  max-height: calc(
+    100svh - var(--drupal-displace-offset-top, 0px) - var(--salsa-header-h)
+  );
+  margin: 0;
+  padding: 1rem 1.25rem 1.5rem;
+  border: 0;
+  border-block-end: 1px solid var(--color-line);
+  background: var(--color-night);
+  color: var(--color-sand);
+  overflow-y: auto;
+  opacity: 0;
+  transform: translateY(-0.5rem);
+}
+
+.salsa-site-nav[popover]:popover-open {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  opacity: 1;
+  transform: none;
+}
+
+.salsa-site-nav[popover]::backdrop {
+  background: rgb(13 11 16 / 0.65);
+  backdrop-filter: blur(4px);
+}
+
+.salsa-nav-icon--close {
+  display: none;
+}
+
+.salsa-site-header:has(#salsa-site-nav:popover-open) .salsa-nav-icon--open {
+  display: none;
+}
+
+.salsa-site-header:has(#salsa-site-nav:popover-open) .salsa-nav-icon--close {
+  display: inline-flex;
+}
+
+/* The closed popover must stay hidden; on desktop it is overridden below. */
+@media (width < 64rem) {
+  .salsa-site-nav[popover]:not(:popover-open) {
+    display: none;
+  }
+
+  html:has(#salsa-site-nav:popover-open) {
+    overflow: hidden;
+  }
+}
+
+/* Desktop: the same popover is a normal inline navigation bar. */
+@media (width >= 64rem) {
+  #salsa-site-nav[popover] {
+    display: flex;
+    position: static;
+    inset: auto;
+    margin: 0;
+    margin-inline-start: auto;
+    border: 0;
+    padding: 0;
+    background: none;
+    overflow: visible;
+    width: auto;
+    height: auto;
+    max-height: none;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.25rem;
+    opacity: 1;
+    transform: none;
+  }
+
+  #salsa-site-nav[popover]::backdrop {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .salsa-site-nav[popover] {
+    transition:
+      opacity 200ms ease,
+      transform 200ms ease,
+      display 200ms allow-discrete,
+      overlay 200ms allow-discrete;
+  }
+
+  @starting-style {
+    .salsa-site-nav[popover]:popover-open {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+    }
+  }
+
+  .salsa-lightbox[popover] {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 200ms ease,
+      transform 200ms ease,
+      display 200ms allow-discrete,
+      overlay 200ms allow-discrete;
+  }
+
+  .salsa-lightbox[popover]:not(:popover-open) {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  @starting-style {
+    .salsa-lightbox[popover]:popover-open {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * Main menu: details/summary submenus
+ * ---------------------------------------------------------------------- */
+.salsa-submenu__summary {
+  list-style: none;
+}
+
+.salsa-submenu__summary::-webkit-details-marker {
+  display: none;
+}
+
+.salsa-submenu[open] > .salsa-submenu__summary .salsa-submenu__chevron,
+details[open] > summary svg {
+  rotate: 180deg;
+}
+
+@media (width >= 64rem) {
+  .salsa-menu__row > .salsa-submenu > .salsa-menu__submenu {
+    display: none;
+  }
+
+  .salsa-menu__item:hover
+    > .salsa-menu__row
+    > .salsa-submenu::details-content,
+  .salsa-menu__item:focus-within
+    > .salsa-menu__row
+    > .salsa-submenu::details-content,
+  .salsa-menu__item
+    > .salsa-menu__row
+    > .salsa-submenu[open]::details-content {
+    content-visibility: visible;
+    block-size: auto;
+  }
+
+  .salsa-menu__item:hover
+    > .salsa-menu__row
+    > .salsa-submenu
+    > .salsa-menu__submenu,
+  .salsa-menu__item:focus-within
+    > .salsa-menu__row
+    > .salsa-submenu
+    > .salsa-menu__submenu,
+  .salsa-menu__item
+    > .salsa-menu__row
+    > .salsa-submenu[open]
+    > .salsa-menu__submenu {
+    display: flex;
+  }
+}
+
+/*
+ * content_moderation's core theme CSS hard-codes a white box. This unlayered
+ * override outranks that module stylesheet and follows the current surface.
+ */
+main .entity-moderation-form {
+  padding: 1rem;
+  border: 1px dashed var(--surface-border, var(--color-line));
+  border-radius: 0.75rem;
+  background-color: var(--surface-field-bg, var(--color-ink));
+  color: var(--surface-fg, var(--color-sand));
+}
+
+main .entity-moderation-form .form-item label {
+  color: var(--surface-fg, var(--color-sand));
+}

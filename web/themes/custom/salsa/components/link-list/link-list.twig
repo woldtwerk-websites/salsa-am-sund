@@ -1,0 +1,9 @@
+<nav class="{{ tw_merge(['w-full', ui.root|default('')]) }}" aria-label="{{ heading|default('Links'|t) }}">
+  {% if heading %}
+    <h2 class="mb-5 font-display text-2xl leading-tight font-bold italic text-sand md:text-3xl">{{ heading }}</h2>
+  {% endif %}
+
+  <ul class="m-0 list-none divide-y divide-line border-y border-line p-0">
+    {{ links }}
+  </ul>
+</nav>

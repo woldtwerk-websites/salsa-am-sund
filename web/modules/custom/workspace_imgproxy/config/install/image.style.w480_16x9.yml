@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w480_16x9
+label: 'Responsiv 16:9 (480)'
+effects:
+  c7f51779-b370-4523-b63f-a641d1d27a50:
+    uuid: c7f51779-b370-4523-b63f-a641d1d27a50
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 480
+      height: 270
+      anchor: center-center

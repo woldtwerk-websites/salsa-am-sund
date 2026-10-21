@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w1920_16x9
+label: 'Responsiv 16:9 (1920)'
+effects:
+  c58d49d7-5260-4b71-aeb1-80ce1f02b28a:
+    uuid: c58d49d7-5260-4b71-aeb1-80ce1f02b28a
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 1920
+      height: 1080
+      anchor: center-center

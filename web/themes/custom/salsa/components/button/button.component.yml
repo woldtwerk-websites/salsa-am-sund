@@ -1,0 +1,70 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Button
+description: "Handlungsaufforderung als Link, mit Flammen-, Rahmen-, Geist- oder Hell-Variante."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  required:
+    - label
+    - href
+    - variant
+    - size
+  properties:
+    label:
+      type: string
+      title: Beschriftung
+      examples:
+        - "Kurs buchen"
+    href:
+      type: string
+      title: Link
+      format: uri-reference
+      examples:
+        - "/kurse"
+    variant:
+      type: string
+      title: Variante
+      enum:
+        - flame
+        - outline
+        - ghost
+        - light
+      meta:enum:
+        flame: Flamme
+        outline: Rahmen
+        ghost: Geist
+        light: Hell (auf Flamme)
+      default: flame
+      examples:
+        - flame
+    size:
+      type: string
+      title: Größe
+      enum:
+        - md
+        - lg
+      meta:enum:
+        md: Standard
+        lg: Groß
+      default: md
+      examples:
+        - md
+    icon:
+      type: string
+      title: Icon
+      enum:
+        - none
+        - arrow-right
+        - phone
+        - mail
+        - external-link
+      meta:enum:
+        none: Keins
+        arrow-right: Pfeil rechts
+        phone: Telefon
+        mail: E-Mail
+        external-link: Externer Link
+      default: none
+      examples:
+        - none

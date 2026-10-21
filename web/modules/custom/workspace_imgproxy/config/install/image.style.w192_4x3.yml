@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w192_4x3
+label: 'Responsiv 4:3 (192)'
+effects:
+  fbf68fe4-4dd4-41bf-a92a-5562f7c19838:
+    uuid: fbf68fe4-4dd4-41bf-a92a-5562f7c19838
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 192
+      height: 144
+      anchor: center-center

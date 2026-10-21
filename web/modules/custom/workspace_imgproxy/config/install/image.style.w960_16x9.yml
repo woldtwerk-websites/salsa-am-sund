@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w960_16x9
+label: 'Responsiv 16:9 (960)'
+effects:
+  e520af51-0abd-4b7a-a064-280f85f04872:
+    uuid: e520af51-0abd-4b7a-a064-280f85f04872
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 960
+      height: 540
+      anchor: center-center

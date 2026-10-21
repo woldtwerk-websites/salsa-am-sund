@@ -1,0 +1,14 @@
+langcode: de
+status: true
+dependencies: {  }
+name: w88_1x1
+label: 'Responsiv 1:1 (88)'
+effects:
+  855e7852-c57f-4370-866d-5c96b0404db2:
+    uuid: 855e7852-c57f-4370-866d-5c96b0404db2
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 88
+      height: 88
+      anchor: center-center
