@@ -1,0 +1,10 @@
+langcode: de
+status: true
+dependencies: {  }
+name: Fotogalerie
+type: gallery
+description: 'Bildergalerien von Kursen, Partys und Veranstaltungen'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: false

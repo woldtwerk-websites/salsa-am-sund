@@ -3,6 +3,10 @@ name: Galerie-Bild
 description: "Quadratisches Galerie-Vorschaubild, das eine native Popover-Lightbox öffnet."
 group: "Salsa am Sund"
 status: stable
+libraryOverrides:
+  dependencies:
+    - core/drupal
+    - core/once
 props:
   type: object
   required:

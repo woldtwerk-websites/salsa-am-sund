@@ -1,0 +1,18 @@
+uuid: cb0c51e5-c01b-422e-8e6d-0e40c5acc3bc
+langcode: de
+status: true
+dependencies:
+  config:
+    - node.type.gallery
+  module:
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: true
+_core:
+  default_config_hash: VNB73fYFNQkLaZto8kDvrX-diJkKntPsNJbE7p3XmhA
+id: node.gallery
+target_entity_type_id: node
+target_bundle: gallery
+default_langcode: site_default
+language_alterable: false

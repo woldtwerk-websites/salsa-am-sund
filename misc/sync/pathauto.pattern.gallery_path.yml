@@ -1,0 +1,25 @@
+uuid: 72832782-c1aa-45d6-86fa-170bef63a701
+langcode: de
+status: true
+dependencies:
+  config:
+    - node.type.gallery
+  module:
+    - node
+_core:
+  default_config_hash: KJ0jUrLwVOEu9V8zmIHwWDN16NWOxIEwzmvzZtUcc4g
+id: gallery_path
+label: Fotogalerie
+type: 'canonical_entities:node'
+pattern: '/veranstaltungen/fotogalerie/[node:title]'
+selection_criteria:
+  a1f3b8d2-6c4e-4a91-9f57-2d8e0b1c3a64:
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: node
+    bundles:
+      gallery: gallery
+selection_logic: and
+weight: -5
+relationships: {  }

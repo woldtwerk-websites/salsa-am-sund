@@ -1,0 +1,31 @@
+# German translation of the workspace_gallery module.
+#
+# English is the source language: the msgids are the literals passed to t(),
+# formatPlural() and TranslatableMarkup() in this module's PHP. Imported into
+# Drupal's locale storage with:
+#
+#   drush locale:import de modules/custom/workspace_gallery/translations/de.po \
+#     --type=customized --override=all
+#
+# The content model labels in config/install (Fotogalerie, Bilder, Beschreibung)
+# are German already and need no translation.
+#
+# Informal "du".
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: workspace_gallery\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Salsa am Sund – Fotogalerie"
+msgstr "Salsa am Sund – Fotogalerie"
+
+msgid "Photo galleries for courses, parties and events."
+msgstr "Bildergalerien von Kursen, Partys und Veranstaltungen."
+
+msgid "Photo galleries"
+msgstr "Fotogalerien"

@@ -5,18 +5,24 @@ declare(strict_types=1);
 namespace Drupal\salsa\Hook;
 
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\File\FileUrlGeneratorInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Url;
 use Drupal\canvas\Entity\ContentTemplate;
 use Drupal\file\FileInterface;
+use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
+use Drupal\workspace_gallery\GalleryImages;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Hook implementations for the Salsa am Sund theme.
@@ -38,6 +44,8 @@ final class SalsaHooks {
    *   The file URL generator.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *   The service container, used to load optional module services lazily.
    */
   public function __construct(
     private readonly RouteMatchInterface $routeMatch,
@@ -45,6 +53,7 @@ final class SalsaHooks {
     private readonly DateFormatterInterface $dateFormatter,
     private readonly FileUrlGeneratorInterface $fileUrlGenerator,
     private readonly TimeInterface $time,
+    private readonly ContainerInterface $container,
   ) {}
 
   /**
@@ -58,6 +67,46 @@ final class SalsaHooks {
     if (isset($variables['html_attributes']) && $variables['html_attributes'] instanceof Attribute) {
       $variables['html_attributes']->addClass('salsa-theme');
     }
+  }
+
+  /**
+   * Implements hook_preprocess_node().
+   *
+   * @param array<mixed> $variables
+   *   The theme variables.
+   *
+   * @param-out array<mixed> $variables
+   */
+  #[Hook('preprocess_node')]
+  public function preprocessNode(array &$variables): void {
+    $node = $variables['node'] ?? NULL;
+    if (!$node instanceof NodeInterface || $node->bundle() !== 'gallery') {
+      return;
+    }
+    $view_mode = $variables['view_mode'] ?? NULL;
+    if (!is_string($view_mode) || !in_array($view_mode, ['full', 'card'], TRUE)) {
+      return;
+    }
+    if (!$this->container->has(GalleryImages::class)) {
+      return;
+    }
+
+    // A card only ever shows the first image, so avoid loading the entire
+    // gallery for every teaser in the overview.
+    $gallery_images = $this->container->get(GalleryImages::class);
+    if (!$gallery_images instanceof GalleryImages) {
+      return;
+    }
+    $result = $gallery_images->build($node, $view_mode === 'card' ? 1 : NULL);
+    $variables['gallery_images'] = $result['images'];
+
+    $count = $node->hasField('field_gallery_images') ? $node->get('field_gallery_images')->count() : 0;
+    $variables['gallery_image_count'] = $count;
+    $variables['gallery_image_count_label'] = $this->formatPlural($count, '@count Bild', '@count Bilder');
+
+    $cache = CacheableMetadata::createFromRenderArray($variables);
+    $cache->merge($result['cache']);
+    $cache->applyTo($variables);
   }
 
   /**
@@ -204,6 +253,92 @@ final class SalsaHooks {
     }
 
     $this->wrapMarkerContent($content);
+  }
+
+  /**
+   * Implements hook_form_comment_form_alter().
+   *
+   * The theme prints comment forms without the text format guidelines and the
+   * "About text formats" link, so strip them once the text format element has
+   * been processed.
+   *
+   * @param array<mixed> $form
+   *   The comment form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param string $form_id
+   *   The form ID.
+   *
+   * @param-out array<mixed> $form
+   */
+  #[Hook('form_comment_form_alter')]
+  public function formCommentFormAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
+    self::addTextFormatHelperCleanup($form);
+  }
+
+  /**
+   * Adds the guideline/help cleanup callback to all text format elements.
+   *
+   * Comment body fields nest the text format element inside a field widget
+   * container, so the form tree is searched recursively.
+   *
+   * @param array<mixed> $element
+   *   The form or form element, passed by reference.
+   *
+   * @param-out array<mixed> $element
+   */
+  private static function addTextFormatHelperCleanup(array &$element): void {
+    if (($element['#type'] ?? NULL) === 'text_format') {
+      $after_build = $element['#after_build'] ?? [];
+      $after_build = is_array($after_build) ? $after_build : [];
+      $after_build[] = [self::class, 'stripTextFormatHelpers'];
+      $element['#after_build'] = $after_build;
+      return;
+    }
+
+    foreach (Element::children($element) as $key) {
+      if (!is_string($key) && !is_int($key)) {
+        continue;
+      }
+      $child = $element[$key] ?? NULL;
+      if (!is_array($child)) {
+        continue;
+      }
+      self::addTextFormatHelperCleanup($child);
+      $element[$key] = $child;
+    }
+  }
+
+  /**
+   * After-build callback: removes the text format guidelines and help.
+   *
+   * When only one text format is available, core hides the format selector but
+   * still prints the wrapper around the guidelines. Hide that wrapper as well;
+   * its children keep their #value, so the text format is still submitted.
+   *
+   * @param array<mixed> $element
+   *   The text format element.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return array<mixed>
+   *   The altered text format element.
+   */
+  public static function stripTextFormatHelpers(array $element, FormStateInterface $form_state): array {
+    $format = $element['format'] ?? NULL;
+    if (!is_array($format)) {
+      return $element;
+    }
+
+    unset($format['guidelines'], $format['help']);
+
+    $selector = $format['format'] ?? NULL;
+    if (is_array($selector) && empty($selector['#access'])) {
+      $format['#access'] = FALSE;
+    }
+
+    $element['format'] = $format;
+    return $element;
   }
 
   /**

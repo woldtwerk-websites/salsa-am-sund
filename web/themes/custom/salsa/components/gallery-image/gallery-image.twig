@@ -1,10 +1,19 @@
 {% set lightbox_ratio = image.width and image.height ? (image.width / image.height)|round(4) : 1 %}
 {% set lightbox_id = 'salsa-lb-' ~ (image.src ~ (caption|default('')) ~ image.width ~ image.height)|clean_id %}
+{% set lightbox_caption_id = lightbox_id ~ '-caption' %}
 
+{#
+  The lightbox is a native modal <dialog>. The thumbnail opens it through an
+  invoker command (commandfor/command), the close button closes it the same way;
+  gallery-image.js only adds previous/next navigation and falls back to
+  showModal()/close() where invoker commands are not supported.
+#}
 <figure class="{{ tw_merge(['group m-0 min-w-0', ui.root|default('')]) }}">
   <button
     type="button"
-    popovertarget="{{ lightbox_id }}"
+    commandfor="{{ lightbox_id }}"
+    command="show-modal"
+    aria-haspopup="dialog"
     class="block aspect-square w-full cursor-zoom-in overflow-hidden rounded-xl border border-line/60 bg-ink-2 p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame-gold"
   >
     <span class="sr-only">{{ 'Bild vergrößern: @alt'|t({'@alt': image.alt|default(caption)|default('Bild')}) }}</span>
@@ -25,16 +34,40 @@
     <figcaption class="mt-2 font-body text-xs leading-snug text-[var(--surface-muted)]">{{ caption }}</figcaption>
   {% endif %}
 
-  <div id="{{ lightbox_id }}" popover class="salsa-lightbox salsa-surface-dark">
+  <dialog
+    id="{{ lightbox_id }}"
+    closedby="any"
+    {% if caption %}aria-labelledby="{{ lightbox_caption_id }}"{% else %}aria-label="{{ image.alt|default('Bild') }}"{% endif %}
+    class="salsa-lightbox salsa-surface-dark scroll-lock"
+  >
     <button
       type="button"
-      popovertarget="{{ lightbox_id }}"
-      popovertargetaction="hide"
+      commandfor="{{ lightbox_id }}"
+      command="close"
       class="salsa-lightbox__close"
       aria-label="{{ 'Bild schließen'|t }}"
       autofocus
     >
       {{ icon('salsa', 'x', {size: 22}) }}
+    </button>
+
+    <button
+      type="button"
+      class="salsa-lightbox__prev"
+      data-salsa-lightbox-prev
+      aria-label="{{ 'Vorheriges Bild'|t }}"
+      hidden
+    >
+      {{ icon('salsa', 'chevron-left', {size: 22}) }}
+    </button>
+    <button
+      type="button"
+      class="salsa-lightbox__next"
+      data-salsa-lightbox-next
+      aria-label="{{ 'Nächstes Bild'|t }}"
+      hidden
+    >
+      {{ icon('salsa', 'chevron-right', {size: 22}) }}
     </button>
 
     <figure class="salsa-lightbox__figure" style="--lb-ratio: {{ lightbox_ratio }}">
@@ -49,8 +82,8 @@
         decoding: 'async',
       } only %}
       {% if caption %}
-        <figcaption class="salsa-lightbox__caption">{{ caption }}</figcaption>
+        <figcaption id="{{ lightbox_caption_id }}" class="salsa-lightbox__caption">{{ caption }}</figcaption>
       {% endif %}
     </figure>
-  </div>
+  </dialog>
 </figure>

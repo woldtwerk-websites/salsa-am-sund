@@ -1,0 +1,37 @@
+{#
+/**
+ * @file
+ * Full gallery page.
+ *
+ * The page title block renders the <h1> for node routes, so this template only
+ * renders the description and the gallery itself.
+ *
+ * Available variables:
+ * - node: The gallery node.
+ * - content: The rendered node fields.
+ * - attributes: Attributes for the article wrapper.
+ * - gallery_images: Image data prepared by SalsaHooks.
+ */
+#}
+{% set body = content.body is defined ? content.body|render : '' %}
+{% set gallery_items = [] %}
+{% for image in gallery_images|default([]) %}
+  {% set gallery_items = gallery_items|merge([{
+    '#type': 'component',
+    '#component': 'salsa:gallery-image',
+    '#props': {image: image|merge({src: file_url(image.src)})},
+  }]) %}
+{% endfor %}
+{% set gallery_props = {
+  columns: '4',
+  images: gallery_items,
+} %}
+{% if body|striptags|trim is not empty %}
+  {% set gallery_props = gallery_props|merge({text: body}) %}
+{% endif %}
+
+<article{{ attributes }}>
+  <div class="mx-auto w-full max-w-6xl px-5 pt-6 pb-16 md:px-8">
+    {% include 'salsa:gallery' with gallery_props only %}
+  </div>
+</article>

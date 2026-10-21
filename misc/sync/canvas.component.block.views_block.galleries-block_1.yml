@@ -1,0 +1,26 @@
+uuid: 62e76dc3-3638-493a-a4d6-94bee7325d3b
+langcode: de
+status: true
+dependencies:
+  config:
+    - views.view.galleries
+  module:
+    - views
+active_version: b4b1a63b92f297e6
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: 'views_block:galleries-block_1'
+        label: Fotogalerien
+        label_display: '0'
+        provider: views
+        views_label: ''
+        items_per_page: null
+    fallback_metadata:
+      slot_definitions: null
+label: Fotogalerien
+id: block.views_block.galleries-block_1
+provider: views
+source: block
+source_local_id: 'views_block:galleries-block_1'

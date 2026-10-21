@@ -1,0 +1,32 @@
+{#
+/**
+ * @file
+ * Gallery card for the gallery overview.
+ *
+ * Available variables:
+ * - node: The gallery node.
+ * - content: The rendered node fields.
+ * - url: The canonical node URL.
+ * - gallery_images: Image data prepared by SalsaHooks (at most one image).
+ * - gallery_image_count_label: The translated image count.
+ */
+#}
+{% set body = content.body is defined ? content.body|render : '' %}
+{% set image = gallery_images|default([])|first %}
+{% if image %}
+  {% set image = image|merge({src: file_url(image.src)}) %}
+{% endif %}
+{% set card = {
+  title: node.label,
+  href: url,
+  tone: 'ink',
+  footer: gallery_image_count_label|default(''),
+} %}
+{% if image %}
+  {% set card = card|merge({image: image}) %}
+{% endif %}
+{% if body|striptags|trim is not empty %}
+  {% set card = card|merge({text: body}) %}
+{% endif %}
+
+{% include 'salsa:card' with card only %}

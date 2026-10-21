@@ -1,0 +1,40 @@
+uuid: b6c50a0a-06ef-4c26-8253-923a0941c32e
+langcode: de
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.card
+    - field.field.node.gallery.body
+    - field.field.node.gallery.field_gallery_images
+    - node.type.gallery
+  module:
+    - text
+    - user
+_core:
+  default_config_hash: RvPBgHkvxm5P8mxHULAVOtvFeDOKy-9R7sZW1QwuS58
+id: node.gallery.card
+targetEntityType: node
+bundle: gallery
+mode: card
+content:
+  body:
+    type: text_summary_or_trimmed
+    label: hidden
+    settings:
+      trim_length: 200
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_gallery_images:
+    type: entity_reference_entity_view
+    label: hidden
+    settings:
+      view_mode: 1_1_square_medium
+      link: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden:
+  content_moderation_control: true
+  langcode: true
+  links: true
