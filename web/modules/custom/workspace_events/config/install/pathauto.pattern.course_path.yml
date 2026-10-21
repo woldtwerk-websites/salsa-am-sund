@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.course
+  module:
+    - node
+id: course_path
+label: Kurs
+type: 'canonical_entities:node'
+pattern: '/salsa-kurse/[node:title]'
+selection_criteria:
+  e8ca4e18-cac2-4186-9050-3e961dc7fe26:
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: node
+    bundles:
+      course: course
+selection_logic: and
+weight: -5
+relationships: {  }

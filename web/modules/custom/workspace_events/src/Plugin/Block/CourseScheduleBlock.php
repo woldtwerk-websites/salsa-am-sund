@@ -7,8 +7,6 @@ namespace Drupal\workspace_events\Plugin\Block;
 use Drupal\Core\Block\Attribute\Block;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\workspace_events\EventFilter;
-use Drupal\workspace_events\EventOccurrence;
 
 /**
  * Provides a block with the weekly course schedule.
@@ -46,15 +44,7 @@ final class CourseScheduleBlock extends EventBlockBase {
    *   The block configuration form.
    */
   public function blockForm($form, FormStateInterface $form_state): array {
-    $form['locations'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Locations'),
-      '#description' => $this->t('Leave empty to show all locations.'),
-      '#options' => $this->getLocationOptions(),
-      '#multiple' => TRUE,
-      '#default_value' => $this->getConfiguredLocations(),
-      '#empty_option' => $this->t('- All locations -'),
-    ];
+    $form['locations'] = $this->buildLocationsElement();
 
     return $form;
   }
@@ -68,16 +58,7 @@ final class CourseScheduleBlock extends EventBlockBase {
    *   The form state.
    */
   public function blockSubmit($form, FormStateInterface $form_state): void {
-    $locations = $form_state->getValue('locations');
-    $ids = [];
-    if (is_array($locations)) {
-      foreach ($locations as $location) {
-        if (is_scalar($location) && is_numeric($location)) {
-          $ids[] = (int) $location;
-        }
-      }
-    }
-    $this->configuration['locations'] = array_values(array_filter($ids, static fn (int $id): bool => $id > 0));
+    $this->configuration['locations'] = $this->getSubmittedIds($form_state->getValue('locations'));
   }
 
   /**
@@ -87,31 +68,7 @@ final class CourseScheduleBlock extends EventBlockBase {
    *   The render array of the block.
    */
   public function build(): array {
-    $now = new \DateTimeImmutable('now');
-    $occurrences = $this->repository->findOccurrences(
-      new EventFilter(['course'], $this->getConfiguredLocations()),
-      $now,
-      $now->modify('+120 days'),
-    );
-
-    // Show one entry per course, based on its next occurrence.
-    $by_node = [];
-    foreach ($occurrences as $occurrence) {
-      $nid = (int) $occurrence->node->id();
-      $by_node[$nid] ??= $occurrence;
-    }
-    $courses = array_values($by_node);
-    usort($courses, static function (EventOccurrence $a, EventOccurrence $b): int {
-      return [
-        (int) $a->start->format('N'),
-        $a->start->format('H:i'),
-        (int) $a->node->id(),
-      ] <=> [
-        (int) $b->start->format('N'),
-        $b->start->format('H:i'),
-        (int) $b->node->id(),
-      ];
-    });
+    $courses = $this->findCourses($this->getConfiguredLocations());
 
     /** @var array<string, mixed> $build */
     $build = [];
@@ -151,21 +108,13 @@ final class CourseScheduleBlock extends EventBlockBase {
           'courses' => $items,
         ],
       ];
+
+      $build['ical'] = $this->buildIcalLinks([], $this->getConfiguredLocations(), $courses, FALSE, TRUE);
     }
 
     $this->applyOccurrenceCache($build, $courses);
 
     return $build;
-  }
-
-  /**
-   * Returns the configured location term IDs.
-   *
-   * @return int[]
-   *   The location term IDs.
-   */
-  private function getConfiguredLocations(): array {
-    return $this->getConfiguredIds('locations');
   }
 
 }

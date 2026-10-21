@@ -3,12 +3,12 @@ status: true
 dependencies:
   config:
     - field.field.node.event.body
-    - field.field.node.event.field_event_type
-    - field.field.node.event.field_level
     - field.field.node.event.field_link
     - field.field.node.event.field_location
+    - field.field.node.event.field_organizer
     - field.field.node.event.field_when
     - node.type.event
+    - taxonomy.vocabulary.organizer
     - workflows.workflow.basic_editorial
   module:
     - content_moderation
@@ -38,20 +38,6 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-  field_event_type:
-    type: options_buttons
-    weight: -19
-    region: content
-    settings: {  }
-    third_party_settings: {  }
-  field_level:
-    type: string_textfield
-    weight: -16
-    region: content
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
   field_link:
     type: link_default
     weight: -15
@@ -63,6 +49,12 @@ content:
   field_location:
     type: options_select
     weight: -17
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_organizer:
+    type: options_select
+    weight: -19
     region: content
     settings: {  }
     third_party_settings: {  }

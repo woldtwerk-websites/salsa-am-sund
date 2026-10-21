@@ -1,0 +1,29 @@
+uuid: 6041a1ca-17d9-417d-9026-c2946812e94b
+langcode: de
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_organizer
+    - node.type.event
+    - taxonomy.vocabulary.organizer
+id: node.event.field_organizer
+field_name: field_organizer
+entity_type: node
+bundle: event
+label: Veranstalter
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      organizer: organizer
+    sort:
+      field: weight
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

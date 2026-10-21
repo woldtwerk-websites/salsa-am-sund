@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\workspace_events\Plugin\Block;
 
 use Drupal\Component\Render\MarkupInterface;
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -12,8 +13,10 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\workspace_events\EventDescriptionFormatter;
+use Drupal\workspace_events\EventFilter;
 use Drupal\workspace_events\EventOccurrence;
 use Drupal\workspace_events\EventOccurrenceRepository;
+use Drupal\workspace_events\OrganizerResolver;
 use Drupal\taxonomy\TermInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -94,17 +97,59 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
   }
 
   /**
-   * Returns the event type options for the block form.
+   * Returns the organizer terms, in vocabulary order.
    *
-   * @return array<string, \Drupal\Core\StringTranslation\TranslatableMarkup>
-   *   The options, keyed by type.
+   * @return array<int, \Drupal\taxonomy\TermInterface>
+   *   The terms, keyed by term ID.
    */
-  protected function getTypeOptions(): array {
-    return [
-      'course' => $this->t('Course'),
-      'party' => $this->t('Party'),
-      'external_party' => $this->t('External party'),
-    ];
+  protected function getOrganizerTerms(): array {
+    $storage = $this->entityTypeManager->getStorage('taxonomy_term');
+    $terms = $storage->loadByProperties(['vid' => OrganizerResolver::VOCABULARY]);
+    uasort($terms, static fn (TermInterface $a, TermInterface $b): int => [
+      $a->getWeight(),
+      (string) $a->label(),
+    ] <=> [
+      $b->getWeight(),
+      (string) $b->label(),
+    ]);
+    $options = [];
+    foreach ($terms as $term) {
+      \assert($term instanceof TermInterface);
+      $options[(int) $term->id()] = $term;
+    }
+    return $options;
+  }
+
+  /**
+   * Returns the organizer options for the block form.
+   *
+   * @return array<int, string>
+   *   The term labels, keyed by term ID, in vocabulary order.
+   */
+  protected function getOrganizerOptions(): array {
+    $options = [];
+    foreach ($this->getOrganizerTerms() as $tid => $term) {
+      $options[$tid] = (string) $term->label();
+    }
+    return $options;
+  }
+
+  /**
+   * Returns the location terms, sorted by label.
+   *
+   * @return array<int, \Drupal\taxonomy\TermInterface>
+   *   The terms, keyed by term ID.
+   */
+  protected function getLocationTerms(): array {
+    $storage = $this->entityTypeManager->getStorage('taxonomy_term');
+    $terms = $storage->loadByProperties(['vid' => 'location']);
+    uasort($terms, static fn (TermInterface $a, TermInterface $b): int => strcasecmp((string) $a->label(), (string) $b->label()));
+    $options = [];
+    foreach ($terms as $term) {
+      \assert($term instanceof TermInterface);
+      $options[(int) $term->id()] = $term;
+    }
+    return $options;
   }
 
   /**
@@ -114,15 +159,62 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
    *   The term labels, keyed by term ID.
    */
   protected function getLocationOptions(): array {
-    $storage = $this->entityTypeManager->getStorage('taxonomy_term');
-    $terms = $storage->loadByProperties(['vid' => 'location']);
-    uasort($terms, static fn (TermInterface $a, TermInterface $b): int => strcasecmp((string) $a->label(), (string) $b->label()));
     $options = [];
-    foreach ($terms as $term) {
-      \assert($term instanceof TermInterface);
-      $options[(int) $term->id()] = (string) $term->label();
+    foreach ($this->getLocationTerms() as $tid => $term) {
+      $options[$tid] = (string) $term->label();
     }
     return $options;
+  }
+
+  /**
+   * Builds the location filter element for the block configuration form.
+   *
+   * @return array<string, mixed>
+   *   The checkboxes form element.
+   */
+  protected function buildLocationsElement(): array {
+    return [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Locations'),
+      '#description' => $this->t('Leave empty to show all locations.'),
+      '#options' => $this->getLocationOptions(),
+      '#default_value' => $this->getConfiguredLocations(),
+    ];
+  }
+
+  /**
+   * Returns the configured location term IDs.
+   *
+   * @return int[]
+   *   The location term IDs.
+   */
+  protected function getConfiguredLocations(): array {
+    return $this->getConfiguredIds('locations');
+  }
+
+  /**
+   * Extracts the checked term IDs from a checkboxes form value.
+   *
+   * Checkbox values are keyed by term ID and hold the term ID when checked
+   * and 0 when unchecked.
+   *
+   * @param mixed $value
+   *   The submitted form value.
+   *
+   * @return int[]
+   *   The checked term IDs, as a list.
+   */
+  protected function getSubmittedIds(mixed $value): array {
+    if (!is_array($value)) {
+      return [];
+    }
+    $ids = [];
+    foreach (array_filter($value) as $id) {
+      if (is_scalar($id) && is_numeric($id)) {
+        $ids[] = (int) $id;
+      }
+    }
+    return array_values(array_filter($ids, static fn (int $id): bool => $id > 0));
   }
 
   /**
@@ -179,6 +271,185 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
   }
 
   /**
+   * Returns the next occurrence of every course.
+   *
+   * One entity query finds the candidate courses and their date deltas; the
+   * first upcoming occurrence per course is kept and the result is sorted by
+   * weekday and time, like the course schedule.
+   *
+   * @param int[] $locations
+   *   The location term IDs to restrict to. Empty for all locations.
+   * @param int $days
+   *   The number of days to look ahead.
+   *
+   * @return \Drupal\workspace_events\EventOccurrence[]
+   *   The next occurrence of each course.
+   */
+  protected function findCourses(array $locations = [], int $days = 120): array {
+    $now = new \DateTimeImmutable('now');
+    $occurrences = $this->repository->findOccurrences(
+      EventFilter::coursesOnly(locationIds: $locations),
+      $now,
+      $now->modify('+' . $days . ' days'),
+    );
+
+    // Show one entry per course, based on its next occurrence.
+    $by_node = [];
+    foreach ($occurrences as $occurrence) {
+      $by_node[(int) $occurrence->node->id()] ??= $occurrence;
+    }
+    $courses = array_values($by_node);
+    usort($courses, static function (EventOccurrence $a, EventOccurrence $b): int {
+      return [
+        (int) $a->start->format('N'),
+        $a->start->format('H:i'),
+        (int) $a->node->id(),
+      ] <=> [
+        (int) $b->start->format('N'),
+        $b->start->format('H:i'),
+        (int) $b->node->id(),
+      ];
+    });
+
+    return $courses;
+  }
+
+  /**
+   * Builds the calendar subscription component.
+   *
+   * The component offers the given organizers and the courses passed in by the
+   * caller: the visitor decides in the popover what ends up in the calendar.
+   * The configured locations stay a hidden filter of the feed.
+   *
+   * @param int[] $organizerIds
+   *   The configured organizer term IDs, empty for every organizer.
+   * @param int[] $locations
+   *   The configured location term IDs.
+   * @param \Drupal\workspace_events\EventOccurrence[] $courses
+   *   The next occurrence of every course to offer.
+   * @param bool $organizersChecked
+   *   Whether the organizer options are pre-checked.
+   * @param bool $coursesChecked
+   *   Whether the course options are pre-checked.
+   *
+   * @return array<string, mixed>
+   *   The render array of the subscription component.
+   */
+  protected function buildIcalLinks(array $organizerIds, array $locations, array $courses, bool $organizersChecked, bool $coursesChecked): array {
+    $options = [];
+    $cacheability = new CacheableMetadata();
+    $cacheability->addCacheTags(['taxonomy_term_list:organizer']);
+    $offered = $this->getOrganizerTerms();
+    if ($organizerIds !== []) {
+      // Only the organizers allowed by the block configuration are offered.
+      $offered = array_intersect_key($offered, array_flip($organizerIds));
+    }
+    foreach ($offered as $tid => $term) {
+      $options[] = [
+        'name' => 'organizer[]',
+        'value' => (string) $tid,
+        'label' => (string) $term->label(),
+        'checked' => $organizersChecked,
+        'group' => 'organizers',
+      ];
+      $cacheability->addCacheableDependency($term);
+    }
+    foreach ($courses as $occurrence) {
+      $options[] = [
+        'name' => 'course[]',
+        'value' => (string) $occurrence->node->id(),
+        'label' => (string) $occurrence->node->label(),
+        'checked' => $coursesChecked,
+        'group' => 'courses',
+        'meta' => $this->formatCourseMeta($occurrence),
+      ];
+    }
+
+    /** @var array<string, mixed> $build */
+    $build = [];
+    if ($options === []) {
+      // Without a selectable entry the popover has nothing to offer, so the
+      // plain links are kept.
+      $absolute = $this->getCalendarUrl($organizerIds, $locations, TRUE)->toString();
+      $build['subscribe'] = [
+        '#type' => 'component',
+        '#component' => 'salsa:button',
+        '#props' => [
+          'label' => (string) $this->t('Subscribe to calendar'),
+          'href' => preg_replace('#^https?://#', 'webcal://', $absolute) ?? $absolute,
+          'variant' => 'outline',
+          'size' => 'md',
+          'icon' => 'external-link',
+        ],
+      ];
+      $build['download'] = [
+        '#type' => 'link',
+        '#title' => $this->t('Download .ics'),
+        '#url' => $this->getCalendarUrl($organizerIds, $locations),
+      ];
+      return $build;
+    }
+
+    $hidden = [];
+    if ($locations !== []) {
+      $hidden[] = [
+        'name' => 'location',
+        'value' => implode(',', $locations),
+      ];
+    }
+
+    /** @var array<string, mixed> $subscribe */
+    $subscribe = [
+      '#type' => 'component',
+      '#component' => 'salsa:calendar-subscribe',
+      '#props' => [
+        'action' => $this->getCalendarUrl([], [], TRUE)->toString(),
+        'id' => Html::getUniqueId('salsa-calendar-subscribe'),
+        'options' => $options,
+        'hidden' => $hidden,
+      ],
+    ];
+
+    // New courses must appear in the popover.
+    $cacheability->addCacheTags(['node_list:course']);
+    foreach ($courses as $occurrence) {
+      $cacheability->addCacheableDependency($occurrence->node);
+      if ($occurrence->location !== NULL) {
+        $cacheability->addCacheableDependency($occurrence->location);
+      }
+    }
+    $cacheability->applyTo($subscribe);
+    $build['subscribe'] = $subscribe;
+
+    return $build;
+  }
+
+  /**
+   * Formats the meta line of a course option.
+   *
+   * @param \Drupal\workspace_events\EventOccurrence $occurrence
+   *   The next occurrence of the course.
+   *
+   * @return string
+   *   The weekday, time and location, joined for display.
+   */
+  protected function formatCourseMeta(EventOccurrence $occurrence): string {
+    $parts = [];
+    $weekday = self::WEEKDAYS[(int) $occurrence->start->format('N')] ?? '';
+    if ($weekday !== '') {
+      $parts[] = ucfirst($weekday);
+    }
+    $time = $this->formatTime($occurrence);
+    if ($time !== NULL) {
+      $parts[] = $time;
+    }
+    if ($occurrence->location !== NULL) {
+      $parts[] = (string) $occurrence->location->label();
+    }
+    return implode(' · ', $parts);
+  }
+
+  /**
    * Returns the link target of an event.
    *
    * @param \Drupal\node\NodeInterface $node
@@ -213,8 +484,8 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
   /**
    * Returns the calendar route for the given filter.
    *
-   * @param string[] $types
-   *   The event type keys.
+   * @param int[] $organizerIds
+   *   The organizer term IDs.
    * @param int[] $locations
    *   The location term IDs.
    * @param bool $absolute
@@ -223,10 +494,10 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
    * @return \Drupal\Core\Url
    *   The URL object.
    */
-  protected function getCalendarUrl(array $types, array $locations, bool $absolute = FALSE): Url {
+  protected function getCalendarUrl(array $organizerIds, array $locations, bool $absolute = FALSE): Url {
     $query = [];
-    if ($types !== []) {
-      $query['type'] = implode(',', $types);
+    if ($organizerIds !== []) {
+      $query['organizer'] = implode(',', $organizerIds);
     }
     if ($locations !== []) {
       $query['location'] = implode(',', $locations);
@@ -249,13 +520,18 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
     $cacheability = new CacheableMetadata();
     $cacheability->addCacheTags([
       'node_list:event',
+      'node_list:course',
       'taxonomy_term_list:location',
+      'taxonomy_term_list:organizer',
     ]);
 
     $now = time();
     $max_age = 86400;
     foreach ($occurrences as $occurrence) {
       $cacheability->addCacheableDependency($occurrence->node);
+      if ($occurrence->organizer !== NULL) {
+        $cacheability->addCacheableDependency($occurrence->organizer);
+      }
       if ($occurrence->location !== NULL) {
         $cacheability->addCacheableDependency($occurrence->location);
       }

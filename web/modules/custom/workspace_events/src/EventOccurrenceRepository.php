@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Drupal\workspace_events;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\Query\ConditionInterface;
+use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\TermInterface;
 
@@ -52,14 +54,16 @@ final class EventOccurrenceRepository {
     $node_storage = $this->entityTypeManager->getStorage('node');
     $query = $node_storage->getQuery()
       ->accessCheck(TRUE)
-      ->condition('type', 'event')
+      // Events and courses are separate bundles.
+      ->condition('type', ['course', 'event'], 'IN')
       ->condition('status', NodeInterface::PUBLISHED)
       // Only consider date deltas that overlap the requested range.
       ->condition('field_when.value', $to_timestamp, '<=')
       ->condition('field_when.end_value', $from_timestamp, '>=');
 
-    if ($filter->types !== []) {
-      $query->condition('field_event_type.value', $filter->types, 'IN');
+    $type_group = $this->buildTypeCondition($query, $filter);
+    if ($type_group !== NULL) {
+      $query->condition($type_group);
     }
     if ($filter->locationIds !== []) {
       $query->condition('field_location.target_id', $filter->locationIds, 'IN');
@@ -98,6 +102,50 @@ final class EventOccurrenceRepository {
   }
 
   /**
+   * Builds the type condition group of the candidate query.
+   *
+   * Events are selected by their organizer term, courses by their bundle. Both
+   * cases are combined in a single OR group, so the occurrences of all
+   * requested organizers and courses are found with one entity query.
+   *
+   * @param \Drupal\Core\Entity\Query\QueryInterface $query
+   *   The entity query that the condition group belongs to.
+   * @param \Drupal\workspace_events\EventFilter $filter
+   *   The filter to apply.
+   *
+   * @return \Drupal\Core\Entity\Query\ConditionInterface|null
+   *   The condition group, or NULL when every event and course is included.
+   */
+  private function buildTypeCondition(QueryInterface $query, EventFilter $filter): ?ConditionInterface {
+    $unrestricted = $filter->organizerIds === [] && $filter->courseIds === [];
+    if ($filter->includeEvents && $filter->includeCourses && $unrestricted) {
+      return NULL;
+    }
+
+    $group = $query->orConditionGroup();
+    if ($filter->includeCourses) {
+      $course_group = $query->andConditionGroup()->condition('type', 'course');
+      if ($filter->courseIds !== []) {
+        $course_group->condition('nid', $filter->courseIds, 'IN');
+      }
+      $group->condition($course_group);
+    }
+    if ($filter->includeEvents) {
+      $event_group = $query->andConditionGroup()->condition('type', 'event');
+      if ($filter->organizerIds !== []) {
+        $event_group->condition('field_organizer.target_id', $filter->organizerIds, 'IN');
+      }
+      $group->condition($event_group);
+    }
+    if ($group->count() === 0) {
+      // No kind of node was requested: match nothing instead of everything.
+      $group->condition('type', '');
+    }
+
+    return $group;
+  }
+
+  /**
    * Returns the occurrences of a node that overlap a range.
    *
    * @param \Drupal\node\NodeInterface $node
@@ -111,9 +159,12 @@ final class EventOccurrenceRepository {
    *   The occurrences.
    */
   private function getOccurrencesForNode(NodeInterface $node, int $from, int $to): array {
-    $type = $node->get('field_event_type')->getString();
-    if ($type === '') {
-      return [];
+    $organizer = NULL;
+    if ($node->hasField('field_organizer')) {
+      $organizer = $node->get('field_organizer')->entity;
+      if (!$organizer instanceof TermInterface) {
+        $organizer = NULL;
+      }
     }
 
     $location = $node->get('field_location')->entity;
@@ -147,7 +198,7 @@ final class EventOccurrenceRepository {
         $start,
         $end,
         self::isAllDay($start_timestamp, $end_timestamp, $timezone),
-        $type,
+        $organizer,
         $location,
       );
     }

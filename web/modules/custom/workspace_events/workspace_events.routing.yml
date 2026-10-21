@@ -6,3 +6,13 @@ workspace_events.ical:
   methods: [GET]
   requirements:
     _access: 'TRUE'
+
+workspace_events.events_json:
+  path: '/termine.json'
+  defaults:
+    _controller: '\Drupal\workspace_events\Controller\EventsJsonController::__invoke'
+    _title: 'Termine'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+

@@ -7,8 +7,10 @@ namespace Drupal\workspace_events\Controller;
 use Drupal\Core\Cache\CacheableResponse;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\node\NodeInterface;
 use Drupal\workspace_events\EventDescriptionFormatter;
 use Drupal\workspace_events\EventFilter;
+use Drupal\workspace_events\EventFilterFactory;
 use Drupal\workspace_events\EventOccurrence;
 use Drupal\workspace_events\EventOccurrenceRepository;
 use Drupal\taxonomy\TermInterface;
@@ -25,16 +27,16 @@ use Symfony\Component\HttpFoundation\Response;
 final class IcalController implements ContainerInjectionInterface {
 
   /**
-   * Cached event type labels, keyed by type.
-   *
-   * @var array<string, string>|null
-   */
-  private ?array $typeLabels = NULL;
-
-  /**
    * The timezone used for date output.
    */
   private const string TIMEZONE = 'Europe/Berlin';
+
+  /**
+   * The category of course occurrences in the feed.
+   *
+   * The feed is German, so the category is not translated.
+   */
+  private const string COURSE_CATEGORY = 'Kurs';
 
   /**
    * The number of days shown after today.
@@ -60,11 +62,14 @@ final class IcalController implements ContainerInjectionInterface {
    *   The entity type manager.
    * @param \Drupal\workspace_events\EventDescriptionFormatter $descriptionFormatter
    *   The event description formatter.
+   * @param \Drupal\workspace_events\EventFilterFactory $filterFactory
+   *   The filter factory that parses the query parameters.
    */
   public function __construct(
     private readonly EventOccurrenceRepository $repository,
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly EventDescriptionFormatter $descriptionFormatter,
+    private readonly EventFilterFactory $filterFactory,
   ) {}
 
   /**
@@ -77,8 +82,10 @@ final class IcalController implements ContainerInjectionInterface {
     \assert($entity_type_manager instanceof EntityTypeManagerInterface);
     $description_formatter = $container->get(EventDescriptionFormatter::class);
     \assert($description_formatter instanceof EventDescriptionFormatter);
+    $filter_factory = $container->get(EventFilterFactory::class);
+    \assert($filter_factory instanceof EventFilterFactory);
 
-    return new static($repository, $entity_type_manager, $description_formatter);
+    return new static($repository, $entity_type_manager, $description_formatter, $filter_factory);
   }
 
   /**
@@ -97,7 +104,7 @@ final class IcalController implements ContainerInjectionInterface {
     $from = $now->modify('-' . $past_days . ' days');
     $to = $now->modify('+' . self::FUTURE_DAYS . ' days');
 
-    $filter = EventFilter::fromQuery($request->query);
+    $filter = $this->filterFactory->fromQuery($request->query);
     $occurrences = $this->repository->findOccurrences($filter, $from, $to);
 
     $calendar = $this->buildCalendar($request, $filter, $occurrences);
@@ -109,18 +116,30 @@ final class IcalController implements ContainerInjectionInterface {
     $cacheability = $response->getCacheableMetadata();
     $cacheability->addCacheContexts([
       'url.query_args:type',
+      'url.query_args:organizer',
       'url.query_args:location',
+      'url.query_args:course',
       'url.query_args:past',
     ]);
     $cacheability->addCacheTags([
       'node_list:event',
+      'node_list:course',
       'taxonomy_term_list:location',
+      'taxonomy_term_list:organizer',
     ]);
     foreach ($occurrences as $occurrence) {
       $cacheability->addCacheableDependency($occurrence->node);
       if ($occurrence->location !== NULL) {
         $cacheability->addCacheableDependency($occurrence->location);
       }
+    }
+    // The calendar name lists the selected organizers and courses, so their
+    // labels are part of the response.
+    foreach ($this->loadTerms($filter->organizerIds) as $organizer) {
+      $cacheability->addCacheableDependency($organizer);
+    }
+    foreach ($this->loadCourses($filter->courseIds) as $course) {
+      $cacheability->addCacheableDependency($course);
     }
     // The window is relative to the current time, so the response is only
     // valid for a limited period.
@@ -227,7 +246,10 @@ final class IcalController implements ContainerInjectionInterface {
     $event->add('DESCRIPTION', $this->getDescription($occurrence, $schemeAndHost));
     $event->add('LOCATION', $this->getLocation($occurrence));
     $event->add('URL', $this->getUrl($occurrence, $schemeAndHost));
-    $event->add('CATEGORIES', $this->getTypeLabel($occurrence->type));
+    $categories = $this->getCategories($occurrence);
+    if ($categories !== '') {
+      $event->add('CATEGORIES', $categories);
+    }
 
     if ($occurrence->allDay) {
       $event->add('DTSTART', $occurrence->start->format('Ymd'), ['VALUE' => 'DATE']);
@@ -257,25 +279,70 @@ final class IcalController implements ContainerInjectionInterface {
     }
 
     $parts = [];
-    foreach ($filter->types as $type) {
-      $parts[] = $this->getTypeLabel($type);
+    foreach ($this->loadTerms($filter->organizerIds) as $organizer) {
+      $parts[] = (string) $organizer->label();
     }
-    if ($filter->locationIds !== []) {
-      $terms = $this->entityTypeManager->getStorage('taxonomy_term')
-        ->loadMultiple($filter->locationIds);
-      $locations = [];
-      foreach ($terms as $term) {
-        \assert($term instanceof TermInterface);
-        $locations[] = (string) $term->label();
+
+    if ($filter->includeCourses) {
+      // Selected courses are more informative than the generic "Kurs" label.
+      $course_titles = array_map(
+        static fn (NodeInterface $course): string => (string) $course->label(),
+        $this->loadCourses($filter->courseIds),
+      );
+      if ($course_titles !== []) {
+        $parts[] = implode(', ', $course_titles);
       }
-      if ($locations !== []) {
-        $parts[] = implode(', ', $locations);
+      elseif (!$filter->includeEvents) {
+        $parts[] = self::COURSE_CATEGORY;
       }
     }
+
+    foreach ($this->loadTerms($filter->locationIds) as $location) {
+      $parts[] = (string) $location->label();
+    }
+
     if ($parts === []) {
       return $name;
     }
     return $name . ' – ' . implode(', ', $parts);
+  }
+
+  /**
+   * Loads the selected course nodes.
+   *
+   * @param int[] $courseIds
+   *   The course node IDs.
+   *
+   * @return \Drupal\node\NodeInterface[]
+   *   The existing course nodes, keyed by a list.
+   */
+  private function loadCourses(array $courseIds): array {
+    if ($courseIds === []) {
+      return [];
+    }
+    return array_values(array_filter(
+      $this->entityTypeManager->getStorage('node')->loadMultiple($courseIds),
+      static fn (mixed $node): bool => $node instanceof NodeInterface,
+    ));
+  }
+
+  /**
+   * Loads taxonomy terms by ID.
+   *
+   * @param int[] $termIds
+   *   The term IDs.
+   *
+   * @return \Drupal\taxonomy\TermInterface[]
+   *   The existing terms, keyed by a list.
+   */
+  private function loadTerms(array $termIds): array {
+    if ($termIds === []) {
+      return [];
+    }
+    return array_values(array_filter(
+      $this->entityTypeManager->getStorage('taxonomy_term')->loadMultiple($termIds),
+      static fn (mixed $term): bool => $term instanceof TermInterface,
+    ));
   }
 
   /**
@@ -289,9 +356,11 @@ final class IcalController implements ContainerInjectionInterface {
    */
   private function getSummary(EventOccurrence $occurrence): string {
     $title = (string) $occurrence->node->label();
-    $level = $occurrence->node->get('field_level')->getString();
-    if ($occurrence->type === 'course' && $level !== '') {
-      return $title . ' (' . $level . ')';
+    if ($occurrence->node->bundle() === 'course' && $occurrence->node->hasField('field_level')) {
+      $level = $occurrence->node->get('field_level')->getString();
+      if ($level !== '') {
+        return $title . ' (' . $level . ')';
+      }
     }
     return $title;
   }
@@ -361,31 +430,21 @@ final class IcalController implements ContainerInjectionInterface {
   }
 
   /**
-   * Returns the German label of an event type.
+   * Returns the iCal category of an occurrence.
    *
-   * @param string $type
-   *   The event type key.
+   * Events are categorized by their organizer, courses by a fixed label.
+   *
+   * @param \Drupal\workspace_events\EventOccurrence $occurrence
+   *   The occurrence.
    *
    * @return string
-   *   The label.
+   *   The category, or an empty string when the event has no organizer.
    */
-  private function getTypeLabel(string $type): string {
-    if ($this->typeLabels === NULL) {
-      $this->typeLabels = [];
-      $field = $this->entityTypeManager->getStorage('field_config')
-        ->load('node.event.field_event_type');
-      if ($field !== NULL) {
-        $allowed = $field->getSetting('allowed_values');
-        if (is_array($allowed)) {
-          foreach ($allowed as $key => $label) {
-            if (is_string($key) && is_string($label)) {
-              $this->typeLabels[$key] = $label;
-            }
-          }
-        }
-      }
+  private function getCategories(EventOccurrence $occurrence): string {
+    if ($occurrence->isCourse()) {
+      return self::COURSE_CATEGORY;
     }
-    return $this->typeLabels[$type] ?? $type;
+    return $occurrence->organizer === NULL ? '' : (string) $occurrence->organizer->label();
   }
 
   /**

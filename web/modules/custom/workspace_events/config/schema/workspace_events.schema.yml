@@ -4,18 +4,18 @@ block.settings.salsa_events:
   constraints:
     FullyValidatable: ~
   mapping:
-    types:
+    organizers:
       type: sequence
-      label: 'Event types'
+      label: 'Organizers'
       sequence:
-        type: string
-        label: 'Event type'
+        type: integer
+        label: 'Organizer term ID'
         constraints:
-          Choice:
-            choices:
-              - course
-              - party
-              - external_party
+          Range:
+            min: 1
+    courses:
+      type: boolean
+      label: 'Show courses'
     locations:
       type: sequence
       label: 'Locations'

@@ -16,7 +16,7 @@ final readonly class EventOccurrence {
    * Constructs an EventOccurrence.
    *
    * @param \Drupal\node\NodeInterface $node
-   *   The event node.
+   *   The event or course node.
    * @param int $delta
    *   The delta of the smart date field value.
    * @param \DateTimeImmutable $start
@@ -25,8 +25,8 @@ final readonly class EventOccurrence {
    *   The end date and time, or NULL when the event has no known end.
    * @param bool $allDay
    *   Whether the occurrence lasts the whole day.
-   * @param string $type
-   *   The event type key.
+   * @param \Drupal\taxonomy\TermInterface|null $organizer
+   *   The organizer term of an event, NULL for courses.
    * @param \Drupal\taxonomy\TermInterface|null $location
    *   The location term, if any.
    */
@@ -36,9 +36,16 @@ final readonly class EventOccurrence {
     public \DateTimeImmutable $start,
     public ?\DateTimeImmutable $end,
     public bool $allDay,
-    public string $type,
+    public ?TermInterface $organizer,
     public ?TermInterface $location,
   ) {}
+
+  /**
+   * Returns whether the occurrence comes from a course node.
+   */
+  public function isCourse(): bool {
+    return $this->node->bundle() === 'course';
+  }
 
   /**
    * Returns the timestamp at which the occurrence ends.

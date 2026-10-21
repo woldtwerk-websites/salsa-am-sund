@@ -16,6 +16,7 @@ use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\taxonomy\TermInterface;
 use Drupal\Tests\canvas\Kernel\CanvasKernelTestBase;
 use Drupal\Tests\user\Traits\UserCreationTrait;
+use Drupal\workspace_events\OrganizerResolver;
 
 /**
  * Base class for workspace_events kernel tests.
@@ -61,6 +62,16 @@ abstract class EventKernelTestBase extends CanvasKernelTestBase {
   protected EntityStorageInterface $nodeStorage;
 
   /**
+   * The ID of the "Salsa am Sund" organizer term.
+   */
+  protected int $salsaAmSund;
+
+  /**
+   * The ID of the "Extern" organizer term.
+   */
+  protected int $externalOrganizer;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
@@ -80,6 +91,13 @@ abstract class EventKernelTestBase extends CanvasKernelTestBase {
     $this->setUpCurrentUser([], ['access content']);
     $this->termStorage = $this->container->get('entity_type.manager')->getStorage('taxonomy_term');
     $this->nodeStorage = $this->container->get('entity_type.manager')->getStorage('node');
+
+    $salsa = reset($this->termStorage->loadByProperties(['uuid' => OrganizerResolver::SALSA_AM_SUND_UUID]));
+    $external = reset($this->termStorage->loadByProperties(['uuid' => OrganizerResolver::EXTERNAL_UUID]));
+    self::assertInstanceOf(TermInterface::class, $salsa);
+    self::assertInstanceOf(TermInterface::class, $external);
+    $this->salsaAmSund = (int) $salsa->id();
+    $this->externalOrganizer = (int) $external->id();
   }
 
   /**
@@ -90,6 +108,19 @@ abstract class EventKernelTestBase extends CanvasKernelTestBase {
       'vid' => 'location',
       'name' => 'Orte',
     ])->save();
+    Vocabulary::create([
+      'vid' => OrganizerResolver::VOCABULARY,
+      'name' => 'Veranstalter',
+      'description' => 'Wer eine Veranstaltung ausrichtet',
+    ])->save();
+    foreach (OrganizerResolver::TERMS as $uuid => $values) {
+      Term::create([
+        'uuid' => $uuid,
+        'vid' => OrganizerResolver::VOCABULARY,
+        'name' => $values['name'],
+        'weight' => $values['weight'],
+      ])->save();
+    }
     FieldStorageConfig::create([
       'field_name' => 'field_address',
       'entity_type' => 'taxonomy_term',
@@ -125,46 +156,42 @@ abstract class EventKernelTestBase extends CanvasKernelTestBase {
       'display_submitted' => FALSE,
     ])->save();
 
+    NodeType::create([
+      'type' => 'course',
+      'name' => 'Kurs',
+      'description' => 'Wöchentliche Tanzkurse',
+      'new_revision' => TRUE,
+      'display_submitted' => FALSE,
+    ])->save();
+
     FieldStorageConfig::create([
       'field_name' => 'field_when',
       'entity_type' => 'node',
       'type' => 'smartdate',
       'cardinality' => FieldStorageConfig::CARDINALITY_UNLIMITED,
     ])->save();
-    $when = FieldConfig::create([
-      'field_name' => 'field_when',
-      'entity_type' => 'node',
-      'bundle' => 'event',
-      'label' => 'Datum & Uhrzeit',
-      'required' => TRUE,
-      'field_storage' => FieldStorageConfig::loadByName('node', 'field_when'),
-    ]);
-    $when->setThirdPartySetting('smart_date_recur', 'allow_recurring', TRUE);
-    $when->setThirdPartySetting('smart_date_recur', 'month_limit', 12);
-    $when->save();
+    foreach (['event' => 'Datum & Uhrzeit', 'course' => 'Wann'] as $bundle => $label) {
+      $when = $this->createFieldConfig('field_when', $bundle, $label, [], TRUE);
+      $when->setThirdPartySetting('smart_date_recur', 'allow_recurring', TRUE);
+      $when->setThirdPartySetting('smart_date_recur', 'month_limit', 12);
+      $when->save();
+    }
 
     FieldStorageConfig::create([
-      'field_name' => 'field_event_type',
+      'field_name' => 'field_organizer',
       'entity_type' => 'node',
-      'type' => 'list_string',
+      'type' => 'entity_reference',
       'cardinality' => 1,
-      'settings' => [
-        'allowed_values' => [
-          'course' => 'Kurs',
-          'party' => 'Party',
-          'external_party' => 'Externe Party',
-        ],
-        'allowed_values_function' => '',
+      'settings' => ['target_type' => 'taxonomy_term'],
+    ])->save();
+    $this->createFieldConfig('field_organizer', 'event', 'Veranstalter', [
+      'handler' => 'default:taxonomy_term',
+      'handler_settings' => [
+        'target_bundles' => [OrganizerResolver::VOCABULARY => OrganizerResolver::VOCABULARY],
+        'sort' => ['field' => 'weight', 'direction' => 'ASC'],
+        'auto_create' => FALSE,
       ],
-    ])->save();
-    FieldConfig::create([
-      'field_name' => 'field_event_type',
-      'entity_type' => 'node',
-      'bundle' => 'event',
-      'label' => 'Art',
-      'required' => TRUE,
-      'field_storage' => FieldStorageConfig::loadByName('node', 'field_event_type'),
-    ])->save();
+    ], TRUE);
 
     FieldStorageConfig::create([
       'field_name' => 'field_location',
@@ -173,21 +200,17 @@ abstract class EventKernelTestBase extends CanvasKernelTestBase {
       'cardinality' => 1,
       'settings' => ['target_type' => 'taxonomy_term'],
     ])->save();
-    FieldConfig::create([
-      'field_name' => 'field_location',
-      'entity_type' => 'node',
-      'bundle' => 'event',
-      'label' => 'Ort',
-      'field_storage' => FieldStorageConfig::loadByName('node', 'field_location'),
-      'settings' => [
-        'handler' => 'default:taxonomy_term',
-        'handler_settings' => [
-          'target_bundles' => ['location' => 'location'],
-          'sort' => ['field' => 'name', 'direction' => 'ASC'],
-          'auto_create' => FALSE,
-        ],
+    $location_settings = [
+      'handler' => 'default:taxonomy_term',
+      'handler_settings' => [
+        'target_bundles' => ['location' => 'location'],
+        'sort' => ['field' => 'name', 'direction' => 'ASC'],
+        'auto_create' => FALSE,
       ],
-    ])->save();
+    ];
+    foreach (['event', 'course'] as $bundle) {
+      $this->createFieldConfig('field_location', $bundle, 'Ort', $location_settings);
+    }
 
     FieldStorageConfig::create([
       'field_name' => 'field_level',
@@ -196,13 +219,7 @@ abstract class EventKernelTestBase extends CanvasKernelTestBase {
       'cardinality' => 1,
       'settings' => ['max_length' => 255, 'is_ascii' => FALSE, 'case_sensitive' => FALSE],
     ])->save();
-    FieldConfig::create([
-      'field_name' => 'field_level',
-      'entity_type' => 'node',
-      'bundle' => 'event',
-      'label' => 'Level',
-      'field_storage' => FieldStorageConfig::loadByName('node', 'field_level'),
-    ])->save();
+    $this->createFieldConfig('field_level', 'course', 'Level');
 
     FieldStorageConfig::create([
       'field_name' => 'field_link',
@@ -210,14 +227,10 @@ abstract class EventKernelTestBase extends CanvasKernelTestBase {
       'type' => 'link',
       'cardinality' => 1,
     ])->save();
-    FieldConfig::create([
-      'field_name' => 'field_link',
-      'entity_type' => 'node',
-      'bundle' => 'event',
-      'label' => 'Weitere Infos (Link)',
-      'field_storage' => FieldStorageConfig::loadByName('node', 'field_link'),
-      'settings' => ['title' => 1, 'link_type' => 17],
-    ])->save();
+    $link_settings = ['title' => 1, 'link_type' => 17];
+    foreach (['event' => 'Weitere Infos (Link)', 'course' => 'Link'] as $bundle => $label) {
+      $this->createFieldConfig('field_link', $bundle, $label, $link_settings);
+    }
 
     if (FieldStorageConfig::loadByName('node', 'body') === NULL) {
       FieldStorageConfig::create([
@@ -227,14 +240,43 @@ abstract class EventKernelTestBase extends CanvasKernelTestBase {
         'cardinality' => 1,
       ])->save();
     }
-    FieldConfig::create([
-      'field_name' => 'body',
+    foreach (['event', 'course'] as $bundle) {
+      $this->createFieldConfig('body', $bundle, 'Beschreibung', [
+        'display_summary' => TRUE,
+        'allowed_formats' => [],
+      ]);
+    }
+  }
+
+  /**
+   * Creates a field instance for a node bundle.
+   *
+   * @param string $field_name
+   *   The field name.
+   * @param string $bundle
+   *   The node bundle machine name.
+   * @param string $label
+   *   The field label.
+   * @param array<string, mixed> $settings
+   *   The field settings.
+   * @param bool $required
+   *   Whether the field is required.
+   *
+   * @return \Drupal\field\Entity\FieldConfig
+   *   The field config.
+   */
+  protected function createFieldConfig(string $field_name, string $bundle, string $label, array $settings = [], bool $required = FALSE): FieldConfig {
+    $field = FieldConfig::create([
+      'field_name' => $field_name,
       'entity_type' => 'node',
-      'bundle' => 'event',
-      'label' => 'Beschreibung',
-      'field_storage' => FieldStorageConfig::loadByName('node', 'body'),
-      'settings' => ['display_summary' => TRUE, 'allowed_formats' => []],
-    ])->save();
+      'bundle' => $bundle,
+      'label' => $label,
+      'required' => $required,
+      'field_storage' => FieldStorageConfig::loadByName('node', $field_name),
+      'settings' => $settings,
+    ]);
+    $field->save();
+    return $field;
   }
 
   /**
@@ -330,17 +372,19 @@ abstract class EventKernelTestBase extends CanvasKernelTestBase {
    *   The recurrence parameters.
    * @param string $limit
    *   The recurrence limit, for example COUNT=4. Empty for unlimited.
+   * @param string $bundle
+   *   The node bundle the rule belongs to.
    *
    * @return array<int, array<string, mixed>>
    *   The date deltas.
    */
-  protected function recurringDeltas(\DateTimeImmutable $start, \DateTimeImmutable $end, string $frequency, string $parameters, string $limit = ''): array {
+  protected function recurringDeltas(\DateTimeImmutable $start, \DateTimeImmutable $end, string $frequency, string $parameters, string $limit = '', string $bundle = 'event'): array {
     $rule = SmartDateRule::create([
       'freq' => $frequency,
       'limit' => $limit,
       'unlimited' => $limit === '',
       'entity_type' => 'node',
-      'bundle' => 'event',
+      'bundle' => $bundle,
       'field_name' => 'field_when',
       'start' => $start->getTimestamp(),
       'end' => $end->getTimestamp(),
@@ -378,6 +422,27 @@ abstract class EventKernelTestBase extends CanvasKernelTestBase {
   protected function createEvent(array $values): NodeInterface {
     $values += [
       'type' => 'event',
+      'status' => NodeInterface::PUBLISHED,
+      'uid' => 1,
+      'field_organizer' => $this->salsaAmSund,
+    ];
+    $node = Node::create($values);
+    $node->save();
+    return $node;
+  }
+
+  /**
+   * Creates a course node.
+   *
+   * @param array<string, mixed> $values
+   *   The node values.
+   *
+   * @return \Drupal\node\NodeInterface
+   *   The course.
+   */
+  protected function createCourse(array $values): NodeInterface {
+    $values += [
+      'type' => 'course',
       'status' => NodeInterface::PUBLISHED,
       'uid' => 1,
     ];

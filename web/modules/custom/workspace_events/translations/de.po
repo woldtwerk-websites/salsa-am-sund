@@ -31,32 +31,29 @@ msgstr "Termine für Kurse und Partys, inklusive filterbarem iCal-Feed."
 msgid "Upcoming events"
 msgstr "Nächste Termine"
 
+msgid "Event calendar"
+msgstr "Veranstaltungskalender"
+
 msgid "Course schedule"
 msgstr "Kursplan"
 
 msgid "Salsa am Sund"
 msgstr "Salsa am Sund"
 
-msgid "Course"
-msgstr "Kurs"
+msgid "Organizers"
+msgstr "Veranstalter"
 
-msgid "Party"
-msgstr "Party"
+msgid "Leave empty to show all organizers."
+msgstr "Leer lassen, um alle Veranstalter anzuzeigen."
 
-msgid "External party"
-msgstr "Externe Party"
-
-msgid "Event types"
-msgstr "Terminarten"
+msgid "Show courses"
+msgstr "Kurse anzeigen"
 
 msgid "Locations"
 msgstr "Orte"
 
 msgid "Leave empty to show all locations."
 msgstr "Leer lassen, um alle Orte anzuzeigen."
-
-msgid "- All locations -"
-msgstr "- Alle Orte -"
 
 msgid "Number of events"
 msgstr "Anzahl der Termine"

@@ -13,9 +13,8 @@ versioned_properties:
         label: 'Nächste Termine'
         label_display: '0'
         provider: workspace_events
-        types:
-          - party
-          - external_party
+        organizers: {  }
+        courses: false
         locations: {  }
         limit: 3
         show_ical: true
@@ -28,9 +27,8 @@ versioned_properties:
         label: 'Upcoming events'
         label_display: '0'
         provider: workspace_events
-        types:
-          - party
-          - external_party
+        organizers: {  }
+        courses: false
         locations: {  }
         limit: 3
         show_ical: true
@@ -43,9 +41,8 @@ versioned_properties:
         label: 'Upcoming events'
         label_display: '0'
         provider: workspace_events
-        types:
-          - party
-          - external_party
+        organizers: {  }
+        courses: false
         locations: {  }
         limit: 3
         show_ical: true

@@ -8,6 +8,7 @@ use Drupal\node\NodeInterface;
 use Drupal\Core\Cache\CacheableResponse;
 use Drupal\workspace_events\Controller\IcalController;
 use Drupal\workspace_events\EventDescriptionFormatter;
+use Drupal\workspace_events\EventFilterFactory;
 use Drupal\workspace_events\EventOccurrenceRepository;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -74,10 +75,13 @@ final class IcalControllerTest extends EventKernelTestBase {
     \assert($repository instanceof EventOccurrenceRepository);
     $description_formatter = $this->container->get(EventDescriptionFormatter::class);
     \assert($description_formatter instanceof EventDescriptionFormatter);
+    $filter_factory = $this->container->get(EventFilterFactory::class);
+    \assert($filter_factory instanceof EventFilterFactory);
     $this->controller = new IcalController(
       $repository,
       $this->container->get('entity_type.manager'),
       $description_formatter,
+      $filter_factory,
     );
 
     $location_a = $this->createLocation(
@@ -91,9 +95,8 @@ final class IcalControllerTest extends EventKernelTestBase {
 
     $start = $this->date('now +5 days', '18:15');
     $weekdays = [1 => 'MO', 2 => 'TU', 3 => 'WE', 4 => 'TH', 5 => 'FR', 6 => 'SA', 7 => 'SU'];
-    $course = $this->createEvent([
+    $course = $this->createCourse([
       'title' => 'Anfänger',
-      'field_event_type' => 'course',
       'field_level' => 'Level 0',
       'field_location' => $this->locationA,
       'body' => [
@@ -106,13 +109,13 @@ final class IcalControllerTest extends EventKernelTestBase {
         'WEEKLY',
         'INTERVAL=1;BYDAY=' . $weekdays[(int) $start->format('N')],
         'COUNT=4',
+        'course',
       ),
     ]);
     $this->courseId = (int) $course->id();
 
     $all_day = $this->createEvent([
       'title' => 'Salsa-Party',
-      'field_event_type' => 'party',
       'field_location' => $this->locationB,
       'field_when' => [
         $this->allDayDelta($this->date('now +20 days')),
@@ -122,7 +125,7 @@ final class IcalControllerTest extends EventKernelTestBase {
 
     $open_end = $this->createEvent([
       'title' => 'Salsa im ballhaus goldfisch',
-      'field_event_type' => 'external_party',
+      'field_organizer' => $this->externalOrganizer,
       'field_location' => $this->locationA,
       'field_link' => ['uri' => 'https://www.ballhaus-goldfisch.de/', 'title' => 'ballhaus goldfisch'],
       'field_when' => [
@@ -133,7 +136,6 @@ final class IcalControllerTest extends EventKernelTestBase {
 
     $past = $this->createEvent([
       'title' => 'Vergangener Tanzabend',
-      'field_event_type' => 'party',
       'field_location' => $this->locationA,
       'field_when' => [
         $this->dateDelta($this->date('now -5 days', '18:00'), $this->date('now -5 days', '22:00')),
@@ -144,7 +146,6 @@ final class IcalControllerTest extends EventKernelTestBase {
     $unpublished = $this->createEvent([
       'title' => 'Entwurf',
       'status' => NodeInterface::NOT_PUBLISHED,
-      'field_event_type' => 'party',
       'field_location' => $this->locationA,
       'field_when' => [
         $this->dateDelta($this->date('now +2 days', '18:00'), $this->date('now +2 days', '22:00')),
@@ -187,7 +188,7 @@ final class IcalControllerTest extends EventKernelTestBase {
   }
 
   /**
-   * Tests filtering by event type and location.
+   * Tests filtering by organizer, legacy type and location.
    */
   public function testFiltering(): void {
     $calendar = $this->readCalendar('/termine.ics?type=course');
@@ -196,6 +197,15 @@ final class IcalControllerTest extends EventKernelTestBase {
 
     $calendar = $this->readCalendar('/termine.ics?type=party,external_party');
     self::assertCount(3, $calendar->select('VEVENT'));
+    self::assertSame('Salsa am Sund – Termine – Salsa am Sund, Extern', $calendar->{'X-WR-CALNAME'}?->getValue());
+
+    $calendar = $this->readCalendar('/termine.ics?organizer=' . $this->salsaAmSund);
+    self::assertCount(2, $calendar->select('VEVENT'));
+    self::assertSame('Salsa am Sund – Termine – Salsa am Sund', $calendar->{'X-WR-CALNAME'}?->getValue());
+
+    $calendar = $this->readCalendar('/termine.ics?organizer=' . $this->externalOrganizer);
+    self::assertCount(1, $calendar->select('VEVENT'));
+    self::assertSame('Salsa am Sund – Termine – Extern', $calendar->{'X-WR-CALNAME'}?->getValue());
 
     $calendar = $this->readCalendar('/termine.ics?location=' . $this->locationA);
     $events = $calendar->select('VEVENT');
@@ -207,6 +217,29 @@ final class IcalControllerTest extends EventKernelTestBase {
 
     $calendar = $this->readCalendar('/termine.ics?type=course&location=' . $this->locationB);
     self::assertCount(0, $calendar->select('VEVENT'));
+  }
+
+  /**
+   * Tests selecting individual courses.
+   */
+  public function testCourseSelection(): void {
+    $calendar = $this->readCalendar('/termine.ics?course=' . $this->courseId);
+    $events = $calendar->select('VEVENT');
+    self::assertCount(4, $events);
+    foreach ($events as $event) {
+      self::assertStringContainsString('event-' . $this->courseId . '-', (string) $event->UID->getValue());
+    }
+    self::assertSame('Salsa am Sund – Termine – Anfänger', $calendar->{'X-WR-CALNAME'}?->getValue());
+
+    // Organizers plus one selected course.
+    $calendar = $this->readCalendar('/termine.ics?organizer=' . $this->salsaAmSund . ',' . $this->externalOrganizer . '&course=' . $this->courseId);
+    self::assertCount(7, $calendar->select('VEVENT'));
+    self::assertSame('Salsa am Sund – Termine – Salsa am Sund, Extern, Anfänger', $calendar->{'X-WR-CALNAME'}?->getValue());
+
+    // An empty course list keeps the previous behaviour and name.
+    $calendar = $this->readCalendar('/termine.ics?type=course');
+    self::assertCount(4, $calendar->select('VEVENT'));
+    self::assertSame('Salsa am Sund – Termine – Kurs', $calendar->{'X-WR-CALNAME'}?->getValue());
   }
 
   /**
@@ -242,7 +275,8 @@ final class IcalControllerTest extends EventKernelTestBase {
     $open_end = $events[$this->openEndId];
     self::assertNull($open_end->DTEND);
     self::assertSame('https://www.ballhaus-goldfisch.de/', $open_end->URL?->getValue());
-    self::assertSame('Externe Party', $open_end->CATEGORIES?->getValue());
+    self::assertSame('Extern', $open_end->CATEGORIES?->getValue());
+    self::assertSame('Salsa am Sund', $all_day->CATEGORIES?->getValue());
   }
 
   /**
@@ -255,9 +289,13 @@ final class IcalControllerTest extends EventKernelTestBase {
 
     $cacheability = $response->getCacheableMetadata();
     self::assertContains('node_list:event', $cacheability->getCacheTags());
+    self::assertContains('node_list:course', $cacheability->getCacheTags());
     self::assertContains('taxonomy_term_list:location', $cacheability->getCacheTags());
+    self::assertContains('taxonomy_term_list:organizer', $cacheability->getCacheTags());
     self::assertContains('url.query_args:type', $cacheability->getCacheContexts());
+    self::assertContains('url.query_args:organizer', $cacheability->getCacheContexts());
     self::assertContains('url.query_args:location', $cacheability->getCacheContexts());
+    self::assertContains('url.query_args:course', $cacheability->getCacheContexts());
     self::assertContains('url.query_args:past', $cacheability->getCacheContexts());
     self::assertSame(3600, $cacheability->getCacheMaxAge());
   }

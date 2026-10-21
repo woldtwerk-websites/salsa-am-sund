@@ -1,0 +1,11 @@
+uuid: 2e2e7874-755c-4853-9900-fdd287bf5744
+langcode: de
+status: true
+dependencies: {  }
+name: Kurs
+type: course
+description: 'Wöchentliche Tanzkurse'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: false

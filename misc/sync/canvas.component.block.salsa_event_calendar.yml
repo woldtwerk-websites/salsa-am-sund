@@ -1,0 +1,32 @@
+uuid: 4f8a9dbc-a402-456b-92bf-fdfebc29ee1c
+langcode: de
+status: true
+dependencies:
+  module:
+    - workspace_events
+active_version: 103fd657fcb119dc
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: salsa_event_calendar
+        label: Veranstaltungskalender
+        label_display: '0'
+        provider: workspace_events
+    fallback_metadata:
+      slot_definitions: null
+  aee9e98a4d3d8539:
+    settings:
+      default_settings:
+        id: salsa_event_calendar
+        label: 'Event calendar'
+        label_display: '0'
+        provider: workspace_events
+    fallback_metadata:
+      slot_definitions: null
+label: Veranstaltungskalender
+id: block.salsa_event_calendar
+provider: workspace_events
+source: block
+source_local_id: salsa_event_calendar
+

@@ -75,14 +75,25 @@ prop (`auto`/`light`/`dark`) so the same component works on both section tones.
 | `link-list` / `link-item` | Link list and its entries (external-link icon) |
 | `contact` | Address, phone (`tel:`), e-mail (`mailto:`) and route link |
 | `gallery` / `gallery-image` | Gallery with a native popover lightbox; square thumbnails work without JS |
+| `calendar-subscribe` | Calendar subscription modal dialog (organizers/courses) used by the "Nächste Termine" block; `noUi`, so it stays out of the Canvas library |
 | `profile` | User profile card with avatar/initials, name, "Mitglied seit" and remaining fields |
 | `site-header` | Sticky, blurred header with wordmark, navigation slot, mobile toggle and actions |
 | `site-footer` | Footer with flame hairline, content and navigation slots and copyright |
 
-The theme ships **no custom JavaScript**. Mobile navigation and the gallery
-lightbox are native popovers (`popover`/`popovertarget`), and the main menu
-submenus are native `<details name="salsa-main-menu">` accordions. Open/close
-transitions use `@starting-style` and are disabled under
+The theme ships almost no custom JavaScript: the lightbox navigation in
+`components/gallery-image/gallery-image.js` (previous/next buttons, arrow keys
+and touch swipes) and the calendar subscription in
+`components/calendar-subscribe/calendar-subscribe.js` (rebuilds the feed link
+from the modal selection and falls back to `showModal()`/`close()` without
+invoker commands). Both are progressive enhancement: without JS the lightbox
+works exactly as before and the calendar link keeps its server-rendered
+default.
+Mobile navigation and the gallery lightbox are native popovers
+(`popover`/`popovertarget`), and the main menu submenus are native
+`<details name="salsa-main-menu">` accordions. The `scroll-lock` utility locks
+page scroll while its popover or modal dialog is open (`:popover-open`/`:modal`);
+use a breakpoint variant such as `max-lg:scroll-lock` to limit it to smaller
+viewports. Open/close transitions use `@starting-style` and are disabled under
 `prefers-reduced-motion`.
 
 ## `ui` override convention
@@ -158,7 +169,8 @@ licensed under the **ISC** license — see `icons/LICENSE.txt`.
 ```
 
 Available icons: `menu`, `x`, `arrow-right`, `phone`, `mail`, `map-pin`,
-`clock`, `calendar`, `external-link`, `chevron-down`, `music`, `users`.
+`clock`, `calendar`, `external-link`, `chevron-down`, `chevron-left`,
+`chevron-right`, `music`, `users`.
 
 ## Licenses
 
@@ -167,4 +179,6 @@ Available icons: `menu`, `x`, `arrow-right`, `phone`, `mail`, `map-pin`,
 - Icons: **Lucide**, **ISC**. Full text in `icons/LICENSE.txt`.
 - Prose CSS: ported from **@tailwindcss/typography v0.5.16**, **MIT**
   (© Tailwind Labs). Full text in `src/css/prose.LICENSE.txt`.
+- FullCalendar web component: **MIT** (© Adam Shaw). Self-hosted build and
+  license text in `libraries/fullcalendar/`.
 - Theme code: GPL-2.0-or-later, like Drupal.

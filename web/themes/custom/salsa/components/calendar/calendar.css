@@ -1,0 +1,48 @@
+/**
+ * @file
+ * FullCalendar theme mapping for the Salsa am Sund calendar.
+ *
+ * The web component renders inside a shadow tree, so page styles cannot reach
+ * its internals. Colour custom properties are inherited through the shadow
+ * boundary and are therefore the supported way to theme it. The names are the
+ * ones of FullCalendar 7's classic theme (the v6 names, for example
+ * `--fc-border-color`, no longer exist).
+ */
+
+[data-salsa-calendar] full-calendar {
+  display: block;
+  color-scheme: dark;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+
+  /* Calendar content. */
+  --fc-classic-primary: var(--color-flame-orange);
+  --fc-classic-primary-foreground: #fff;
+  --fc-classic-event: var(--color-flame-red);
+  --fc-classic-event-contrast: #fff;
+  --fc-classic-background-event: var(--color-sea);
+  --fc-classic-background-event-opacity: 20%;
+  --fc-classic-background-event-foreground-opacity: 70%;
+  --fc-classic-highlight: rgb(255 183 43 / 0.12);
+  --fc-classic-today: rgb(255 183 43 / 0.14);
+  --fc-classic-now: var(--color-flame-orange);
+
+  /* Neutral surfaces. */
+  --fc-classic-background: var(--color-ink);
+  --fc-classic-faint: rgb(246 239 230 / 0.04);
+  --fc-classic-muted: rgb(246 239 230 / 0.08);
+  --fc-classic-strong: rgb(246 239 230 / 0.16);
+  --fc-classic-foreground: var(--color-sand);
+  --fc-classic-muted-foreground: var(--color-mist);
+  --fc-classic-faint-foreground: rgb(185 173 191 / 0.6);
+
+  /* Borders and buttons. */
+  --fc-classic-border: var(--color-line);
+  --fc-classic-strong-border: var(--color-line);
+  --fc-classic-button: var(--color-ink-2);
+  --fc-classic-button-border: var(--color-line);
+  --fc-classic-button-strong: #b3121a;
+  --fc-classic-button-strong-border: #8f0f16;
+  --fc-classic-button-outline: var(--color-line);
+  --fc-classic-button-foreground: var(--color-sand);
+}

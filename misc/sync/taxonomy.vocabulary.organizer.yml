@@ -1,0 +1,9 @@
+uuid: 3fe0ba33-d2dc-44fd-9d59-ec716827ad09
+langcode: de
+status: true
+dependencies: {  }
+name: Veranstalter
+vid: organizer
+description: 'Wer eine Veranstaltung ausrichtet'
+weight: 0
+new_revision: false

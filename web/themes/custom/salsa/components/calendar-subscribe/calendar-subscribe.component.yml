@@ -1,0 +1,97 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Kalender abonnieren
+description: "Popover, in dem Partys und Kurse für den iCal-Feed ausgewählt werden. Wird von den Blöcken „Nächste Termine“, „Kurszeiten“ und „Veranstaltungskalender“ genutzt, nicht im Canvas-Seitenbau."
+group: "Salsa am Sund"
+status: stable
+# The component is bound to the block's data and has no meaning in Canvas.
+noUi: true
+libraryOverrides:
+  dependencies:
+    - core/drupal
+    - core/once
+props:
+  type: object
+  required:
+    - action
+    - id
+    - options
+  properties:
+    action:
+      type: string
+      title: Formularziel
+      description: "Absolute URL des iCal-Feeds ohne Query."
+      format: uri
+      examples:
+        - "https://salsa-am-sund.localhost/termine.ics"
+    id:
+      type: string
+      title: Popover-ID
+      examples:
+        - "salsa-calendar-subscribe"
+    options:
+      type: array
+      title: Auswahl
+      items:
+        type: object
+        required:
+          - name
+          - value
+          - label
+          - checked
+          - group
+        properties:
+          name:
+            type: string
+            title: Feldname
+            examples:
+              - "organizer[]"
+          value:
+            type: string
+            title: Wert
+            examples:
+              - "2"
+          label:
+            type: string
+            title: Beschriftung
+            examples:
+              - "Anfänger"
+          checked:
+            type: boolean
+            title: Vorausgewählt
+            examples:
+              - true
+          group:
+            type: string
+            title: Gruppe
+            enum:
+              - organizers
+              - courses
+            meta:enum:
+              organizers: Veranstaltungen
+              courses: Kurse
+            examples:
+              - courses
+          meta:
+            type: string
+            title: Zusatzzeile
+            examples:
+              - "Montag · 18:15 – 19:15 Uhr · Bootshaus"
+    hidden:
+      type: array
+      title: Versteckte Felder
+      items:
+        type: object
+        required:
+          - name
+          - value
+        properties:
+          name:
+            type: string
+            title: Feldname
+            examples:
+              - "location"
+          value:
+            type: string
+            title: Wert
+            examples:
+              - "3"

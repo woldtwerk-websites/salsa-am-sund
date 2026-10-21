@@ -1,0 +1,84 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Kalender
+description: "Monats- und Listenansicht der Termine aus dem JSON-Endpunkt, mit Filtern für Veranstalter, Orte und Kurse. Wird vom Block „Veranstaltungskalender“ genutzt, nicht im Canvas-Seitenbau."
+group: "Salsa am Sund"
+status: stable
+# The component is bound to the block's data and has no meaning in Canvas.
+noUi: true
+libraryOverrides:
+  dependencies:
+    - core/drupal
+    - core/once
+    - salsa/fullcalendar
+props:
+  type: object
+  required:
+    - id
+    - events_url
+    - ical_url
+    - organizers
+    - locations
+  properties:
+    id:
+      type: string
+      title: Element-ID
+      examples:
+        - "salsa-calendar"
+    events_url:
+      type: string
+      title: JSON-Endpunkt
+      description: "Adresse der Termine als JSON, ohne Query."
+      format: uri-reference
+      examples:
+        - "/termine.json"
+    ical_url:
+      type: string
+      title: iCal-Feed
+      description: "Adresse des iCal-Feeds für den Hinweis ohne JavaScript."
+      format: uri-reference
+      examples:
+        - "/termine.ics"
+    organizers:
+      type: array
+      title: Veranstalter
+      items:
+        type: object
+        required:
+          - value
+          - label
+        properties:
+          value:
+            type: string
+            title: Wert
+            examples:
+              - "2"
+          label:
+            type: string
+            title: Beschriftung
+            examples:
+              - "Salsa am Sund"
+    locations:
+      type: array
+      title: Orte
+      items:
+        type: object
+        required:
+          - value
+          - label
+        properties:
+          value:
+            type: string
+            title: Wert
+            examples:
+              - "3"
+          label:
+            type: string
+            title: Beschriftung
+            examples:
+              - "Bootshaus Stralsund"
+slots:
+  subscribe:
+    title: Kalender abonnieren
+    description: "Popover mit dem iCal-Feed zum Abonnieren."
+    expected:
+      - sdc.salsa.calendar-subscribe

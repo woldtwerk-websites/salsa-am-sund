@@ -29,7 +29,8 @@ final class UpcomingEventsBlock extends EventBlockBase {
     /** @var array<string, mixed> $defaults */
     $defaults = parent::defaultConfiguration();
     return [
-      'types' => ['party', 'external_party'],
+      'organizers' => [],
+      'courses' => FALSE,
       'locations' => [],
       'limit' => 3,
       'show_ical' => TRUE,
@@ -48,23 +49,21 @@ final class UpcomingEventsBlock extends EventBlockBase {
    *   The block configuration form.
    */
   public function blockForm($form, FormStateInterface $form_state): array {
-    $form['types'] = [
+    $form['organizers'] = [
       '#type' => 'checkboxes',
-      '#title' => $this->t('Event types'),
-      '#options' => $this->getTypeOptions(),
-      '#default_value' => $this->getConfiguredTypes(),
-      '#required' => TRUE,
+      '#title' => $this->t('Organizers'),
+      '#description' => $this->t('Leave empty to show all organizers.'),
+      '#options' => $this->getOrganizerOptions(),
+      '#default_value' => $this->getConfiguredOrganizers(),
     ];
 
-    $form['locations'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Locations'),
-      '#description' => $this->t('Leave empty to show all locations.'),
-      '#options' => $this->getLocationOptions(),
-      '#multiple' => TRUE,
-      '#default_value' => $this->getConfiguredLocations(),
-      '#empty_option' => $this->t('- All locations -'),
+    $form['courses'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show courses'),
+      '#default_value' => $this->getConfiguredCourses(),
     ];
+
+    $form['locations'] = $this->buildLocationsElement();
 
     $form['limit'] = [
       '#type' => 'number',
@@ -93,26 +92,9 @@ final class UpcomingEventsBlock extends EventBlockBase {
    *   The form state.
    */
   public function blockSubmit($form, FormStateInterface $form_state): void {
-    $types = $form_state->getValue('types');
-    $selected = is_array($types) ? array_keys(array_filter($types)) : [];
-    $valid_types = [];
-    foreach ($selected as $type) {
-      if (is_string($type) && in_array($type, EventFilter::TYPES, TRUE)) {
-        $valid_types[] = $type;
-      }
-    }
-    $this->configuration['types'] = $valid_types;
-
-    $locations = $form_state->getValue('locations');
-    $ids = [];
-    if (is_array($locations)) {
-      foreach ($locations as $location) {
-        if (is_scalar($location) && is_numeric($location)) {
-          $ids[] = (int) $location;
-        }
-      }
-    }
-    $this->configuration['locations'] = array_values(array_filter($ids, static fn (int $id): bool => $id > 0));
+    $this->configuration['organizers'] = $this->getSubmittedIds($form_state->getValue('organizers'));
+    $this->configuration['courses'] = (bool) $form_state->getValue('courses');
+    $this->configuration['locations'] = $this->getSubmittedIds($form_state->getValue('locations'));
 
     $limit = $form_state->getValue('limit');
     $this->configuration['limit'] = is_scalar($limit) ? max(1, min(50, (int) $limit)) : 3;
@@ -126,13 +108,19 @@ final class UpcomingEventsBlock extends EventBlockBase {
    *   The render array of the block.
    */
   public function build(): array {
-    $types = $this->getConfiguredTypes();
+    $organizers = $this->getConfiguredOrganizers();
+    $courses = $this->getConfiguredCourses();
     $locations = $this->getConfiguredLocations();
     $limit = $this->getConfiguredLimit();
 
     $now = new \DateTimeImmutable('now');
     $occurrences = $this->repository->findOccurrences(
-      new EventFilter($types, $locations),
+      new EventFilter(
+        includeEvents: TRUE,
+        organizerIds: $organizers,
+        includeCourses: $courses,
+        locationIds: $locations,
+      ),
       $now,
       $now->modify('+365 days'),
       $limit,
@@ -186,7 +174,7 @@ final class UpcomingEventsBlock extends EventBlockBase {
     }
 
     if ($this->getConfiguredShowIcal()) {
-      $build['ical'] = $this->buildIcalLinks($types, $locations);
+      $build['ical'] = $this->buildIcalLinks($organizers, $locations, $this->findCourses(), TRUE, FALSE);
     }
 
     $this->applyOccurrenceCache($build, $occurrences);
@@ -195,68 +183,20 @@ final class UpcomingEventsBlock extends EventBlockBase {
   }
 
   /**
-   * Builds the calendar subscription and download links.
-   *
-   * @param string[] $types
-   *   The configured event types.
-   * @param int[] $locations
-   *   The configured location term IDs.
-   *
-   * @return array<string, mixed>
-   *   The render array of the links.
-   */
-  private function buildIcalLinks(array $types, array $locations): array {
-    $absolute = $this->getCalendarUrl($types, $locations, TRUE)->toString();
-    $webcal = preg_replace('#^https?://#', 'webcal://', $absolute) ?? $absolute;
-
-    $build['subscribe'] = [
-      '#type' => 'component',
-      '#component' => 'salsa:button',
-      '#props' => [
-        'label' => (string) $this->t('Subscribe to calendar'),
-        'href' => $webcal,
-        'variant' => 'outline',
-        'size' => 'md',
-        'icon' => 'external-link',
-      ],
-    ];
-    $build['download'] = [
-      '#type' => 'link',
-      '#title' => $this->t('Download .ics'),
-      '#url' => $this->getCalendarUrl($types, $locations),
-    ];
-
-    return $build;
-  }
-
-  /**
-   * Returns the configured event types.
-   *
-   * @return string[]
-   *   The event type keys.
-   */
-  private function getConfiguredTypes(): array {
-    $values = $this->getConfiguration()['types'] ?? [];
-    if (!is_array($values)) {
-      return [];
-    }
-    $types = [];
-    foreach ($values as $value) {
-      if (is_string($value) && in_array($value, EventFilter::TYPES, TRUE) && !in_array($value, $types, TRUE)) {
-        $types[] = $value;
-      }
-    }
-    return $types;
-  }
-
-  /**
-   * Returns the configured location term IDs.
+   * Returns the configured organizer term IDs.
    *
    * @return int[]
-   *   The location term IDs.
+   *   The organizer term IDs, empty for every organizer.
    */
-  private function getConfiguredLocations(): array {
-    return $this->getConfiguredIds('locations');
+  private function getConfiguredOrganizers(): array {
+    return $this->getConfiguredIds('organizers');
+  }
+
+  /**
+   * Returns whether the block shows courses.
+   */
+  private function getConfiguredCourses(): bool {
+    return (bool) ($this->getConfiguration()['courses'] ?? FALSE);
   }
 
   /**

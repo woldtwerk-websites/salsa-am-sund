@@ -1,13 +1,14 @@
-langcode: en
+uuid: 187bd7c3-605f-4e08-84bd-e3388ce2f1c1
+langcode: de
 status: true
 dependencies:
   config:
     - field.storage.node.field_level
-    - node.type.event
-id: node.event.field_level
+    - node.type.course
+id: node.course.field_level
 field_name: field_level
 entity_type: node
-bundle: event
+bundle: course
 label: Level
 description: ''
 required: false

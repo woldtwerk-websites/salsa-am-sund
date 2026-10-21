@@ -1,0 +1,161 @@
+{#
+  Calendar subscription modal.
+
+  The block renders it below the event grid. The trigger opens the native
+  <dialog> through invoker commands (commandfor/command); calendar-subscribe.js
+  only rebuilds the subscribe link while the visitor changes the selection and
+  falls back to showModal()/close() where invoker commands are not supported.
+  Without JavaScript the <noscript> link and the GET submit of the download
+  button stay reachable.
+#}
+{% set options = options|default([]) %}
+{% set hidden = hidden|default([]) %}
+
+{# The default selection is every checked option plus the hidden filter. #}
+{% set subscribe_query = [] %}
+{% for option in options %}
+  {% if option.checked %}
+    {% set subscribe_query = subscribe_query|merge([option.name ~ '=' ~ option.value|url_encode]) %}
+  {% endif %}
+{% endfor %}
+{% for field in hidden %}
+  {% set subscribe_query = subscribe_query|merge([field.name ~ '=' ~ field.value|url_encode]) %}
+{% endfor %}
+{% set subscribe_base = action|replace({'https://': 'webcal://', 'http://': 'webcal://'}) %}
+{% set subscribe_href = subscribe_query is empty ? subscribe_base : subscribe_base ~ '?' ~ subscribe_query|join('&') %}
+{# The plain download URL, used by the no-JavaScript fallback. #}
+{% set download_href = subscribe_query is empty ? action : action ~ '?' ~ subscribe_query|join('&') %}
+
+{% set button = html_cva(
+  base: [
+    'inline-flex w-fit items-center justify-center gap-2.5 rounded-full font-semibold no-underline',
+    'transition duration-200 ease-out hover:no-underline',
+  ],
+  variants: {
+    variant: {
+      flame: 'bg-flame-deep text-white shadow-[0_14px_34px_-16px_rgb(143_15_22_/_0.9)] hover:brightness-95 hover:text-white',
+      outline: 'border border-[var(--surface-border)] bg-transparent text-[var(--surface-fg)] hover:bg-flame-gold/10',
+    },
+    size: {
+      md: 'px-6 py-3 text-base',
+    },
+  }
+) %}
+{% set focus = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame-gold' %}
+
+<div class="mt-8 flex flex-wrap items-center gap-3" data-salsa-calendar-subscribe>
+  <button
+    type="button"
+    commandfor="{{ id }}"
+    command="show-modal"
+    aria-haspopup="dialog"
+    class="{{ tw_merge([button.apply({variant: 'outline', size: 'md'}), focus, ui.trigger|default('')]) }}"
+  >
+    {{ icon('salsa', 'calendar', {size: 20}) }}
+    <span>{{ 'Kalender abonnieren'|t }}</span>
+  </button>
+
+  {# Without JavaScript the invoker command cannot open the dialog; the direct
+     download link keeps the feed reachable. #}
+  <noscript>
+    <a
+      href="{{ download_href }}"
+      class="{{ tw_merge([button.apply({variant: 'outline', size: 'md'}), focus, ui.fallback|default('')]) }}"
+    >
+      <span>{{ 'Als .ics herunterladen'|t }}</span>
+    </a>
+  </noscript>
+
+  <dialog
+    id="{{ id }}"
+    closedby="any"
+    aria-labelledby="{{ id }}-title"
+    class="{{ tw_merge(['salsa-subscribe salsa-surface-dark scroll-lock fixed inset-0 m-auto max-h-[calc(100svh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-2xl border border-line bg-ink p-0 text-sand shadow-2xl max-sm:inset-x-0 max-sm:top-auto max-sm:bottom-0 max-sm:m-0 max-sm:max-h-[85svh] max-sm:w-full max-sm:max-w-none max-sm:rounded-b-none', ui.dialog|default('')]) }}"
+  >
+    <div class="{{ tw_merge(['p-5 md:p-6', ui.content|default('')]) }}">
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <h2 id="{{ id }}-title" class="font-display text-2xl leading-tight font-bold italic text-sand">
+            {{ 'Kalender abonnieren'|t }}
+          </h2>
+          <p class="mt-2 max-w-[45ch] text-sm leading-relaxed text-mist">
+            {{ 'Wähle aus, was in deinem Kalender erscheinen soll.'|t }}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          commandfor="{{ id }}"
+          command="close"
+          class="inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-line bg-night/60 text-sand transition-colors hover:border-flame-gold hover:text-flame-gold {{ focus }}"
+          aria-label="{{ 'Schließen'|t }}"
+          autofocus
+        >
+          {{ icon('salsa', 'x', {size: 22}) }}
+        </button>
+      </div>
+
+      <form method="get" action="{{ action }}" class="mt-5 space-y-4">
+        {% for field in hidden %}
+          <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
+        {% endfor %}
+
+        {% set groups = [
+          {key: 'organizers', label: 'Veranstaltungen'|t},
+          {key: 'courses', label: 'Kurse'|t},
+        ] %}
+        {% for group in groups %}
+          {% set group_options = options|filter(option => option.group == group.key) %}
+          {% if group_options is not empty %}
+            <fieldset class="rounded-xl border border-line/70 bg-ink-2/40 p-4">
+              <legend class="px-1 font-body text-xs font-semibold uppercase tracking-[0.2em] text-flame-gold">
+                {{ group.label }}
+              </legend>
+              <div class="mt-1 space-y-1">
+                {% for option in group_options %}
+                  {% set input_id = id ~ '-' ~ option.group ~ '-' ~ loop.index %}
+                  <label
+                    for="{{ input_id }}"
+                    class="flex cursor-pointer items-start gap-3 rounded-lg p-2 transition-colors hover:bg-flame-gold/5 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-flame-gold"
+                  >
+                    <input
+                      id="{{ input_id }}"
+                      type="checkbox"
+                      name="{{ option.name }}"
+                      value="{{ option.value }}"
+                      class="mt-0.5 size-5 shrink-0 accent-flame-orange {{ focus }}"
+                      {% if option.checked %}checked{% endif %}
+                    >
+                    <span class="min-w-0">
+                      <span class="block text-sm font-semibold text-sand">{{ option.label }}</span>
+                      {% if option.meta is not empty %}
+                        <span class="mt-0.5 block text-xs leading-snug text-mist">{{ option.meta }}</span>
+                      {% endif %}
+                    </span>
+                  </label>
+                {% endfor %}
+              </div>
+            </fieldset>
+          {% endif %}
+        {% endfor %}
+
+        <div class="mt-6 flex flex-wrap items-center gap-3">
+          <a
+            href="{{ subscribe_href }}"
+            data-salsa-subscribe
+            class="{{ tw_merge([button.apply({variant: 'flame', size: 'md'}), focus]) }}"
+          >
+            {{ 'Abonnieren'|t }}
+          </a>
+          <button
+            type="submit"
+            data-salsa-download
+            class="{{ tw_merge([button.apply({variant: 'outline', size: 'md'}), 'bg-none shadow-none', focus, 'disabled:cursor-not-allowed disabled:opacity-50']) }}"
+          >
+            {{ 'Als .ics herunterladen'|t }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+</div>

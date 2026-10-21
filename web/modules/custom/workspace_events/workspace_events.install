@@ -7,14 +7,28 @@
 
 declare(strict_types=1);
 
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\user\Entity\Role;
 use Drupal\workflows\Entity\Workflow;
+use Drupal\workspace_events\OrganizerResolver;
 
 /**
  * Implements hook_install().
  */
 function workspace_events_install(bool $is_syncing = FALSE): void {
-  workspace_events_add_event_to_workflow();
+  foreach (workspace_events_node_bundles() as $bundle) {
+    workspace_events_set_bundle_in_workflow($bundle, TRUE);
+  }
+  workspace_events_ensure_organizer_vocabulary();
+  if (!$is_syncing) {
+    // While modules are being installed from configuration (site install,
+    // kernel tests) the content entity schemas do not exist yet, so the terms
+    // are created after the configuration has been imported.
+    workspace_events_ensure_organizer_terms();
+  }
   workspace_events_grant_editor_permissions();
 }
 
@@ -22,36 +36,145 @@ function workspace_events_install(bool $is_syncing = FALSE): void {
  * Implements hook_uninstall().
  */
 function workspace_events_uninstall(): void {
-  workspace_events_remove_event_from_workflow();
+  foreach (workspace_events_node_bundles() as $bundle) {
+    workspace_events_set_bundle_in_workflow($bundle, FALSE);
+  }
   workspace_events_revoke_editor_permissions();
 }
 
 /**
- * Adds the event bundle to the basic editorial workflow.
+ * Implements hook_update_N().
+ *
+ * Adds the course bundle to the editorial workflow and grants the course
+ * permissions on sites that installed the module before courses were split
+ * out of the event bundle.
  */
-function workspace_events_add_event_to_workflow(): void {
-  $workflow = Workflow::load('basic_editorial');
-  if ($workflow === NULL) {
-    return;
-  }
-  $plugin = $workflow->getTypePlugin();
-  $configuration = $plugin->getConfiguration();
-  $entity_types = (array) ($configuration['entity_types'] ?? []);
-  $bundles = isset($entity_types['node']) && is_array($entity_types['node']) ? $entity_types['node'] : [];
-  if (in_array('event', $bundles, TRUE)) {
-    return;
-  }
-  $bundles[] = 'event';
-  $entity_types['node'] = array_values($bundles);
-  $configuration['entity_types'] = $entity_types;
-  $plugin->setConfiguration($configuration);
-  $workflow->save();
+function workspace_events_update_10001(): void {
+  workspace_events_set_bundle_in_workflow('course', TRUE);
+  workspace_events_grant_editor_permissions();
 }
 
 /**
- * Removes the event bundle from the basic editorial workflow.
+ * Implements hook_update_N().
+ *
+ * Adds the organizer vocabulary, its fixed terms and the organizer field to
+ * existing sites and grants the organizer permissions to the content editor
+ * role.
  */
-function workspace_events_remove_event_from_workflow(): void {
+function workspace_events_update_10002(): void {
+  workspace_events_ensure_organizer_vocabulary();
+  workspace_events_ensure_organizer_terms();
+  workspace_events_ensure_organizer_field();
+  workspace_events_grant_editor_permissions();
+}
+
+/**
+ * Creates the organizer vocabulary when it does not exist yet.
+ *
+ * The vocabulary is part of the module configuration, so it is installed from
+ * config/install on new sites. The update hook covers existing sites, where
+ * configuration is imported separately.
+ */
+function workspace_events_ensure_organizer_vocabulary(): void {
+  if (Vocabulary::load(OrganizerResolver::VOCABULARY) !== NULL) {
+    return;
+  }
+  Vocabulary::create([
+    'vid' => OrganizerResolver::VOCABULARY,
+    'name' => 'Veranstalter',
+    'description' => 'Wer eine Veranstaltung ausrichtet',
+  ])->save();
+}
+
+/**
+ * Creates the fixed organizer terms.
+ *
+ * Idempotent: the terms are looked up by UUID, so a second run does not create
+ * duplicates and never overwrites labels that editors changed.
+ */
+function workspace_events_ensure_organizer_terms(): void {
+  if (Vocabulary::load(OrganizerResolver::VOCABULARY) === NULL) {
+    return;
+  }
+  $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  foreach (OrganizerResolver::TERMS as $uuid => $term) {
+    $existing = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('uuid', $uuid)
+      ->range(0, 1)
+      ->execute();
+    if ($existing !== []) {
+      continue;
+    }
+    Term::create([
+      'uuid' => $uuid,
+      'vid' => OrganizerResolver::VOCABULARY,
+      'name' => $term['name'],
+      'weight' => $term['weight'],
+    ])->save();
+  }
+}
+
+/**
+ * Creates the organizer field storage and instance when they do not exist yet.
+ *
+ * New sites get both from config/install. The update hook creates them on
+ * existing sites, so the data conversion can copy the event type into the
+ * organizer field before the configuration that removes the old field is
+ * imported.
+ */
+function workspace_events_ensure_organizer_field(): void {
+  if (FieldStorageConfig::loadByName('node', 'field_organizer') === NULL) {
+    FieldStorageConfig::create([
+      'field_name' => 'field_organizer',
+      'entity_type' => 'node',
+      'type' => 'entity_reference',
+      'cardinality' => 1,
+      'settings' => ['target_type' => 'taxonomy_term'],
+    ])->save();
+  }
+  if (FieldConfig::loadByName('node', 'event', 'field_organizer') === NULL) {
+    FieldConfig::create([
+      'field_name' => 'field_organizer',
+      'entity_type' => 'node',
+      'bundle' => 'event',
+      'label' => 'Veranstalter',
+      'required' => TRUE,
+      'field_storage' => FieldStorageConfig::loadByName('node', 'field_organizer'),
+      'settings' => [
+        'handler' => 'default:taxonomy_term',
+        'handler_settings' => [
+          'target_bundles' => [OrganizerResolver::VOCABULARY => OrganizerResolver::VOCABULARY],
+          'sort' => ['field' => 'weight', 'direction' => 'ASC'],
+          'auto_create' => FALSE,
+        ],
+      ],
+    ])->save();
+  }
+}
+
+/**
+ * Returns the node bundles managed by this module.
+ *
+ * @return string[]
+ *   The node bundle machine names.
+ */
+function workspace_events_node_bundles(): array {
+  return ['event', 'course'];
+}
+
+/**
+ * Adds or removes a node bundle from the basic editorial workflow.
+ *
+ * Idempotent: nothing is saved when the workflow is missing or already has the
+ * requested state.
+ *
+ * @param string $bundle
+ *   The node bundle machine name.
+ * @param bool $include
+ *   TRUE to add the bundle to the workflow, FALSE to remove it.
+ */
+function workspace_events_set_bundle_in_workflow(string $bundle, bool $include): void {
   $workflow = Workflow::load('basic_editorial');
   if ($workflow === NULL) {
     return;
@@ -60,10 +183,12 @@ function workspace_events_remove_event_from_workflow(): void {
   $configuration = $plugin->getConfiguration();
   $entity_types = (array) ($configuration['entity_types'] ?? []);
   $bundles = isset($entity_types['node']) && is_array($entity_types['node']) ? $entity_types['node'] : [];
-  if (!in_array('event', $bundles, TRUE)) {
+  if (in_array($bundle, $bundles, TRUE) === $include) {
     return;
   }
-  $bundles = array_values(array_filter($bundles, static fn (mixed $bundle): bool => $bundle !== 'event'));
+  $bundles = $include
+    ? array_values(array_merge($bundles, [$bundle]))
+    : array_values(array_filter($bundles, static fn (mixed $value): bool => $value !== $bundle));
   $entity_types['node'] = $bundles;
   $configuration['entity_types'] = $entity_types;
   $plugin->setConfiguration($configuration);
@@ -71,7 +196,7 @@ function workspace_events_remove_event_from_workflow(): void {
 }
 
 /**
- * Returns the event permissions granted to content editors.
+ * Returns the permissions granted to content editors.
  *
  * @return string[]
  *   The permission names.
@@ -81,16 +206,22 @@ function workspace_events_editor_permissions(): array {
     'create event content',
     'edit any event content',
     'delete any event content',
+    'create course content',
+    'edit any course content',
+    'delete any course content',
     'create terms in location',
     'edit terms in location',
     'delete terms in location',
+    'create terms in organizer',
+    'edit terms in organizer',
+    'delete terms in organizer',
     'access taxonomy overview',
     'make smart dates recur',
   ];
 }
 
 /**
- * Grants the event permissions to the content editor role.
+ * Grants the event and course permissions to the content editor role.
  */
 function workspace_events_grant_editor_permissions(): void {
   $role = Role::load('content_editor');
@@ -104,7 +235,7 @@ function workspace_events_grant_editor_permissions(): void {
 }
 
 /**
- * Revokes the event permissions from the content editor role.
+ * Revokes the event and course permissions from the content editor role.
  */
 function workspace_events_revoke_editor_permissions(): void {
   $role = Role::load('content_editor');

@@ -4,15 +4,14 @@ status: true
 dependencies:
   config:
     - field.field.node.event.body
-    - field.field.node.event.field_event_type
-    - field.field.node.event.field_level
     - field.field.node.event.field_link
     - field.field.node.event.field_location
+    - field.field.node.event.field_organizer
     - field.field.node.event.field_when
     - node.type.event
+    - taxonomy.vocabulary.organizer
   module:
     - link
-    - options
     - smart_date
     - text
     - user
@@ -33,22 +32,6 @@ content:
     third_party_settings: {  }
     weight: -20
     region: content
-  field_event_type:
-    type: list_default
-    label: inline
-    settings: {  }
-    third_party_settings: {  }
-    weight: 1
-    region: content
-  field_level:
-    type: string
-    label: inline
-    settings:
-      link_to_entity: false
-      link_rel: canonical
-    third_party_settings: {  }
-    weight: 3
-    region: content
   field_link:
     type: link
     label: inline
@@ -68,6 +51,14 @@ content:
       link: false
     third_party_settings: {  }
     weight: 2
+    region: content
+  field_organizer:
+    type: entity_reference_label
+    label: inline
+    settings:
+      link: false
+    third_party_settings: {  }
+    weight: 1
     region: content
   field_when:
     type: smartdate_default

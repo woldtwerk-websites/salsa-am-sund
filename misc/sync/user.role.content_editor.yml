@@ -12,9 +12,12 @@ dependencies:
     - media.type.remote_video
     - media.type.svg_image
     - media.type.video
+    - node.type.course
     - node.type.event
+    - node.type.gallery
     - node.type.page
     - taxonomy.vocabulary.location
+    - taxonomy.vocabulary.organizer
     - workflows.workflow.basic_editorial
   module:
     - canvas
@@ -50,17 +53,22 @@ permissions:
   - 'administer redirects'
   - 'administer url aliases'
   - 'create canvas_page'
+  - 'create course content'
   - 'create document media'
   - 'create event content'
+  - 'create gallery content'
   - 'create image media'
   - 'create page content'
   - 'create remote_video media'
   - 'create svg_image media'
   - 'create terms in location'
+  - 'create terms in organizer'
   - 'create url aliases'
   - 'create video media'
+  - 'delete any course content'
   - 'delete any document media'
   - 'delete any event content'
+  - 'delete any gallery content'
   - 'delete any image media'
   - 'delete any page content'
   - 'delete any remote_video media'
@@ -69,8 +77,11 @@ permissions:
   - 'delete canvas_page'
   - 'delete page revisions'
   - 'delete terms in location'
+  - 'delete terms in organizer'
+  - 'edit any course content'
   - 'edit any document media'
   - 'edit any event content'
+  - 'edit any gallery content'
   - 'edit any image media'
   - 'edit any page content'
   - 'edit any remote_video media'
@@ -78,6 +89,7 @@ permissions:
   - 'edit any video media'
   - 'edit canvas_page'
   - 'edit terms in location'
+  - 'edit terms in organizer'
   - 'make smart dates recur'
   - 'post comments'
   - 'publish auto-saves'

@@ -3,5 +3,8 @@ services:
     autowire: true
   Drupal\workspace_events\EventDescriptionFormatter:
     autowire: true
-  Drupal\workspace_events\Hook\EventFormHooks:
+  Drupal\workspace_events\OrganizerResolver:
     autowire: true
+  Drupal\workspace_events\EventFilterFactory:
+    arguments:
+      - '@Drupal\workspace_events\OrganizerResolver'

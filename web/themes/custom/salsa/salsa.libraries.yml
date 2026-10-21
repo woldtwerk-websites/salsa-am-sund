@@ -6,3 +6,34 @@ global:
         preprocess: false
       src/css/main.css:
         preprocess: true
+
+fullcalendar:
+  version: 7.1.3
+  license:
+    name: MIT
+    url: libraries/fullcalendar/LICENSE.md
+    gpl-compatible: true
+  css:
+    theme:
+      libraries/fullcalendar/theme-classic.palette.css: {}
+  js:
+    # The styles register globalThis.__applyFullCalendarStyles and must run
+    # before the global build defines <full-calendar>.
+    libraries/fullcalendar/skeleton.styles.min.js:
+      minified: true
+      preprocess: false
+    libraries/fullcalendar/theme-classic.styles.min.js:
+      minified: true
+      preprocess: false
+    libraries/fullcalendar/fullcalendar.global.min.js:
+      minified: true
+      preprocess: false
+    # The theme and the locale extend FullCalendar.Shared, so they follow the
+    # global build.
+    libraries/fullcalendar/theme-classic.global.min.js:
+      minified: true
+      preprocess: false
+    libraries/fullcalendar/locale-de.global.min.js:
+      minified: true
+      preprocess: false
+

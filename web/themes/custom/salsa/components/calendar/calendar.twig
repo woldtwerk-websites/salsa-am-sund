@@ -1,0 +1,106 @@
+{#
+  Event calendar.
+
+  The calendar itself is rendered by the self-hosted FullCalendar web component
+  from the JSON endpoint. calendar.js sets the options, loads the events, keeps
+  the filter state in the page URL and switches between month and list view.
+  The filter bar is plain HTML, so it still shows without JavaScript; the
+  calendar needs JavaScript, hence the <noscript> fallback to the iCal feed.
+#}
+
+{% set button = html_cva(
+  base: [
+    'inline-flex w-fit items-center justify-center gap-2.5 rounded-full font-semibold no-underline',
+    'transition duration-200 ease-out hover:no-underline',
+  ],
+  variants: {
+    variant: {
+      flame: 'bg-flame-deep text-white shadow-[0_14px_34px_-16px_rgb(143_15_22_/_0.9)] hover:brightness-95 hover:text-white',
+      outline: 'border border-[var(--surface-border)] bg-transparent text-[var(--surface-fg)] hover:bg-flame-gold/10',
+    },
+    size: {
+      md: 'px-5 py-2.5 text-sm',
+    },
+  }
+) %}
+{% set focus = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame-gold' %}
+
+<div
+  class="{{ tw_merge(['salsa-surface-dark w-full rounded-2xl border border-line bg-ink p-4 text-sand md:p-6', ui.root|default('')]) }}"
+  data-salsa-calendar
+  data-events-url="{{ events_url }}"
+  data-all-organizers="{{ organizers|column('value')|join(',') }}"
+>
+  <div data-salsa-calendar-filters class="grid gap-4 sm:grid-cols-2">
+    <fieldset class="min-w-0 rounded-xl border border-line/70 bg-ink-2/40 p-4">
+      <legend class="px-1 font-body text-xs font-semibold uppercase tracking-[0.2em] text-flame-gold">
+        {{ 'Veranstalter'|t }}
+      </legend>
+      <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+        {% for organizer in organizers %}
+          <label class="flex cursor-pointer items-center gap-2 rounded-lg p-1 transition-colors hover:bg-flame-gold/5 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-flame-gold">
+            <input
+              type="checkbox"
+              name="organizer"
+              value="{{ organizer.value }}"
+              class="size-4 shrink-0 accent-flame-orange {{ focus }}"
+            >
+            <span class="min-w-0 text-sm font-semibold text-sand">{{ organizer.label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+      <p class="mt-2 text-xs leading-snug text-mist">{{ 'Nichts ausgewählt zeigt alle Veranstalter.'|t }}</p>
+    </fieldset>
+
+    <fieldset class="min-w-0 rounded-xl border border-line/70 bg-ink-2/40 p-4">
+      <legend class="px-1 font-body text-xs font-semibold uppercase tracking-[0.2em] text-flame-gold">
+        {{ 'Orte'|t }}
+      </legend>
+      <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+        {% for location in locations %}
+          <label class="flex cursor-pointer items-center gap-2 rounded-lg p-1 transition-colors hover:bg-flame-gold/5 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-flame-gold">
+            <input
+              type="checkbox"
+              name="location"
+              value="{{ location.value }}"
+              class="size-4 shrink-0 accent-flame-orange {{ focus }}"
+            >
+            <span class="min-w-0 text-sm font-semibold text-sand">{{ location.label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+      <p class="mt-2 text-xs leading-snug text-mist">{{ 'Nichts ausgewählt zeigt alle Orte.'|t }}</p>
+    </fieldset>
+  </div>
+
+  <label class="mt-3 flex w-fit cursor-pointer items-center gap-2 rounded-lg p-1 transition-colors hover:bg-flame-gold/5 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-flame-gold">
+    <input
+      type="checkbox"
+      name="courses"
+      value="1"
+      data-salsa-calendar-courses
+      class="size-4 shrink-0 accent-flame-orange {{ focus }}"
+      checked
+    >
+    <span class="text-sm font-semibold text-sand">{{ 'Kurse anzeigen'|t }}</span>
+  </label>
+
+  <full-calendar
+    id="{{ id }}"
+    class="salsa-calendar mt-5 block"
+    aria-label="{{ 'Veranstaltungskalender'|t }}"
+  ></full-calendar>
+
+  <noscript>
+    <p class="mt-4 rounded-xl border border-dashed border-line/70 bg-ink-2/30 p-4 text-sm text-mist">
+      {{ 'Der Kalender benötigt JavaScript. Alle Termine findest du im iCal-Feed.'|t }}
+    </p>
+    <p class="mt-3">
+      <a href="{{ ical_url }}" class="{{ tw_merge([button.apply({variant: 'outline', size: 'md'}), focus]) }}">
+        {{ 'Termine als .ics herunterladen'|t }}
+      </a>
+    </p>
+  </noscript>
+
+  {{ subscribe }}
+</div>
