@@ -110,6 +110,7 @@
     "require-dev": {
         "behat/mink": "^1.11",
         "behat/mink-browserkit-driver": "^2.2",
+        "brianium/paratest": "^7.8",
         "drupal/coder": "^9.0",
         "drush/drush": "^13.7",
         "mglaman/phpstan-drupal": "^2.2",
@@ -202,6 +203,7 @@
         "qa": [
             "@phpstan",
             "@phpcs"
-        ]
+        ],
+        "test": "SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=https://salsa-am-sund.localhost paratest -c web/core/phpunit.xml.dist --processes=auto web/modules/custom"
     }
 }
