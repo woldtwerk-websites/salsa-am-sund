@@ -262,6 +262,7 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
       'date' => $occurrence->start->format('Y-m-d'),
       'title' => (string) $node->label(),
       'href' => $this->getHref($node),
+      'ical_href' => $occurrence->toIcalUrl()->toString(),
     ];
     $time = $this->formatTime($occurrence);
     if ($time !== NULL) {

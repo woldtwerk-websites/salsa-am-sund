@@ -241,6 +241,29 @@ final class EventOccurrenceRepositoryTest extends EventKernelTestBase {
   }
 
   /**
+   * Tests filtering by event node IDs.
+   */
+  public function testFilterByEventIds(): void {
+    $from = $this->date('2026-10-01');
+    $to = $this->date('2026-10-31', '23:59');
+
+    $occurrences = $this->repository->findOccurrences(
+      EventFilter::eventsOnly(eventIds: [$this->partyId]),
+      $from,
+      $to,
+    );
+    self::assertCount(1, $occurrences);
+    self::assertSame($this->partyId, (int) $occurrences[0]->node->id());
+
+    // The selection only matches events, not a course with the same ID.
+    self::assertSame([], $this->repository->findOccurrences(
+      EventFilter::eventsOnly(eventIds: [$this->courseId]),
+      $from,
+      $to,
+    ));
+  }
+
+  /**
    * Tests the organizer and course combinations.
    */
   public function testFilterByOrganizerAndCourse(): void {

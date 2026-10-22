@@ -45,6 +45,9 @@ final readonly class EventFilter {
    *   The course node IDs to include. An empty list means every course.
    * @param int[] $locationIds
    *   The location term IDs to include. An empty list means every location.
+   * @param int[] $eventIds
+   *   The event node IDs to include. An empty list means every event. This
+   *   selection is internal to the repository and has no query notation.
    */
   public function __construct(
     public bool $includeEvents = TRUE,
@@ -52,6 +55,7 @@ final readonly class EventFilter {
     public bool $includeCourses = TRUE,
     public array $courseIds = [],
     public array $locationIds = [],
+    public array $eventIds = [],
   ) {}
 
   /**
@@ -61,16 +65,19 @@ final readonly class EventFilter {
    *   The organizer term IDs, empty for every organizer.
    * @param int[] $locationIds
    *   The location term IDs, empty for every location.
+   * @param int[] $eventIds
+   *   The event node IDs, empty for every event.
    *
    * @return self
    *   The filter.
    */
-  public static function eventsOnly(array $organizerIds = [], array $locationIds = []): self {
+  public static function eventsOnly(array $organizerIds = [], array $locationIds = [], array $eventIds = []): self {
     return new self(
       includeEvents: TRUE,
       organizerIds: $organizerIds,
       includeCourses: FALSE,
       locationIds: $locationIds,
+      eventIds: $eventIds,
     );
   }
 
@@ -102,7 +109,8 @@ final readonly class EventFilter {
       && $this->includeCourses
       && $this->organizerIds === []
       && $this->courseIds === []
-      && $this->locationIds === [];
+      && $this->locationIds === []
+      && $this->eventIds === [];
   }
 
   /**
@@ -110,7 +118,9 @@ final readonly class EventFilter {
    *
    * The organizer, course and location selections use the comma separated
    * notation of the iCal feed. A course-only filter additionally emits the
-   * legacy `type=course` parameter, so the result can be parsed back.
+   * legacy `type=course` parameter, so the result can be parsed back. The
+   * event node selection stays internal, because the feed has no parameter
+   * for single events.
    *
    * @return array<string, string>
    *   The query parameters.

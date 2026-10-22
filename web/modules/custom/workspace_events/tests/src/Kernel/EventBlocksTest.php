@@ -95,6 +95,10 @@ final class EventBlocksTest extends EventKernelTestBase {
     self::assertStringNotContainsString('plain_text', (string) $items[1]['#props']['text']);
     self::assertStringNotContainsString('content_format', (string) $items[1]['#props']['text']);
     self::assertSame($party->toUrl()->toString(), $items[1]['#props']['href']);
+    self::assertSame(
+      '/termine/' . $party->id() . '/0/ical',
+      $items[1]['#props']['ical_href'],
+    );
 
     // The calendar subscription popover offers one checkbox per organizer and
     // the courses.

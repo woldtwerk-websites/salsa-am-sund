@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\workspace_events;
 
+use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\TermInterface;
 
@@ -45,6 +46,19 @@ final readonly class EventOccurrence {
    */
   public function isCourse(): bool {
     return $this->node->bundle() === 'course';
+  }
+
+  /**
+   * Returns the download URL of this occurrence.
+   *
+   * The route needs whole path segments, so the delta is part of the path and
+   * not the file extension.
+   */
+  public function toIcalUrl(): Url {
+    return Url::fromRoute('workspace_events.occurrence_ical', [
+      'node' => (int) $this->node->id(),
+      'delta' => $this->delta,
+    ]);
   }
 
   /**

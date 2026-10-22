@@ -6,6 +6,7 @@ namespace Drupal\Tests\workspace_events\Kernel;
 
 use Drupal\node\NodeInterface;
 use Drupal\Core\Cache\CacheableResponse;
+use Drupal\Component\Transliteration\TransliterationInterface;
 use Drupal\workspace_events\Controller\IcalController;
 use Drupal\workspace_events\EventDescriptionFormatter;
 use Drupal\workspace_events\EventFilterFactory;
@@ -77,11 +78,14 @@ final class IcalControllerTest extends EventKernelTestBase {
     \assert($description_formatter instanceof EventDescriptionFormatter);
     $filter_factory = $this->container->get(EventFilterFactory::class);
     \assert($filter_factory instanceof EventFilterFactory);
+    $transliteration = $this->container->get('transliteration');
+    \assert($transliteration instanceof TransliterationInterface);
     $this->controller = new IcalController(
       $repository,
       $this->container->get('entity_type.manager'),
       $description_formatter,
       $filter_factory,
+      $transliteration,
     );
 
     $location_a = $this->createLocation(

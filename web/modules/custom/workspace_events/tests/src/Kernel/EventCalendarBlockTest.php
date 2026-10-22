@@ -45,7 +45,7 @@ final class EventCalendarBlockTest extends EventKernelTestBase {
       ],
     ]);
     // One event before and one after the course, so the card order is testable.
-    $this->createEvent([
+    $guest = $this->createEvent([
       'title' => 'Gastparty',
       'field_organizer' => $this->externalOrganizer,
       'field_when' => [
@@ -124,6 +124,10 @@ final class EventCalendarBlockTest extends EventKernelTestBase {
       $items,
     ));
     self::assertSame('salsa:event', $items[0]['card']['#component']);
+    self::assertSame(
+      '/termine/' . $guest->id() . '/0/ical',
+      $items[0]['card']['#props']['ical_href'],
+    );
 
     // The block output does not depend on the request.
     self::assertSame([], $build['#cache']['contexts'] ?? []);

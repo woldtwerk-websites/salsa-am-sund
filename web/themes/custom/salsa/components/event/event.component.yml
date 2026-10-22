@@ -41,6 +41,10 @@ props:
       type: string
       title: Link
       format: uri-reference
+    ical_href:
+      type: string
+      title: Kalenderdatei
+      format: uri-reference
     kind:
       type: string
       title: Art

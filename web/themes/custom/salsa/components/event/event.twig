@@ -63,6 +63,16 @@
         {{ text }}
       </div>
     {% endif %}
+
+    {% if ical_href %}
+      <p class="mt-3">
+        <a href="{{ ical_href }}" download class="relative z-10 inline-flex items-center gap-1.5 text-sm font-semibold text-mist no-underline hover:text-flame-gold">
+          {{ icon('salsa', 'calendar', {size: 16}) }}
+          <span>{{ 'Zum Kalender'|t }}</span>
+          <span class="sr-only">: {{ title }}, {{ date|date('d.m.Y') }}</span>
+        </a>
+      </p>
+    {% endif %}
   </div>
 </article>
 </div>

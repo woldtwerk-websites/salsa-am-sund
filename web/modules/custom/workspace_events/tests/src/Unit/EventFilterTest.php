@@ -382,6 +382,12 @@ final class EventFilterTest extends UnitTestCase {
     self::assertSame(['type' => 'course'], $filter->toQuery());
 
     self::assertFalse(EventFilter::eventsOnly([3])->isEmpty());
+
+    // Selecting individual events is not an empty filter either, but the
+    // internal selection has no query notation.
+    $filter = EventFilter::eventsOnly(eventIds: [5, 7]);
+    self::assertFalse($filter->isEmpty());
+    self::assertSame([], $filter->toQuery());
   }
 
   /**

@@ -3,7 +3,7 @@
  * @file
  * Full course page.
  *
- * CoursePreprocessHooks suppresses the page title for course nodes; the
+ * DetailPagePreprocessHooks suppresses the page title for course nodes; the
  * header below renders the <h1> and the course meta itself.
  *
  * Available variables:
@@ -12,10 +12,11 @@
  * - attributes: Attributes for the article wrapper.
  * - course_level: The level label of the course.
  * - course_schedule: Weekday and time range of the series.
- * - course_next_dates: Upcoming dates with date, date_iso, weekday and time.
+ * - course_next_dates: Upcoming dates with date, date_iso, weekday, time and
+ *   iCal URL.
  * - course_location: Location name, address and map URL.
  * - course_link: Optional external link with label and href.
- * - course_ical_url: The iCal feed of this course.
+ * - course_ical_url: The webcal subscription URL of this course's feed.
  * - course_overview_url: The URL of the course overview.
  */
 #}
@@ -93,9 +94,16 @@
                   <time datetime="{{ item.date_iso }}" class="font-display text-lg leading-tight font-bold italic text-sand">
                     {{ item.weekday }}, {{ item.date }}
                   </time>
-                  <span class="font-body text-sm font-semibold uppercase tracking-wide text-flame-gold">
-                    {{ item.time ?: 'Ganztägig'|t }}
-                  </span>
+                  <div class="flex flex-wrap items-center gap-x-5 gap-y-1">
+                    <span class="font-body text-sm font-semibold uppercase tracking-wide text-flame-gold">
+                      {{ item.time ?: 'Ganztägig'|t }}
+                    </span>
+                    <a href="{{ item.ical_url }}" download class="inline-flex items-center gap-1.5 text-sm font-semibold text-mist no-underline hover:text-flame-gold">
+                      {{ icon('salsa', 'calendar', {size: 16}) }}
+                      <span>{{ 'Zum Kalender'|t }}</span>
+                      <span class="sr-only">: {{ item.weekday }}, {{ item.date }}</span>
+                    </a>
+                  </div>
                 </li>
               {% endfor %}
             </ol>

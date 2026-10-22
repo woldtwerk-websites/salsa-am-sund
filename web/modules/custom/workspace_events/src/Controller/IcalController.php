@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\workspace_events\Controller;
 
+use Drupal\Component\Transliteration\TransliterationInterface;
 use Drupal\Core\Cache\CacheableResponse;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
@@ -18,8 +19,10 @@ use Sabre\VObject\Component;
 use Sabre\VObject\Component\VCalendar;
 use Sabre\VObject\Component\VEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Provides a filterable iCal feed of event occurrences.
@@ -64,12 +67,15 @@ final class IcalController implements ContainerInjectionInterface {
    *   The event description formatter.
    * @param \Drupal\workspace_events\EventFilterFactory $filterFactory
    *   The filter factory that parses the query parameters.
+   * @param \Drupal\Component\Transliteration\TransliterationInterface $transliteration
+   *   The transliteration service for the download filename.
    */
   public function __construct(
     private readonly EventOccurrenceRepository $repository,
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly EventDescriptionFormatter $descriptionFormatter,
     private readonly EventFilterFactory $filterFactory,
+    private readonly TransliterationInterface $transliteration,
   ) {}
 
   /**
@@ -84,8 +90,10 @@ final class IcalController implements ContainerInjectionInterface {
     \assert($description_formatter instanceof EventDescriptionFormatter);
     $filter_factory = $container->get(EventFilterFactory::class);
     \assert($filter_factory instanceof EventFilterFactory);
+    $transliteration = $container->get('transliteration');
+    \assert($transliteration instanceof TransliterationInterface);
 
-    return new static($repository, $entity_type_manager, $description_formatter, $filter_factory);
+    return new static($repository, $entity_type_manager, $description_formatter, $filter_factory, $transliteration);
   }
 
   /**
@@ -149,6 +157,57 @@ final class IcalController implements ContainerInjectionInterface {
   }
 
   /**
+   * Builds the calendar response for a single occurrence.
+   *
+   * The download carries the same UID as the feed, so subscribing clients
+   * recognise the single date instead of adding a duplicate.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request.
+   * @param \Drupal\node\NodeInterface $node
+   *   The event or course node.
+   * @param int $delta
+   *   The delta of the smart date field value.
+   *
+   * @return \Drupal\Core\Cache\CacheableResponse
+   *   The iCal response.
+   *
+   * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+   *   When the node has no such occurrence.
+   */
+  public function occurrence(Request $request, NodeInterface $node, int $delta): CacheableResponse {
+    $occurrence = $this->repository->findOccurrence($node, $delta);
+    if ($occurrence === NULL) {
+      throw new NotFoundHttpException();
+    }
+
+    $calendar = $this->buildCalendarHeader();
+    $this->addEvent($calendar, $occurrence, $request->getHost(), $request->getSchemeAndHttpHost());
+
+    $filename = $this->getFilename($occurrence);
+    $response = new CacheableResponse($calendar->serialize(), Response::HTTP_OK, [
+      'Content-Type' => 'text/calendar; charset=utf-8',
+      'Content-Disposition' => HeaderUtils::makeDisposition(
+        HeaderUtils::DISPOSITION_ATTACHMENT,
+        $filename,
+        $this->getAsciiFilename($filename),
+      ),
+    ]);
+
+    // The single event only depends on its node and its terms.
+    $cacheability = $response->getCacheableMetadata();
+    $cacheability->addCacheableDependency($occurrence->node);
+    if ($occurrence->location !== NULL) {
+      $cacheability->addCacheableDependency($occurrence->location);
+    }
+    if ($occurrence->organizer !== NULL) {
+      $cacheability->addCacheableDependency($occurrence->organizer);
+    }
+
+    return $response;
+  }
+
+  /**
    * Builds the iCal calendar object.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
@@ -163,6 +222,31 @@ final class IcalController implements ContainerInjectionInterface {
    */
   // @phpstan-ignore-next-line
   private function buildCalendar(Request $request, EventFilter $filter, array $occurrences): VCalendar {
+    $calendar = $this->buildCalendarHeader();
+    $calendar->add('X-WR-CALNAME', $this->getCalendarName($filter));
+    $calendar->add('REFRESH-INTERVAL', 'PT6H', ['VALUE' => 'DURATION']);
+    $calendar->add('X-PUBLISHED-TTL', 'PT6H');
+
+    $host = $request->getHost();
+    $scheme_and_host = $request->getSchemeAndHttpHost();
+    foreach ($occurrences as $occurrence) {
+      $this->addEvent($calendar, $occurrence, $host, $scheme_and_host);
+    }
+
+    return $calendar;
+  }
+
+  /**
+   * Builds the calendar with the properties shared by the feed and a download.
+   *
+   * The name and the refresh hints are feed-only, so they are added by
+   * buildCalendar().
+   *
+   * @return \Sabre\VObject\Component\VCalendar
+   *   The calendar header, including the timezone definition.
+   */
+  // @phpstan-ignore-next-line
+  private function buildCalendarHeader(): VCalendar {
     $calendar = new VCalendar();
     $calendar->remove('PRODID');
     $calendar->add('PRODID', '-//Salsa am Sund//Termine//DE');
@@ -171,17 +255,8 @@ final class IcalController implements ContainerInjectionInterface {
     $calendar->remove('CALSCALE');
     $calendar->add('CALSCALE', 'GREGORIAN');
     $calendar->add('METHOD', 'PUBLISH');
-    $calendar->add('X-WR-CALNAME', $this->getCalendarName($filter));
     $calendar->add('X-WR-TIMEZONE', self::TIMEZONE);
-    $calendar->add('REFRESH-INTERVAL', 'PT6H', ['VALUE' => 'DURATION']);
-    $calendar->add('X-PUBLISHED-TTL', 'PT6H');
     $this->addTimezone($calendar);
-
-    $host = $request->getHost();
-    $scheme_and_host = $request->getSchemeAndHttpHost();
-    foreach ($occurrences as $occurrence) {
-      $this->addEvent($calendar, $occurrence, $host, $scheme_and_host);
-    }
 
     return $calendar;
   }
@@ -305,6 +380,38 @@ final class IcalController implements ContainerInjectionInterface {
       return $name;
     }
     return $name . ' – ' . implode(', ', $parts);
+  }
+
+  /**
+   * Builds the download filename of an occurrence.
+   *
+   * @param \Drupal\workspace_events\EventOccurrence $occurrence
+   *   The occurrence.
+   *
+   * @return string
+   *   The filename, including the .ics extension.
+   */
+  private function getFilename(EventOccurrence $occurrence): string {
+    // Slashes are not allowed in a Content-Disposition filename.
+    $title = str_replace(['/', '\\'], '-', (string) $occurrence->node->label());
+    return $title . '-' . $occurrence->start->format('Y-m-d') . '.ics';
+  }
+
+  /**
+   * Returns an ASCII fallback of a download filename.
+   *
+   * Browsers that ignore RFC 5987 need a plain header value, so the title is
+   * transliterated and reduced to safe characters.
+   *
+   * @param string $filename
+   *   The filename.
+   *
+   * @return string
+   *   The ASCII fallback.
+   */
+  private function getAsciiFilename(string $filename): string {
+    $transliterated = $this->transliteration->transliterate($filename);
+    return preg_replace('/[^A-Za-z0-9._-]+/', '-', $transliterated) ?? $filename;
   }
 
   /**

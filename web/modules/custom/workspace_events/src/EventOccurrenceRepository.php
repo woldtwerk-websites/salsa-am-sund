@@ -7,6 +7,7 @@ namespace Drupal\workspace_events;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\ConditionInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
+use Drupal\Core\Field\FieldItemInterface;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\TermInterface;
 
@@ -102,11 +103,45 @@ final class EventOccurrenceRepository {
   }
 
   /**
+   * Finds one occurrence of a node by its date delta.
+   *
+   * The node is expected to be loaded already, so the method reads its date
+   * field and the referenced organizer and location terms.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The event or course node.
+   * @param int $delta
+   *   The delta of the smart date field value.
+   *
+   * @return \Drupal\workspace_events\EventOccurrence|null
+   *   The occurrence, or NULL when the node is of another bundle or has no
+   *   such date.
+   */
+  public function findOccurrence(NodeInterface $node, int $delta): ?EventOccurrence {
+    if (!in_array($node->bundle(), ['event', 'course'], TRUE) || !$node->hasField('field_when')) {
+      return NULL;
+    }
+    $item = $node->get('field_when')->get($delta);
+    if (!$item instanceof FieldItemInterface) {
+      return NULL;
+    }
+
+    return $this->buildOccurrence(
+      $node,
+      $delta,
+      $item,
+      $this->getOrganizer($node),
+      $this->getLocation($node),
+    );
+  }
+
+  /**
    * Builds the type condition group of the candidate query.
    *
-   * Events are selected by their organizer term, courses by their bundle. Both
-   * cases are combined in a single OR group, so the occurrences of all
-   * requested organizers and courses are found with one entity query.
+   * Events are selected by their organizer term and node ID, courses by their
+   * bundle. Both cases are combined in a single OR group, so the occurrences
+   * of all requested organizers, events and courses are found with one entity
+   * query.
    *
    * @param \Drupal\Core\Entity\Query\QueryInterface $query
    *   The entity query that the condition group belongs to.
@@ -117,7 +152,9 @@ final class EventOccurrenceRepository {
    *   The condition group, or NULL when every event and course is included.
    */
   private function buildTypeCondition(QueryInterface $query, EventFilter $filter): ?ConditionInterface {
-    $unrestricted = $filter->organizerIds === [] && $filter->courseIds === [];
+    $unrestricted = $filter->organizerIds === []
+      && $filter->courseIds === []
+      && $filter->eventIds === [];
     if ($filter->includeEvents && $filter->includeCourses && $unrestricted) {
       return NULL;
     }
@@ -135,6 +172,9 @@ final class EventOccurrenceRepository {
       if ($filter->organizerIds !== []) {
         $event_group->condition('field_organizer.target_id', $filter->organizerIds, 'IN');
       }
+      if ($filter->eventIds !== []) {
+        $event_group->condition('nid', $filter->eventIds, 'IN');
+      }
       $group->condition($event_group);
     }
     if ($group->count() === 0) {
@@ -149,7 +189,7 @@ final class EventOccurrenceRepository {
    * Returns the occurrences of a node that overlap a range.
    *
    * @param \Drupal\node\NodeInterface $node
-   *   The event node.
+   *   The event or course node.
    * @param int $from
    *   The start timestamp of the range.
    * @param int $to
@@ -159,51 +199,96 @@ final class EventOccurrenceRepository {
    *   The occurrences.
    */
   private function getOccurrencesForNode(NodeInterface $node, int $from, int $to): array {
-    $organizer = NULL;
-    if ($node->hasField('field_organizer')) {
-      $organizer = $node->get('field_organizer')->entity;
-      if (!$organizer instanceof TermInterface) {
-        $organizer = NULL;
-      }
-    }
-
-    $location = $node->get('field_location')->entity;
-    if ($location !== NULL && !$location instanceof TermInterface) {
-      $location = NULL;
-    }
+    $organizer = $this->getOrganizer($node);
+    $location = $this->getLocation($node);
 
     $occurrences = [];
     foreach ($node->get('field_when') as $delta => $item) {
-      $start_timestamp = (int) $item->get('value')->getString();
-      if ($start_timestamp === 0) {
+      $occurrence = $this->buildOccurrence($node, (int) $delta, $item, $organizer, $location);
+      if ($occurrence === NULL) {
         continue;
       }
-      $end_timestamp = (int) $item->get('end_value')->getString();
-      $duration = (int) $item->get('duration')->getString();
-      // An event without duration has no known end; treat its start as end.
-      $effective_end = $duration === 0 ? $start_timestamp : $end_timestamp;
-      if ($start_timestamp > $to || $effective_end < $from) {
+      if ($occurrence->start->getTimestamp() > $to || $occurrence->endTimestamp() < $from) {
         continue;
       }
-
-      $timezone = $this->getTimeZone($item->get('timezone')->getString());
-      $start = (new \DateTimeImmutable('@' . $start_timestamp))->setTimezone($timezone);
-      $end = $duration === 0
-        ? NULL
-        : (new \DateTimeImmutable('@' . $end_timestamp))->setTimezone($timezone);
-
-      $occurrences[] = new EventOccurrence(
-        $node,
-        (int) $delta,
-        $start,
-        $end,
-        self::isAllDay($start_timestamp, $end_timestamp, $timezone),
-        $organizer,
-        $location,
-      );
+      $occurrences[] = $occurrence;
     }
 
     return $occurrences;
+  }
+
+  /**
+   * Builds an occurrence from one date value of a node.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The event or course node.
+   * @param int $delta
+   *   The delta of the smart date field value.
+   * @param \Drupal\Core\Field\FieldItemInterface $item
+   *   The date value.
+   * @param \Drupal\taxonomy\TermInterface|null $organizer
+   *   The organizer term, if any.
+   * @param \Drupal\taxonomy\TermInterface|null $location
+   *   The location term, if any.
+   *
+   * @return \Drupal\workspace_events\EventOccurrence|null
+   *   The occurrence, or NULL when the date value is empty.
+   */
+  private function buildOccurrence(NodeInterface $node, int $delta, FieldItemInterface $item, ?TermInterface $organizer, ?TermInterface $location): ?EventOccurrence {
+    $start_timestamp = (int) $item->get('value')->getString();
+    if ($start_timestamp === 0) {
+      return NULL;
+    }
+    $end_timestamp = (int) $item->get('end_value')->getString();
+    $duration = (int) $item->get('duration')->getString();
+    $timezone = $this->getTimeZone($item->get('timezone')->getString());
+
+    return new EventOccurrence(
+      $node,
+      $delta,
+      (new \DateTimeImmutable('@' . $start_timestamp))->setTimezone($timezone),
+      // An event without duration has no known end.
+      $duration === 0
+        ? NULL
+        : (new \DateTimeImmutable('@' . $end_timestamp))->setTimezone($timezone),
+      self::isAllDay($start_timestamp, $end_timestamp, $timezone),
+      $organizer,
+      $location,
+    );
+  }
+
+  /**
+   * Returns the organizer term of a node.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The event or course node.
+   *
+   * @return \Drupal\taxonomy\TermInterface|null
+   *   The organizer, or NULL when the node has none.
+   */
+  private function getOrganizer(NodeInterface $node): ?TermInterface {
+    if (!$node->hasField('field_organizer')) {
+      return NULL;
+    }
+    $organizer = $node->get('field_organizer')->entity;
+    return $organizer instanceof TermInterface ? $organizer : NULL;
+  }
+
+  /**
+   * Returns the location term of a node.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The event or course node.
+   *
+   * @return \Drupal\taxonomy\TermInterface|null
+   *   The location, or NULL when the node has none.
+   */
+  private function getLocation(NodeInterface $node): ?TermInterface {
+    if (!$node->hasField('field_location')) {
+      return NULL;
+    }
+    $location = $node->get('field_location')->entity;
+    return $location instanceof TermInterface ? $location : NULL;
   }
 
   /**

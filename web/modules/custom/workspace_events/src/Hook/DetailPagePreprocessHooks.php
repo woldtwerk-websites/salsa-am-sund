@@ -18,9 +18,9 @@ use Drupal\workspace_events\EventOccurrence;
 use Drupal\workspace_events\EventOccurrenceRepository;
 
 /**
- * Prepares the data of the course detail page.
+ * Prepares the data of the course and event detail pages.
  */
-final class CoursePreprocessHooks {
+final class DetailPagePreprocessHooks {
 
   use StringTranslationTrait;
 
@@ -35,7 +35,7 @@ final class CoursePreprocessHooks {
   private const int LOOKAHEAD_DAYS = 365;
 
   /**
-   * Constructs the course preprocess hooks.
+   * Constructs the detail page preprocess hooks.
    *
    * @param \Drupal\workspace_events\EventOccurrenceRepository $repository
    *   The occurrence repository.
@@ -64,7 +64,7 @@ final class CoursePreprocessHooks {
   #[Hook('preprocess_node')]
   public function preprocessNode(array &$variables): void {
     $node = $variables['node'] ?? NULL;
-    if (!$node instanceof NodeInterface || $node->bundle() !== 'course') {
+    if (!$node instanceof NodeInterface || !in_array($node->bundle(), ['course', 'event'], TRUE)) {
       return;
     }
     if (($variables['view_mode'] ?? NULL) !== 'full') {
@@ -73,49 +73,21 @@ final class CoursePreprocessHooks {
 
     $occurrences = $this->findUpcomingOccurrences($node);
 
-    $variables['course_level'] = $node->hasField('field_level')
-      ? $node->get('field_level')->getString()
-      : '';
-    $variables['course_schedule'] = isset($occurrences[0])
-      ? $this->formatSchedule($occurrences[0])
-      : '';
-    $variables['course_next_dates'] = $this->buildNextDates($occurrences);
-    $variables['course_location'] = $this->buildLocation($node);
-    $variables['course_link'] = $this->buildLink($node);
-    $variables['course_ical_url'] = Url::fromRoute('workspace_events.ical', [], [
-      'query' => ['course' => (int) $node->id()],
-    ])->toString();
-    $variables['course_overview_url'] = Url::fromUserInput('/salsa-kurse')->toString();
-
-    // The list shifts as soon as the next date has ended, so it may not be
-    // cached beyond the end of the next occurrence.
-    $max_age = 3600;
-    if ($occurrences !== []) {
-      $max_age = max(0, $occurrences[0]->endTimestamp() - $this->time->getRequestTime());
+    if ($node->bundle() === 'course') {
+      $this->prepareCourse($variables, $node, $occurrences);
+    }
+    else {
+      $this->prepareEvent($variables, $node, $occurrences);
     }
 
-    $cacheability = CacheableMetadata::createFromRenderArray($variables);
-    $cacheability->addCacheableDependency($node);
-    $location = $node->hasField('field_location') ? $node->get('field_location')->entity : NULL;
-    if ($location instanceof TermInterface) {
-      $cacheability->addCacheableDependency($location);
-    }
-    // The body is rendered through its text format.
-    if ($node->hasField('body') && !$node->get('body')->isEmpty()) {
-      $format = $node->get('body')->first()?->get('format')->getString() ?? '';
-      if ($format !== '') {
-        $cacheability->addCacheTags(['config:filter.format.' . $format]);
-      }
-    }
-    $cacheability->setCacheMaxAge($max_age);
-    $cacheability->applyTo($variables);
+    $this->applyCacheability($variables, $node, $occurrences);
   }
 
   /**
    * Implements hook_preprocess_page_title().
    *
-   * Course pages render their own <h1> in the header of the node template, so
-   * the route's page title block stays empty.
+   * Course and event pages render their own <h1> in the header of the node
+   * template, so the route's page title block stays empty.
    *
    * @param array<string, mixed> $variables
    *   The theme variables.
@@ -128,7 +100,7 @@ final class CoursePreprocessHooks {
       return;
     }
     $node = $this->routeMatch->getParameter('node');
-    if (!$node instanceof NodeInterface || $node->bundle() !== 'course') {
+    if (!$node instanceof NodeInterface || !in_array($node->bundle(), ['course', 'event'], TRUE)) {
       return;
     }
 
@@ -145,10 +117,105 @@ final class CoursePreprocessHooks {
   }
 
   /**
-   * Returns the next occurrences of a course.
+   * Adds the variables of a course detail page.
    *
+   * @param array<string, mixed> $variables
+   *   The theme variables.
    * @param \Drupal\node\NodeInterface $node
    *   The course node.
+   * @param \Drupal\workspace_events\EventOccurrence[] $occurrences
+   *   The upcoming occurrences.
+   */
+  private function prepareCourse(array &$variables, NodeInterface $node, array $occurrences): void {
+    $variables['course_level'] = $node->hasField('field_level')
+      ? $node->get('field_level')->getString()
+      : '';
+    $variables['course_schedule'] = isset($occurrences[0])
+      ? $this->formatSchedule($occurrences[0])
+      : '';
+    $variables['course_next_dates'] = $this->buildNextDates($occurrences);
+    $variables['course_location'] = $this->buildLocation($node);
+    $variables['course_link'] = $this->buildLink($node);
+    $variables['course_ical_url'] = $this->buildIcalUrl(['course' => (int) $node->id()]);
+    $variables['course_overview_url'] = Url::fromUserInput('/salsa-kurse')->toString();
+  }
+
+  /**
+   * Adds the variables of an event detail page.
+   *
+   * @param array<string, mixed> $variables
+   *   The theme variables.
+   * @param \Drupal\node\NodeInterface $node
+   *   The event node.
+   * @param \Drupal\workspace_events\EventOccurrence[] $occurrences
+   *   The upcoming occurrences.
+   */
+  private function prepareEvent(array &$variables, NodeInterface $node, array $occurrences): void {
+    $organizer = $this->findOrganizer($node);
+    $dates = $this->buildNextDates($occurrences);
+
+    $variables['event_organizer'] = $organizer === NULL
+      ? ''
+      : (string) $organizer->label();
+    $variables['event_next_date'] = $dates[0] ?? NULL;
+    $variables['event_next_dates'] = $dates;
+    $variables['event_location'] = $this->buildLocation($node);
+    $variables['event_link'] = $this->buildLink($node);
+    $variables['event_ical_url'] = $this->buildIcalUrl(
+      $organizer === NULL ? [] : ['organizer' => (int) $organizer->id()],
+    );
+    $variables['event_overview_url'] = Url::fromUserInput('/veranstaltungen')->toString();
+  }
+
+  /**
+   * Applies the cache metadata of a detail page.
+   *
+   * The list shifts as soon as the next date has ended, so it may not be
+   * cached beyond the end of the next occurrence.
+   *
+   * @param array<string, mixed> $variables
+   *   The theme variables.
+   * @param \Drupal\node\NodeInterface $node
+   *   The course or event node.
+   * @param \Drupal\workspace_events\EventOccurrence[] $occurrences
+   *   The upcoming occurrences.
+   *
+   * @param-out array<mixed> $variables
+   */
+  private function applyCacheability(array &$variables, NodeInterface $node, array $occurrences): void {
+    $max_age = 3600;
+    if ($occurrences !== []) {
+      $max_age = max(0, $occurrences[0]->endTimestamp() - $this->time->getRequestTime());
+    }
+
+    $cacheability = CacheableMetadata::createFromRenderArray($variables);
+    $cacheability->addCacheableDependency($node);
+    // The subscription URLs are absolute, so they depend on the site host.
+    $cacheability->addCacheContexts(['url.site']);
+    $location = $node->hasField('field_location') ? $node->get('field_location')->entity : NULL;
+    if ($location instanceof TermInterface) {
+      $cacheability->addCacheableDependency($location);
+    }
+    $organizer = $this->findOrganizer($node);
+    if ($organizer !== NULL) {
+      $cacheability->addCacheableDependency($organizer);
+    }
+    // The body is rendered through its text format.
+    if ($node->hasField('body') && !$node->get('body')->isEmpty()) {
+      $format = $node->get('body')->first()?->get('format')->getString() ?? '';
+      if ($format !== '') {
+        $cacheability->addCacheTags(['config:filter.format.' . $format]);
+      }
+    }
+    $cacheability->setCacheMaxAge($max_age);
+    $cacheability->applyTo($variables);
+  }
+
+  /**
+   * Returns the next occurrences of a course or event.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The course or event node.
    *
    * @return \Drupal\workspace_events\EventOccurrence[]
    *   The upcoming occurrences, sorted by start date and time.
@@ -156,12 +223,35 @@ final class CoursePreprocessHooks {
   private function findUpcomingOccurrences(NodeInterface $node): array {
     $timezone = new \DateTimeZone(date_default_timezone_get());
     $from = (new \DateTimeImmutable('@' . $this->time->getRequestTime()))->setTimezone($timezone);
+    $filter = $node->bundle() === 'course'
+      ? EventFilter::coursesOnly([(int) $node->id()])
+      : EventFilter::eventsOnly(eventIds: [(int) $node->id()]);
     return $this->repository->findOccurrences(
-      EventFilter::coursesOnly([(int) $node->id()]),
+      $filter,
       $from,
       $from->modify('+' . self::LOOKAHEAD_DAYS . ' days'),
       self::NEXT_DATES,
     );
+  }
+
+  /**
+   * Builds the webcal subscription URL of a detail page.
+   *
+   * A webcal:// URL opens directly in the calendar client, the same way the
+   * blocks link to their feeds.
+   *
+   * @param array<string, int> $query
+   *   The feed query parameters.
+   *
+   * @return string
+   *   The absolute subscription URL.
+   */
+  private function buildIcalUrl(array $query): string {
+    $absolute = Url::fromRoute('workspace_events.ical', [], [
+      'query' => $query,
+      'absolute' => TRUE,
+    ])->toString();
+    return preg_replace('#^https?://#', 'webcal://', $absolute) ?? $absolute;
   }
 
   /**
@@ -170,7 +260,7 @@ final class CoursePreprocessHooks {
    * @param \Drupal\workspace_events\EventOccurrence[] $occurrences
    *   The upcoming occurrences.
    *
-   * @return array<int, array{date: string, date_iso: string, weekday: string, time: string}>
+   * @return array<int, array{date: string, date_iso: string, weekday: string, time: string, ical_url: string}>
    *   The date rows.
    */
   private function buildNextDates(array $occurrences): array {
@@ -181,6 +271,7 @@ final class CoursePreprocessHooks {
         'date_iso' => $occurrence->start->format('Y-m-d'),
         'weekday' => $this->formatWeekday($occurrence),
         'time' => $this->formatTime($occurrence) ?? '',
+        'ical_url' => $occurrence->toIcalUrl()->toString(),
       ];
     }
     return $dates;
@@ -248,13 +339,30 @@ final class CoursePreprocessHooks {
   }
 
   /**
-   * Builds the location card data of a course.
+   * Returns the organizer term of an event.
    *
    * @param \Drupal\node\NodeInterface $node
-   *   The course node.
+   *   The event node.
+   *
+   * @return \Drupal\taxonomy\TermInterface|null
+   *   The organizer, or NULL when the event has none.
+   */
+  private function findOrganizer(NodeInterface $node): ?TermInterface {
+    if (!$node->hasField('field_organizer')) {
+      return NULL;
+    }
+    $term = $node->get('field_organizer')->entity;
+    return $term instanceof TermInterface ? $term : NULL;
+  }
+
+  /**
+   * Builds the location card data of a course or event.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The course or event node.
    *
    * @return array{name: string, address: string, map_url: string}|null
-   *   The location, or NULL when the course has no location.
+   *   The location, or NULL when the node has no location.
    */
   private function buildLocation(NodeInterface $node): ?array {
     if (!$node->hasField('field_location')) {
@@ -295,13 +403,13 @@ final class CoursePreprocessHooks {
   }
 
   /**
-   * Builds the optional external link of a course.
+   * Builds the optional external link of a course or event.
    *
    * @param \Drupal\node\NodeInterface $node
-   *   The course node.
+   *   The course or event node.
    *
    * @return array{label: string, href: string}|null
-   *   The link, or NULL when the course has no link.
+   *   The link, or NULL when the node has no link.
    */
   private function buildLink(NodeInterface $node): ?array {
     if (!$node->hasField('field_link') || $node->get('field_link')->isEmpty()) {

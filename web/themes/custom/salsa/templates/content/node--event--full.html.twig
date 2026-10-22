@@ -1,0 +1,169 @@
+{#
+/**
+ * @file
+ * Full event page.
+ *
+ * DetailPagePreprocessHooks suppresses the page title for event nodes; the
+ * header below renders the <h1> and the event meta itself.
+ *
+ * Available variables:
+ * - node: The event node.
+ * - content: The rendered node fields.
+ * - attributes: Attributes for the article wrapper.
+ * - event_organizer: The organizer label of the event.
+ * - event_next_date: The next date with date, date_iso, weekday, time and iCal
+ *   URL.
+ * - event_next_dates: Upcoming dates with date, date_iso, weekday, time and
+ *   iCal URL.
+ * - event_location: Location name, address and map URL.
+ * - event_link: Optional external link with label and href.
+ * - event_ical_url: The webcal subscription URL of this event's organizer
+ *   feed.
+ * - event_overview_url: The URL of the event overview.
+ */
+#}
+{% set body = content.body is defined ? content.body|render : '' %}
+{% set organizer = event_organizer|default('') %}
+{% set next_date = event_next_date|default(null) %}
+{% set next_dates = event_next_dates|default([]) %}
+{% set location = event_location|default(null) %}
+{% set link = event_link|default(null) %}
+
+<article{{ attributes }}>
+  <header class="salsa-surface-flame relative isolate overflow-hidden bg-flame-deep">
+    <div class="salsa-ribbons" aria-hidden="true">
+      <span class="salsa-ribbon salsa-ribbon--1"></span>
+      <span class="salsa-ribbon salsa-ribbon--2"></span>
+      <span class="salsa-ribbon salsa-ribbon--3"></span>
+    </div>
+
+    <div class="relative z-10 mx-auto w-full max-w-6xl px-5 pt-14 pb-12 md:px-8 md:pt-20 md:pb-16">
+      <p class="mb-5 inline-flex items-center gap-3 font-body text-xs font-semibold uppercase not-italic tracking-[0.3em] text-white md:text-sm">
+        <span class="inline-block h-px w-8 bg-flame-gold" aria-hidden="true"></span>
+        {{ 'Party'|t }}
+      </p>
+
+      <h1 class="max-w-5xl font-display text-[clamp(2.25rem,8vw,6rem)] leading-[0.98] font-black italic uppercase tracking-[-0.02em] text-balance text-white [font-stretch:100%] sm:[font-stretch:104%] lg:[font-stretch:112%]">
+        {{ node.label }}
+      </h1>
+
+      {% if organizer or next_date %}
+        <div class="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">
+          {% if organizer %}
+            <span class="inline-flex items-center rounded-full border border-flame-orange/40 bg-flame-orange/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-flame-orange">
+              {{ organizer }}
+            </span>
+          {% endif %}
+          {% if next_date %}
+            <time datetime="{{ next_date.date_iso }}" class="inline-flex items-center gap-2 font-body text-sm font-semibold text-white/85">
+              {{ icon('salsa', 'calendar', {size: 18}) }}
+              {{ next_date.weekday }}, {{ next_date.date }} · {{ next_date.time ?: 'Ganztägig'|t }}
+            </time>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% if link %}
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          {% include 'salsa:button' with {
+            label: link.label,
+            href: link.href,
+            variant: 'light',
+            size: 'md',
+            icon: 'external-link',
+          } only %}
+        </div>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="mx-auto w-full max-w-6xl px-5 py-12 md:px-8 md:py-16">
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-16">
+      <div class="min-w-0">
+        {% if body|striptags|trim is not empty %}
+          <div class="max-w-none">{{ body }}</div>
+        {% endif %}
+
+        <section class="{{ body|striptags|trim is not empty ? 'mt-12' : '' }}" aria-labelledby="event-dates-title">
+          <h2 id="event-dates-title" class="font-display text-2xl leading-tight font-extrabold italic text-flame-light md:text-3xl">
+            {{ 'Termine'|t }}
+          </h2>
+
+          {% if next_dates is not empty %}
+            <ol class="mt-5 divide-y divide-line/60 rounded-2xl border border-line bg-ink-2">
+              {% for item in next_dates %}
+                <li class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-5 py-4">
+                  <time datetime="{{ item.date_iso }}" class="font-display text-lg leading-tight font-bold italic text-sand">
+                    {{ item.weekday }}, {{ item.date }}
+                  </time>
+                  <div class="flex flex-wrap items-center gap-x-5 gap-y-1">
+                    <span class="font-body text-sm font-semibold uppercase tracking-wide text-flame-gold">
+                      {{ item.time ?: 'Ganztägig'|t }}
+                    </span>
+                    <a href="{{ item.ical_url }}" download class="inline-flex items-center gap-1.5 text-sm font-semibold text-mist no-underline hover:text-flame-gold">
+                      {{ icon('salsa', 'calendar', {size: 16}) }}
+                      <span>{{ 'Zum Kalender'|t }}</span>
+                      <span class="sr-only">: {{ item.weekday }}, {{ item.date }}</span>
+                    </a>
+                  </div>
+                </li>
+              {% endfor %}
+            </ol>
+          {% else %}
+            <p class="mt-4 text-mist">{{ 'Für diese Veranstaltung sind keine weiteren Termine geplant.'|t }}</p>
+          {% endif %}
+        </section>
+      </div>
+
+      <aside class="min-w-0 space-y-6">
+        {% if location %}
+          <div class="rounded-2xl border border-line bg-ink-2 p-5 md:p-6">
+            <h2 class="flex items-center gap-2 font-display text-xl leading-tight font-bold italic text-sand">
+              {{ icon('salsa', 'map-pin', {size: 20}) }}
+              {{ 'Ort'|t }}
+            </h2>
+            <p class="mt-3 font-semibold text-sand">{{ location.name }}</p>
+            {% if location.address %}
+              <p class="mt-1 whitespace-pre-line text-sm leading-relaxed text-mist">{{ location.address }}</p>
+            {% endif %}
+            {% if location.map_url %}
+              <a
+                href="{{ location.map_url }}"
+                class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-flame-gold no-underline hover:text-flame-light"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {{ icon('salsa', 'map-pin', {size: 16}) }}
+                {{ 'Auf der Karte ansehen'|t }}
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        <div class="rounded-2xl border border-line bg-ink-2 p-5 md:p-6">
+          <h2 class="font-display text-xl leading-tight font-bold italic text-sand">{{ 'Kalender'|t }}</h2>
+          <p class="mt-2 text-sm leading-relaxed text-mist">
+            {% if organizer %}
+              {{ 'Alle Partys von @organizer als Kalender abonnieren.'|t({'@organizer': organizer}) }}
+            {% else %}
+              {{ 'Alle Partys als Kalender abonnieren.'|t }}
+            {% endif %}
+          </p>
+          <div class="mt-5 flex flex-wrap gap-3">
+            {% include 'salsa:button' with {
+              label: 'Kalender abonnieren'|t,
+              href: event_ical_url,
+              variant: 'flame',
+              size: 'md',
+              icon: 'external-link',
+            } only %}
+          </div>
+          <a href="{{ event_overview_url }}" class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-mist no-underline hover:text-flame-gold">
+            {{ icon('salsa', 'chevron-left', {size: 16}) }}
+            {{ 'Zurück zu den Veranstaltungen'|t }}
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</article>
