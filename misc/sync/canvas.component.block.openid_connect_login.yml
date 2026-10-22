@@ -1,0 +1,23 @@
+uuid: 27caf5a6-7a41-40e4-a59c-a0d7f41995f3
+langcode: de
+status: true
+dependencies:
+  module:
+    - openid_connect
+active_version: 0c13c9d026e990e6
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: openid_connect_login
+        label: 'OpenID Connect login'
+        label_display: '0'
+        provider: openid_connect
+    fallback_metadata:
+      slot_definitions: null
+label: 'OpenID Connect login'
+id: block.openid_connect_login
+provider: openid_connect
+source: block
+source_local_id: openid_connect_login
+

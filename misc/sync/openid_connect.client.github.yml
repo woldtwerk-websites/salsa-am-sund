@@ -1,0 +1,14 @@
+uuid: b6c05579-6e70-4cf8-81dc-3d2e33eb8547
+langcode: de
+status: false
+dependencies: {  }
+id: github
+label: GitHub
+plugin: github
+settings:
+  client_id: ''
+  client_secret: ''
+  provider_slug: ''
+  iss_allowed_domains: ''
+  prompt:
+    - login

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4777bf3cad1e6f2d16ab5237a3279e78",
+    "content-hash": "c5905f66b1e5eb24186b827e3423120e",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2982,6 +2982,52 @@
             }
         },
         {
+            "name": "drupal/externalauth",
+            "version": "2.0.15",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/externalauth.git",
+                "reference": "2.0.15"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/externalauth-2.0.15.zip",
+                "reference": "2.0.15",
+                "shasum": "20fe35b605b4c137505d6f3c882690e53f31cd5d"
+            },
+            "require": {
+                "drupal/core": "^10.1 || ^11"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "2.0.15",
+                    "datestamp": "1790861291",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Sven Decabooter",
+                    "homepage": "https://www.drupal.org/u/svendecabooter",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "Helper module to authenticate users using an external site / service and storing identification details",
+            "homepage": "https://drupal.org/project/externalauth",
+            "support": {
+                "source": "https://git.drupalcode.org/project/externalauth",
+                "issues": "https://www.drupal.org/project/issues/externalauth"
+            }
+        },
+        {
             "name": "drupal/field_group",
             "version": "4.0.0",
             "source": {
@@ -4452,6 +4498,81 @@
             }
         },
         {
+            "name": "drupal/openid_connect",
+            "version": "3.0.0-alpha9",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/openid_connect.git",
+                "reference": "3.0.0-alpha9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/openid_connect-3.0.0-alpha9.zip",
+                "reference": "3.0.0-alpha9",
+                "shasum": "27c21eac5b147b8e37cfa71654ddc1812ec94fe0"
+            },
+            "require": {
+                "drupal/core": "^10.2 || ^11",
+                "drupal/externalauth": "^2.0",
+                "ext-json": "*",
+                "php": ">=8.1.0"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "3.0.0-alpha9",
+                    "datestamp": "1788187140",
+                    "security-coverage": {
+                        "status": "not-covered",
+                        "message": "Alpha releases are not covered by Drupal security advisories."
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "benjifisher",
+                    "homepage": "https://www.drupal.org/user/683300"
+                },
+                {
+                    "name": "bojanz",
+                    "homepage": "https://www.drupal.org/user/86106"
+                },
+                {
+                    "name": "jcnventura",
+                    "homepage": "https://www.drupal.org/user/122464"
+                },
+                {
+                    "name": "mstrelan",
+                    "homepage": "https://www.drupal.org/user/314289"
+                },
+                {
+                    "name": "pfrilling",
+                    "homepage": "https://www.drupal.org/user/169695"
+                },
+                {
+                    "name": "pjcdawkins",
+                    "homepage": "https://www.drupal.org/user/1025236"
+                },
+                {
+                    "name": "sanduhrs",
+                    "homepage": "https://www.drupal.org/user/28074"
+                }
+            ],
+            "description": "A pluggable client implementation for the OpenID Connect protocol.",
+            "homepage": "https://www.drupal.org/project/openid_connect",
+            "keywords": [
+                "Drupal"
+            ],
+            "support": {
+                "source": "https://git.drupalcode.org/project/openid_connect",
+                "issues": "https://www.drupal.org/project/issues/openid_connect"
+            }
+        },
+        {
             "name": "drupal/pathauto",
             "version": "1.15.0",
             "source": {
@@ -4613,6 +4734,54 @@
             "homepage": "https://www.drupal.org/project/project_browser",
             "support": {
                 "source": "https://git.drupalcode.org/project/project_browser"
+            }
+        },
+        {
+            "name": "drupal/quicklink",
+            "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/quicklink.git",
+                "reference": "3.0.0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/quicklink-3.0.0.zip",
+                "reference": "3.0.0",
+                "shasum": "bc18999379735917ddff4b3b5774f2a05a028815"
+            },
+            "require": {
+                "drupal/core": "^10.2 || ^11"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "3.0.0",
+                    "datestamp": "1776035266",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "mherchel",
+                    "homepage": "https://www.drupal.org/user/118428"
+                }
+            ],
+            "description": "Installs Quicklink JS library to prefetch linked pages.",
+            "homepage": "https://www.drupal.org/project/quicklink",
+            "keywords": [
+                "Drupal"
+            ],
+            "support": {
+                "source": "https://git.drupalcode.org/project/quicklink",
+                "issues": "https://www.drupal.org/project/issues/quicklink"
             }
         },
         {
@@ -6421,6 +6590,21 @@
                 "source": "https://github.com/mck89/peast/tree/v1.17.7"
             },
             "time": "2026-07-21T11:56:06+00:00"
+        },
+        {
+            "name": "npm-asset/quicklink",
+            "version": "3.0.1",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/quicklink/-/quicklink-3.0.1.tgz",
+                "shasum": "12bb507792594ad285880753c58196cc81d4e7d1"
+            },
+            "type": "drupal-library",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Quicklink prefetching library, served locally instead of from a third-party CDN.",
+            "homepage": "https://github.com/GoogleChromeLabs/quicklink"
         },
         {
             "name": "pear/archive_tar",
@@ -11272,7 +11456,7 @@
             "dist": {
                 "type": "path",
                 "url": "misc/scaffold",
-                "reference": "f0682163db33baee3d44174c0f93a06eb5516d38"
+                "reference": "bfd74889377158e7083584bb61d11599b264286b"
             },
             "type": "library",
             "extra": {
@@ -11293,6 +11477,46 @@
                         "[project-root]/.vscode/tasks.json": {
                             "path": "assets/.vscode/tasks.json",
                             "overwrite": false
+                        },
+                        "[project-root]/drush/drush.yml": {
+                            "path": "assets/drush/drush.yml",
+                            "overwrite": true
+                        },
+                        "[project-root]/globals.d.ts": {
+                            "path": "assets/globals.d.ts",
+                            "overwrite": true
+                        },
+                        "[project-root]/jsconfig.json": {
+                            "path": "assets/jsconfig.json",
+                            "overwrite": true
+                        },
+                        "[project-root]/package.json": {
+                            "path": "assets/package.json",
+                            "overwrite": false
+                        },
+                        "[project-root]/phpcs.xml.dist": {
+                            "path": "assets/phpcs.xml.dist",
+                            "overwrite": true
+                        },
+                        "[project-root]/phpstan.neon": {
+                            "path": "assets/phpstan.neon",
+                            "overwrite": true
+                        },
+                        "[project-root]/pnpm-workspace.yaml": {
+                            "path": "assets/pnpm-workspace.yaml",
+                            "overwrite": false
+                        },
+                        "[project-root]/skills-lock.json": {
+                            "path": "assets/skills-lock.json",
+                            "overwrite": true
+                        },
+                        "[project-root]/taze.config.js": {
+                            "path": "assets/taze.config.js",
+                            "overwrite": true
+                        },
+                        "[project-root]/tsconfig.json": {
+                            "path": "assets/tsconfig.json",
+                            "overwrite": true
                         }
                     }
                 }
@@ -15950,6 +16174,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "drupal/canvas_translate": 15,
+        "drupal/openid_connect": 15,
         "workspace/scaffold": 20
     },
     "prefer-stable": true,

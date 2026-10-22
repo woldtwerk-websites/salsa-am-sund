@@ -66,3 +66,7 @@ node_modules
 CLAUDE.md
 
 !misc/db/db.sql.gz
+
+# Local DDEV environment overrides, including real OpenID Connect credentials.
+# .ddev/.env.example stays tracked as a template.
+/.ddev/.env

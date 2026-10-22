@@ -1,0 +1,14 @@
+uuid: 8af3849f-1055-4eb7-8aad-560ff322eaa1
+langcode: de
+status: false
+dependencies: {  }
+id: google
+label: Google
+plugin: google
+settings:
+  client_id: ''
+  client_secret: ''
+  provider_slug: ''
+  iss_allowed_domains: ''
+  prompt:
+    - login
