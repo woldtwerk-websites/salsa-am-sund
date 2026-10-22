@@ -916,6 +916,33 @@ foreach (['google' => 'GOOGLE', 'facebook' => 'FACEBOOK', 'github' => 'GITHUB'] 
 unset($oidc_client, $oidc_provider, $oidc_client_id, $oidc_client_secret);
 
 /**
+ * Production database credentials and hash salt from the environment.
+ *
+ * The Quadlet units load ~/.config/<site>/.env into the app container (see
+ * misc/systemd/containers/env.example), where the app reaches MariaDB under
+ * the host `db` (127.0.0.1 inside the pod) on port 3306. DDEV does not set
+ * these variables, so it keeps using settings.ddev.php.
+ */
+$db_name = getenv('MARIADB_DATABASE');
+if (is_string($db_name) && $db_name !== '') {
+  $databases['default']['default'] = [
+    'driver' => 'mysql',
+    'host' => 'db',
+    'port' => '3306',
+    'database' => $db_name,
+    'username' => getenv('MARIADB_USER'),
+    'password' => getenv('MARIADB_PASSWORD'),
+  ];
+}
+unset($db_name);
+
+$hash_salt = getenv('DRUPAL_HASH_SALT');
+if (is_string($hash_salt) && $hash_salt !== '') {
+  $settings['hash_salt'] = $hash_salt;
+}
+unset($hash_salt);
+
+/**
  * Load local development override configuration, if available.
  *
  * Create a settings.local.php file to override variables on secondary (staging,
