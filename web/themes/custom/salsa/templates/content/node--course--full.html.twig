@@ -1,0 +1,155 @@
+{#
+/**
+ * @file
+ * Full course page.
+ *
+ * CoursePreprocessHooks suppresses the page title for course nodes; the
+ * header below renders the <h1> and the course meta itself.
+ *
+ * Available variables:
+ * - node: The course node.
+ * - content: The rendered node fields.
+ * - attributes: Attributes for the article wrapper.
+ * - course_level: The level label of the course.
+ * - course_schedule: Weekday and time range of the series.
+ * - course_next_dates: Upcoming dates with date, date_iso, weekday and time.
+ * - course_location: Location name, address and map URL.
+ * - course_link: Optional external link with label and href.
+ * - course_ical_url: The iCal feed of this course.
+ * - course_overview_url: The URL of the course overview.
+ */
+#}
+{% set body = content.body is defined ? content.body|render : '' %}
+{% set level = course_level|default('') %}
+{% set schedule = course_schedule|default('') %}
+{% set next_dates = course_next_dates|default([]) %}
+{% set location = course_location|default(null) %}
+{% set link = course_link|default(null) %}
+
+<article{{ attributes }}>
+  <header class="salsa-surface-flame relative isolate overflow-hidden bg-flame-deep">
+    <div class="salsa-ribbons" aria-hidden="true">
+      <span class="salsa-ribbon salsa-ribbon--1"></span>
+      <span class="salsa-ribbon salsa-ribbon--2"></span>
+      <span class="salsa-ribbon salsa-ribbon--3"></span>
+    </div>
+
+    <div class="relative z-10 mx-auto w-full max-w-6xl px-5 pt-14 pb-12 md:px-8 md:pt-20 md:pb-16">
+      <p class="mb-5 inline-flex items-center gap-3 font-body text-xs font-semibold uppercase not-italic tracking-[0.3em] text-white md:text-sm">
+        <span class="inline-block h-px w-8 bg-flame-gold" aria-hidden="true"></span>
+        {{ 'Kurs'|t }}
+      </p>
+
+      <h1 class="max-w-5xl font-display text-[clamp(2.25rem,8vw,6rem)] leading-[0.98] font-black italic uppercase tracking-[-0.02em] text-balance text-white [font-stretch:100%] sm:[font-stretch:104%] lg:[font-stretch:112%]">
+        {{ node.label }}
+      </h1>
+
+      {% if level or schedule %}
+        <div class="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">
+          {% if level %}
+            <span class="inline-flex items-center rounded-full border border-flame-gold/40 bg-flame-gold/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-flame-gold">
+              {{ level }}
+            </span>
+          {% endif %}
+          {% if schedule %}
+            <span class="inline-flex items-center gap-2 font-body text-sm font-semibold text-white/85">
+              {{ icon('salsa', 'calendar', {size: 18}) }}
+              {{ schedule }}
+            </span>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% if link %}
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          {% include 'salsa:button' with {
+            label: link.label,
+            href: link.href,
+            variant: 'light',
+            size: 'md',
+            icon: 'external-link',
+          } only %}
+        </div>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="mx-auto w-full max-w-6xl px-5 py-12 md:px-8 md:py-16">
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-16">
+      <div class="min-w-0">
+        {% if body|striptags|trim is not empty %}
+          <div class="max-w-none">{{ body }}</div>
+        {% endif %}
+
+        <section class="{{ body|striptags|trim is not empty ? 'mt-12' : '' }}" aria-labelledby="course-dates-title">
+          <h2 id="course-dates-title" class="font-display text-2xl leading-tight font-extrabold italic text-flame-light md:text-3xl">
+            {{ 'Nächste Termine'|t }}
+          </h2>
+
+          {% if next_dates is not empty %}
+            <ol class="mt-5 divide-y divide-line/60 rounded-2xl border border-line bg-ink-2">
+              {% for item in next_dates %}
+                <li class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-5 py-4">
+                  <time datetime="{{ item.date_iso }}" class="font-display text-lg leading-tight font-bold italic text-sand">
+                    {{ item.weekday }}, {{ item.date }}
+                  </time>
+                  <span class="font-body text-sm font-semibold uppercase tracking-wide text-flame-gold">
+                    {{ item.time ?: 'Ganztägig'|t }}
+                  </span>
+                </li>
+              {% endfor %}
+            </ol>
+          {% else %}
+            <p class="mt-4 text-mist">{{ 'Aktuell sind keine weiteren Termine geplant.'|t }}</p>
+          {% endif %}
+        </section>
+      </div>
+
+      <aside class="min-w-0 space-y-6">
+        {% if location %}
+          <div class="rounded-2xl border border-line bg-ink-2 p-5 md:p-6">
+            <h2 class="flex items-center gap-2 font-display text-xl leading-tight font-bold italic text-sand">
+              {{ icon('salsa', 'map-pin', {size: 20}) }}
+              {{ 'Ort'|t }}
+            </h2>
+            <p class="mt-3 font-semibold text-sand">{{ location.name }}</p>
+            {% if location.address %}
+              <p class="mt-1 whitespace-pre-line text-sm leading-relaxed text-mist">{{ location.address }}</p>
+            {% endif %}
+            {% if location.map_url %}
+              <a
+                href="{{ location.map_url }}"
+                class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-flame-gold no-underline hover:text-flame-light"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {{ icon('salsa', 'map-pin', {size: 16}) }}
+                {{ 'Auf der Karte ansehen'|t }}
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        <div class="rounded-2xl border border-line bg-ink-2 p-5 md:p-6">
+          <h2 class="font-display text-xl leading-tight font-bold italic text-sand">{{ 'Kalender'|t }}</h2>
+          <p class="mt-2 text-sm leading-relaxed text-mist">
+            {{ 'Alle Termine dieses Kurses als Kalender abonnieren.'|t }}
+          </p>
+          <div class="mt-5 flex flex-wrap gap-3">
+            {% include 'salsa:button' with {
+              label: 'Kalender abonnieren'|t,
+              href: course_ical_url,
+              variant: 'flame',
+              size: 'md',
+              icon: 'external-link',
+            } only %}
+          </div>
+          <a href="{{ course_overview_url }}" class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-mist no-underline hover:text-flame-gold">
+            {{ icon('salsa', 'chevron-left', {size: 16}) }}
+            {{ 'Zurück zu den Kursen'|t }}
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</article>
