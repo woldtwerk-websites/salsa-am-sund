@@ -53,9 +53,11 @@
       </div>
     {% endif %}
 
-    {% if footer is not empty %}
+    {# Render the slot once so whitespace-only markup does not produce an empty footer box. #}
+    {% set footer_output = footer|default(null)|render %}
+    {% if footer_output|trim is not empty %}
       <div class="mt-auto border-t border-current/15 pt-4 text-sm">
-        {{ footer }}
+        {{ footer_output }}
       </div>
     {% endif %}
   </div>
