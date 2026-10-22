@@ -341,7 +341,6 @@ interface HtmxStatic {
 interface SalsaFullCalendarApi {
 	changeView(view: string): void
 	refetchEvents(): void
-	updateSize(): void
 	[key: string]: unknown
 }
 

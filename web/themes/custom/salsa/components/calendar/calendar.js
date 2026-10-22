@@ -575,16 +575,11 @@
         }
         api = calendarApi;
 
-        // The calendar may start in a hidden tab, where it has no size yet.
-        // Refetch the size once the panel becomes visible.
-        const resize = new ResizeObserver(() => {
-          if (calendar.clientWidth === 0 || calendar.clientHeight === 0) {
-            return;
-          }
-          calendarApi.updateSize();
-        });
-        resize.observe(calendar);
-
+        // FullCalendar 7 measures the calendar itself: it watches the size of
+        // its scroller and rulers with an internal ResizeObserver and re-renders
+        // the view when they change. A calendar that starts in a hidden tab
+        // panel therefore lays itself out as soon as the panel is shown, so it
+        // must not be resized by hand.
         wide.addEventListener('change', (event) => {
           calendarApi.changeView(event.matches ? 'dayGridMonth' : 'listMonth');
         });
