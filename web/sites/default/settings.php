@@ -894,6 +894,28 @@ if (getenv('IS_DDEV_PROJECT') == 'true' && file_exists(__DIR__ . '/settings.ddev
 }
 
 /**
+ * OpenID Connect credentials from the environment.
+ *
+ * Client IDs and secrets are never stored in exported configuration or in
+ * version control. Provide them as OIDC_<CLIENT>_CLIENT_ID and
+ * OIDC_<CLIENT>_CLIENT_SECRET (for local DDEV, in .ddev/.env, see
+ * .ddev/.env.example). A client is only enabled when both values are set.
+ *
+ * Redirect URI to register with each provider:
+ * https://<host>/openid-connect/<client>
+ */
+foreach (['google' => 'GOOGLE', 'facebook' => 'FACEBOOK', 'github' => 'GITHUB'] as $oidc_client => $oidc_provider) {
+  $oidc_client_id = getenv('OIDC_' . $oidc_provider . '_CLIENT_ID');
+  $oidc_client_secret = getenv('OIDC_' . $oidc_provider . '_CLIENT_SECRET');
+  if (is_string($oidc_client_id) && $oidc_client_id !== '' && is_string($oidc_client_secret) && $oidc_client_secret !== '') {
+    $config['openid_connect.client.' . $oidc_client]['settings']['client_id'] = $oidc_client_id;
+    $config['openid_connect.client.' . $oidc_client]['settings']['client_secret'] = $oidc_client_secret;
+    $config['openid_connect.client.' . $oidc_client]['status'] = TRUE;
+  }
+}
+unset($oidc_client, $oidc_provider, $oidc_client_id, $oidc_client_secret);
+
+/**
  * Load local development override configuration, if available.
  *
  * Create a settings.local.php file to override variables on secondary (staging,
