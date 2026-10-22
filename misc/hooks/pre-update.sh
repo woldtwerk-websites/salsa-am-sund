@@ -11,7 +11,7 @@ BACKUP_DIR=.data/backup
 mkdir -p $BACKUP_DIR
 
 # Create database backup.
-drush  sql-dump --gzip --structure-tables-key=development --result-file=../$BACKUP_DIR/$FILENAME.sql --debug
+vendor/bin/drush  sql-dump --gzip --structure-tables-key=development --result-file=../$BACKUP_DIR/$FILENAME.sql --debug
 
 # Remove old backups.
 ls -1t "$BACKUP_DIR" | tail -n +$(($KEEP+1)) | xargs -I{} rm "$BACKUP_DIR/{}"

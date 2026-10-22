@@ -16,9 +16,9 @@ export PHP_INI_SCAN_DIR=":$PHP_CONF_DIR"
 # the custom modules' translations/de.po: their 'interface translation server
 # pattern' points locale:update at them.
 echo "Checking for remote translation updates..."
-drush locale:check --yes || echo 'Warning: locale:check failed'
+vendor/bin/drush locale:check --yes || echo 'Warning: locale:check failed'
 echo "Importing remote translation updates..."
-drush locale:update --yes || echo 'Warning: Some remote translations could not be updated'
+vendor/bin/drush locale:update --yes || echo 'Warning: Some remote translations could not be updated'
 
 echo "Running deploy hooks..."
-drush deploy --yes
+vendor/bin/drush deploy --yes
