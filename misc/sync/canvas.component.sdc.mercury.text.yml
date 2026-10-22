@@ -1,19 +1,15 @@
 uuid: d7f0431f-9b74-4b99-b220-1cf5d4701804
 langcode: de
-status: true
-dependencies:
-  config:
-    - filter.format.canvas_html_block
-  module:
-    - options
-    - text
-  theme:
-    - mercury
+status: false
+dependencies: {  }
 _core:
   default_config_hash: 40FCOFhZtJXiVybcgDooDsXL-54h42AfLck3OWpHjZI
-active_version: 16c79c28a4108f9b
+active_version: fallback
 versioned_properties:
   active:
+    settings:
+      last_active_version: 16c79c28a4108f9b
+  16c79c28a4108f9b:
     settings:
       prop_field_definitions:
         text:

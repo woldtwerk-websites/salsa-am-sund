@@ -29,4 +29,3 @@ id: block.salsa_event_calendar
 provider: workspace_events
 source: block
 source_local_id: salsa_event_calendar
-

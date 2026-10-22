@@ -5,6 +5,7 @@ dependencies:
   config:
     - canvas.component.block.salsa_contact_form
     - canvas.component.block.salsa_course_schedule
+    - canvas.component.block.salsa_event_calendar
     - canvas.component.block.salsa_events
     - canvas.component.block.salsa_page_comments
     - canvas.component.sdc.salsa.button
@@ -28,6 +29,8 @@ dependencies:
     - canvas.component.sdc.salsa.section
     - canvas.component.sdc.salsa.site-footer
     - canvas.component.sdc.salsa.site-header
+    - canvas.component.sdc.salsa.tab
+    - canvas.component.sdc.salsa.tabs
     - canvas.component.sdc.salsa.text
 name: 'Salsa am Sund'
 configEntityTypeId: component
@@ -35,6 +38,7 @@ weight: 0
 items:
   - block.salsa_contact_form
   - block.salsa_course_schedule
+  - block.salsa_event_calendar
   - block.salsa_events
   - block.salsa_page_comments
   - sdc.salsa.button
@@ -58,4 +62,6 @@ items:
   - sdc.salsa.section
   - sdc.salsa.site-footer
   - sdc.salsa.site-header
+  - sdc.salsa.tab
+  - sdc.salsa.tabs
   - sdc.salsa.text

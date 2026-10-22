@@ -1,25 +1,15 @@
 uuid: c23044a1-e3a4-45bc-88ac-d040f443eeab
 langcode: de
-status: true
-dependencies:
-  config:
-    - field.field.media.image.field_media_image
-    - field.field.media.svg_image.field_media_svg_image
-    - image.style.canvas_parametrized_width
-    - media.type.image
-    - media.type.svg_image
-  module:
-    - file
-    - media
-    - media_library
-    - options
-  theme:
-    - mercury
+status: false
+dependencies: {  }
 _core:
   default_config_hash: lUpZX12j_PuGnjaaiLoz8wredceIYtKwLmHH3U_zgrU
-active_version: a917d5c9be8f2830
+active_version: fallback
 versioned_properties:
   active:
+    settings:
+      last_active_version: a917d5c9be8f2830
+  a917d5c9be8f2830:
     settings:
       prop_field_definitions:
         width:

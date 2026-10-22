@@ -1,6 +1,6 @@
 uuid: 8662417b-11bb-4b74-8284-2502d167ba3e
 langcode: de
-status: false
+status: true
 dependencies: {  }
 id: facebook
 label: Meta

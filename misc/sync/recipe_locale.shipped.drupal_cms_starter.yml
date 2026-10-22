@@ -1,38 +1,6 @@
 recipe: Starter
 config:
   -
-    name: canvas.component.sdc.mercury.button
-    data:
-      versioned_properties:
-        active:
-          settings:
-            prop_field_definitions:
-              label:
-                default_value:
-                  -
-                    value: 'Button label'
-      label: Button
-  -
-    name: canvas.component.sdc.mercury.cta
-    data:
-      versioned_properties:
-        active:
-          settings:
-            prop_field_definitions:
-              heading_text:
-                default_value:
-                  -
-                    value: 'Your heading goes here'
-              text:
-                default_value:
-                  -
-                    value: 'Lorem ipsum dolor sit amet.'
-          fallback_metadata:
-            slot_definitions:
-              actions:
-                title: Buttons
-      label: 'Hero CTA'
-  -
     name: canvas.component.sdc.mercury.heading
     data:
       versioned_properties:

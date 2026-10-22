@@ -4,16 +4,13 @@ ignore_admin_paths: true
 ignore_ajax_links: true
 ignore_hashes: true
 ignore_file_ext: true
-url_patterns_to_ignore: |-
-  /user/logout
-  /user/
-  /edit
+url_patterns_to_ignore: "/user/logout\r\n/user/\r\n/edit"
 ignore_selectors: 'a[data-noprefetch]'
 selector: ''
 allowed_domains: ''
 prefetch_only_paths: ''
-no_load_when_authenticated: true
-no_load_when_session: true
+no_load_when_authenticated: false
+no_load_when_session: false
 no_load_content_types: {  }
 total_request_limit: 0
 concurrency_throttle_limit: 0

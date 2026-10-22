@@ -1,4 +1,4 @@
-uuid: 6041a1ca-17d9-417d-9026-c2946812e94b
+uuid: e5b71e13-9a38-489a-a2f6-adb2801de6b2
 langcode: de
 status: true
 dependencies:
@@ -25,5 +25,4 @@ settings:
       field: weight
       direction: ASC
     auto_create: false
-    auto_create_bundle: ''
 field_type: entity_reference

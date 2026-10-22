@@ -20,4 +20,3 @@ id: block.openid_connect_login
 provider: openid_connect
 source: block
 source_local_id: openid_connect_login
-

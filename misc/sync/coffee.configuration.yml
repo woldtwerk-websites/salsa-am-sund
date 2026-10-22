@@ -1,5 +1,10 @@
 _core:
   default_config_hash: cOqVnz_7pbb_0R31nQwih4Gh8XkmIbyFagFp6uUPaOc
 coffee_menus:
+  account: account
+  content: content
+  navigation-user-links: navigation-user-links
   admin: admin
+  tools: tools
+  top-tasks: top-tasks
 max_results: 7
