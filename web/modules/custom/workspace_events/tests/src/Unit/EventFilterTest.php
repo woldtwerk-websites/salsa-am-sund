@@ -28,7 +28,7 @@ final class EventFilterTest extends UnitTestCase {
   public const int SALSA_ID = 11;
 
   /**
-   * The organizer term ID of the "Extern" term used by the stub.
+   * The organizer term ID of the "Sonstige" term used by the stub.
    */
   public const int EXTERNAL_ID = 12;
 

@@ -113,7 +113,7 @@ final class EventBlocksTest extends EventKernelTestBase {
     self::assertTrue($options[0]['checked']);
     self::assertSame('organizer[]', $options[1]['name']);
     self::assertSame((string) $this->externalOrganizer, $options[1]['value']);
-    self::assertSame('Extern', $options[1]['label']);
+    self::assertSame('Sonstige', $options[1]['label']);
     self::assertSame(2, count(array_filter(
       $options,
       static fn (array $option): bool => $option['group'] === 'organizers',
@@ -176,7 +176,7 @@ final class EventBlocksTest extends EventKernelTestBase {
     ]);
     $props = $block->build()['ical']['subscribe']['#props'];
     self::assertSame(['organizers', 'courses', 'courses'], array_column($props['options'], 'group'));
-    self::assertSame('Extern', $props['options'][0]['label']);
+    self::assertSame('Sonstige', $props['options'][0]['label']);
     self::assertSame([], $props['hidden']);
   }
 

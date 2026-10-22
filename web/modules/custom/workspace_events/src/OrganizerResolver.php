@@ -31,7 +31,7 @@ final class OrganizerResolver implements OrganizerLookupInterface {
   public const string SALSA_AM_SUND_UUID = 'ff101b5e-48d9-4dd4-9711-b69057fa25c2';
 
   /**
-   * The UUID of the "Extern" term.
+   * The UUID of the "Sonstige" term.
    */
   public const string EXTERNAL_UUID = '5b0a52b3-9b74-4946-99c5-3c8a08919ac0';
 
@@ -46,7 +46,7 @@ final class OrganizerResolver implements OrganizerLookupInterface {
       'weight' => 0,
     ],
     self::EXTERNAL_UUID => [
-      'name' => 'Extern',
+      'name' => 'Sonstige',
       'weight' => 1,
     ],
   ];

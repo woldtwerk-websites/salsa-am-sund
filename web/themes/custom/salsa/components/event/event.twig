@@ -7,12 +7,19 @@
 {% set year = date|date('Y') %}
 {% set is_link = href is not empty %}
 {% set is_external = is_link and href matches '#^(https?:)?//#' %}
+{% set kind = kind|default('') %}
+{% set is_event = kind == 'event' %}
+{% set is_course = kind == 'course' %}
+{% set day_colour = is_course ? 'text-flame-gold' : 'text-flame-light' %}
+{% set badge_colours = is_course
+  ? 'border-flame-gold/40 bg-flame-gold/10 text-flame-gold'
+  : 'border-flame-orange/40 bg-flame-orange/10 text-flame-orange' %}
 
 <div class="@container h-full min-w-0">
 <article class="{{ tw_merge(['salsa-surface-dark group relative flex h-full min-w-0 flex-col gap-5 rounded-2xl border border-line bg-ink-2 p-5 transition-colors duration-300 hover:border-flame-gold/50 @md:flex-row @md:p-6', ui.root|default('')]) }}">
   <div class="shrink-0 @md:w-32">
     <time datetime="{{ date }}" class="flex items-start gap-2 @md:flex-col @md:gap-0">
-      <span class="font-display text-5xl leading-none font-black italic tracking-tight text-flame-light @md:text-6xl">{{ day_number }}</span>
+      <span class="font-display text-5xl leading-none font-black italic tracking-tight {{ day_colour }} @md:text-6xl">{{ day_number }}</span>
       <span class="font-body text-sm font-semibold uppercase tracking-[0.2em] text-flame-gold @md:mt-2">
         {{ months[month_number] }}<span class="sr-only"> {{ year }}</span>
       </span>
@@ -27,6 +34,11 @@
   </div>
 
   <div class="min-w-0 flex-1">
+    {% if is_event or is_course %}
+      <span class="mb-2 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide {{ badge_colours }}">
+        {{ is_course ? 'Kurs'|t : 'Party'|t }}
+      </span>
+    {% endif %}
     <h3 class="font-display text-2xl leading-tight font-bold italic text-sand @md:text-3xl">
       {% if is_link %}
         <a

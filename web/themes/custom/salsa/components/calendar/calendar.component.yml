@@ -1,6 +1,6 @@
 $schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
 name: Kalender
-description: "Monats- und Listenansicht der Termine aus dem JSON-Endpunkt, mit Filtern für Veranstalter, Orte und Kurse. Wird vom Block „Veranstaltungskalender“ genutzt, nicht im Canvas-Seitenbau."
+description: "Karten- und Kalenderansicht der Termine aus dem JSON-Endpunkt, mit gemeinsamen Filtern für Veranstalter, Partys und Kurse. Wird vom Block „Veranstaltungskalender“ genutzt, nicht im Canvas-Seitenbau."
 group: "Salsa am Sund"
 status: stable
 # The component is bound to the block's data and has no meaning in Canvas.
@@ -17,7 +17,6 @@ props:
     - events_url
     - ical_url
     - organizers
-    - locations
   properties:
     id:
       type: string
@@ -57,26 +56,10 @@ props:
             title: Beschriftung
             examples:
               - "Salsa am Sund"
-    locations:
-      type: array
-      title: Orte
-      items:
-        type: object
-        required:
-          - value
-          - label
-        properties:
-          value:
-            type: string
-            title: Wert
-            examples:
-              - "3"
-          label:
-            type: string
-            title: Beschriftung
-            examples:
-              - "Bootshaus Stralsund"
 slots:
+  cards:
+    title: Karten
+    description: "Die Termine als Karten im Raster."
   subscribe:
     title: Kalender abonnieren
     description: "Popover mit dem iCal-Feed zum Abonnieren."

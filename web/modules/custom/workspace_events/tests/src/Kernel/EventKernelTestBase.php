@@ -67,7 +67,7 @@ abstract class EventKernelTestBase extends CanvasKernelTestBase {
   protected int $salsaAmSund;
 
   /**
-   * The ID of the "Extern" organizer term.
+   * The ID of the "Sonstige" organizer term.
    */
   protected int $externalOrganizer;
 

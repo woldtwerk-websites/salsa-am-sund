@@ -1,0 +1,22 @@
+{#
+  Tabs.
+
+  tabs.js builds the tab list from the panels, so without JavaScript every
+  panel stays visible and the list stays hidden.
+#}
+{% set align = align|default('start') %}
+
+<div
+  class="{{ tw_merge(['w-full min-w-0', ui.root|default('')]) }}"
+  data-salsa-tabs
+  data-param="{{ param|default('') }}"
+>
+  <div
+    role="tablist"
+    data-salsa-tabs-list
+    class="{{ tw_merge(['mb-5 flex flex-wrap gap-2', align == 'end' ? 'justify-end' : '']) }}"
+    hidden
+  ></div>
+
+  {% block tabs %}{{ tabs|default('') }}{% endblock %}
+</div>

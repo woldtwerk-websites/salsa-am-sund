@@ -84,6 +84,42 @@
           }
         });
 
+        // Inside the calendar block the dialog mirrors the calendar filters.
+        // The calendar resolves the state before or after this behaviour, so
+        // the wrapper keeps the last one; changing the boxes here stays local
+        // and does not feed back into the calendar.
+        const calendarRoot = /** @type {HTMLElement|null} */ (root.closest('[data-salsa-calendar]'));
+        if (calendarRoot) {
+          /**
+           * Checks the boxes that match the calendar filters and updates the
+           * feed link.
+           *
+           * Events need parties and the organizer, courses only the courses
+           * checkbox.
+           *
+           * @param {SalsaCalendarFilterState} state
+           *   The filter state of the calendar.
+           */
+          const applyFilters = (state) => {
+            checkboxes.forEach((checkbox) => {
+              if (checkbox.name === 'organizer[]') {
+                checkbox.checked = state.parties && state.organizers.includes(checkbox.value);
+              }
+              else if (checkbox.name === 'course[]') {
+                checkbox.checked = state.courses;
+              }
+            });
+            update();
+          };
+
+          if (calendarRoot.salsaCalendarState) {
+            applyFilters(calendarRoot.salsaCalendarState);
+          }
+          calendarRoot.addEventListener('salsa-calendar:filters', (event) => {
+            applyFilters(/** @type {CustomEvent<SalsaCalendarFilterState>} */ (event).detail);
+          });
+        }
+
         update();
       });
     },

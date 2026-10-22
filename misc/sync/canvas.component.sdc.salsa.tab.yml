@@ -1,0 +1,89 @@
+uuid: 1a0f39bd-a73a-4a40-9d38-c34b6ec73868
+langcode: de
+status: true
+dependencies:
+  theme:
+    - salsa
+active_version: 14603ab4a8df09db
+versioned_properties:
+  active:
+    settings:
+      prop_field_definitions:
+        label:
+          required: true
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: Karten
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        name:
+          required: true
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: karten
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        icon:
+          required: false
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: calendar
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+    fallback_metadata:
+      slot_definitions:
+        content:
+          title: Inhalt
+          description: 'Inhalt des Tabs.'
+  79e32d3424d58e17:
+    settings:
+      prop_field_definitions:
+        label:
+          required: true
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: Karten
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        name:
+          required: true
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: karten
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+    fallback_metadata:
+      slot_definitions:
+        content:
+          title: Inhalt
+          description: 'Inhalt des Tabs.'
+label: Tab
+id: sdc.salsa.tab
+provider: salsa
+source: sdc
+source_local_id: 'salsa:tab'

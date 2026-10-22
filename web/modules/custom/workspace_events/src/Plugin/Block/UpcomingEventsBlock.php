@@ -136,27 +136,10 @@ final class UpcomingEventsBlock extends EventBlockBase {
     else {
       $items = [];
       foreach ($occurrences as $occurrence) {
-        $node = $occurrence->node;
-        $props = [
-          'date' => $occurrence->start->format('Y-m-d'),
-          'title' => (string) $node->label(),
-          'href' => $this->getHref($node),
-        ];
-        $time = $this->formatTime($occurrence);
-        if ($time !== NULL) {
-          $props['time'] = $time;
-        }
-        if ($occurrence->location !== NULL) {
-          $props['location'] = (string) $occurrence->location->label();
-        }
-        $description = $this->getDescription($node);
-        if ($description !== NULL) {
-          $props['text'] = $description;
-        }
         $items[] = [
           '#type' => 'component',
           '#component' => 'salsa:event',
-          '#props' => $props,
+          '#props' => $this->buildEventCardProps($occurrence),
         ];
       }
 

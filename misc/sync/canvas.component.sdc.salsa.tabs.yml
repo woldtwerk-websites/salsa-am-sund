@@ -1,0 +1,67 @@
+uuid: e2852d09-67a5-4c0d-8a8f-90ba8345dba5
+langcode: de
+status: true
+dependencies:
+  module:
+    - options
+  theme:
+    - salsa
+active_version: d230531836a6186f
+versioned_properties:
+  active:
+    settings:
+      prop_field_definitions:
+        param:
+          required: false
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: ansicht
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+        align:
+          required: false
+          field_type: list_string
+          field_storage_settings:
+            allowed_values_function: canvas_load_allowed_values_for_component_prop
+          field_instance_settings: {  }
+          field_widget: options_select
+          default_value:
+            -
+              value: start
+          expression: ℹ︎list_string␟value
+          derived_schema_metadata: {  }
+    fallback_metadata:
+      slot_definitions:
+        tabs:
+          title: Tabs
+          description: 'Die Bereiche der Tab-Navigation.'
+  1e35771d42c4c4de:
+    settings:
+      prop_field_definitions:
+        param:
+          required: false
+          field_type: string
+          field_storage_settings: {  }
+          field_instance_settings: {  }
+          field_widget: string_textfield
+          default_value:
+            -
+              value: ansicht
+          expression: ℹ︎string␟value
+          derived_schema_metadata:
+            string_shape: {  }
+    fallback_metadata:
+      slot_definitions:
+        tabs:
+          title: Tabs
+          description: 'Die Bereiche der Tab-Navigation.'
+label: Tabs
+id: sdc.salsa.tabs
+provider: salsa
+source: sdc
+source_local_id: 'salsa:tabs'

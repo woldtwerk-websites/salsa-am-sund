@@ -69,6 +69,43 @@ function workspace_events_update_10002(): void {
 }
 
 /**
+ * Implements hook_update_N().
+ *
+ * Renames the organizer term "Extern" to "Sonstige".
+ */
+function workspace_events_update_10003(): void {
+  workspace_events_rename_external_organizer();
+}
+
+/**
+ * Renames the fixed "Sonstige" organizer term if it still has the old label.
+ *
+ * Older sites created the term as "Extern". The label is only changed while it
+ * still has that default, so a label an editor changed is kept.
+ */
+function workspace_events_rename_external_organizer(): void {
+  $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  $tids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('uuid', OrganizerResolver::EXTERNAL_UUID)
+    ->range(0, 1)
+    ->execute();
+  if ($tids === []) {
+    return;
+  }
+  $terms = $storage->loadMultiple($tids);
+  $term = reset($terms);
+  if (!$term instanceof Term) {
+    return;
+  }
+  if ((string) $term->label() !== 'Extern') {
+    return;
+  }
+  $term->setName('Sonstige');
+  $term->save();
+}
+
+/**
  * Creates the organizer vocabulary when it does not exist yet.
  *
  * The vocabulary is part of the module configuration, so it is installed from

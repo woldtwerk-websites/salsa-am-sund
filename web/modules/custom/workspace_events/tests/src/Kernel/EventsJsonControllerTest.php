@@ -135,7 +135,7 @@ final class EventsJsonControllerTest extends EventKernelTestBase {
 
     $open_end = $this->findByTitle($items, 'Externe Party');
     self::assertNull($open_end['end']);
-    self::assertSame('Extern', $open_end['extendedProps']['organizer']);
+    self::assertSame('Sonstige', $open_end['extendedProps']['organizer']);
   }
 
   /**

@@ -41,3 +41,15 @@ props:
       type: string
       title: Link
       format: uri-reference
+    kind:
+      type: string
+      title: Art
+      enum:
+        - event
+        - course
+      meta:enum:
+        event: Party
+        course: Kurs
+      default: event
+      examples:
+        - event

@@ -1,0 +1,12 @@
+<div
+  class="{{ tw_merge(['min-w-0', ui.root|default('')]) }}"
+  data-salsa-tab
+  data-label="{{ label }}"
+  data-name="{{ name }}"
+  {% if icon %}data-icon="{{ icon }}"{% endif %}
+>
+  {% if icon %}
+    <template data-salsa-tab-icon>{{ icon('salsa', icon, {size: 18}) }}</template>
+  {% endif %}
+  {% block content %}{{ content|default('') }}{% endblock %}
+</div>

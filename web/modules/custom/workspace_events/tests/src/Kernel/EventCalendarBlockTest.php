@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\Tests\workspace_events\Kernel;
 
 use Drupal\Core\Block\BlockManagerInterface;
-use Drupal\Core\Cache\Cache;
 use Drupal\Core\Url;
 use Drupal\workspace_events\Plugin\Block\EventCalendarBlock;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -34,7 +33,7 @@ final class EventCalendarBlockTest extends EventKernelTestBase {
   }
 
   /**
-   * Tests the component props and the calendar subscription slot.
+   * Tests the component props, the cards and the calendar subscription slot.
    */
   public function testBuild(): void {
     $location = $this->createLocation('Bootshaus Stralsund');
@@ -43,6 +42,28 @@ final class EventCalendarBlockTest extends EventKernelTestBase {
       'field_location' => $location->id(),
       'field_when' => [
         $this->dateDelta($this->date('now +2 days', '18:15'), $this->date('now +2 days', '19:15')),
+      ],
+    ]);
+    // One event before and one after the course, so the card order is testable.
+    $this->createEvent([
+      'title' => 'Gastparty',
+      'field_organizer' => $this->externalOrganizer,
+      'field_when' => [
+        $this->dateDelta($this->date('now +1 day', '21:00'), $this->date('now +1 day', '23:00')),
+      ],
+    ]);
+    $this->createEvent([
+      'title' => 'Salsa-Nacht',
+      'field_location' => $location->id(),
+      'field_when' => [
+        $this->dateDelta($this->date('now +3 days', '20:00'), $this->date('now +3 days', '23:00')),
+      ],
+    ]);
+    // Outside the 28-day card window, so it must not become a card.
+    $this->createCourse([
+      'title' => 'Später Kurs',
+      'field_when' => [
+        $this->dateDelta($this->date('now +200 days', '18:15'), $this->date('now +200 days', '19:15')),
       ],
     ]);
 
@@ -58,14 +79,12 @@ final class EventCalendarBlockTest extends EventKernelTestBase {
     self::assertSame($props['ical_url'], Url::fromRoute('workspace_events.ical')->toString());
     self::assertStringStartsWith('salsa-calendar', $props['id']);
 
-    // Every organizer and location is offered as a filter.
+    // Every organizer is offered as a filter.
     self::assertSame([
       ['value' => (string) $this->salsaAmSund, 'label' => 'Salsa am Sund'],
-      ['value' => (string) $this->externalOrganizer, 'label' => 'Extern'],
+      ['value' => (string) $this->externalOrganizer, 'label' => 'Sonstige'],
     ], $props['organizers']);
-    self::assertSame([
-      ['value' => (string) $location->id(), 'label' => 'Bootshaus Stralsund'],
-    ], $props['locations']);
+    self::assertArrayNotHasKey('locations', $props);
 
     // The subscription offers the organizers checked and the course unchecked.
     $component = $build['calendar']['#slots']['subscribe'];
@@ -77,16 +96,45 @@ final class EventCalendarBlockTest extends EventKernelTestBase {
     self::assertFalse($options[2]['checked']);
     self::assertSame([], $component['subscribe']['#props']['hidden']);
 
+    // The cards are grid items, one per occurrence, in date order.
+    $grid = $build['calendar']['#slots']['cards'];
+    self::assertSame('salsa:grid', $grid['#component']);
+    self::assertSame('3', $grid['#props']['columns']);
+    self::assertSame('md', $grid['#props']['gap']);
+    $items = $grid['#slots']['items'];
+    self::assertCount(3, $items);
+    self::assertSame(['event', 'course', 'event'], array_map(
+      static fn (array $item): string => $item['#attributes']['data-kind'],
+      $items,
+    ));
+    self::assertSame([
+      (string) $this->externalOrganizer,
+      '',
+      (string) $this->salsaAmSund,
+    ], array_map(
+      static fn (array $item): string => $item['#attributes']['data-organizer'],
+      $items,
+    ));
+    self::assertSame(['Gastparty', 'Anfänger', 'Salsa-Nacht'], array_map(
+      static fn (array $item): string => $item['card']['#props']['title'],
+      $items,
+    ));
+    self::assertSame(['event', 'course', 'event'], array_map(
+      static fn (array $item): string => $item['card']['#props']['kind'],
+      $items,
+    ));
+    self::assertSame('salsa:event', $items[0]['card']['#component']);
+
     // The block output does not depend on the request.
     self::assertSame([], $build['#cache']['contexts'] ?? []);
-    self::assertSame(Cache::PERMANENT, $build['#cache']['max-age']);
+    // The cards and the feed expire with the last shown occurrence.
+    self::assertLessThanOrEqual(86400, $build['#cache']['max-age']);
     foreach ([
       'taxonomy_term_list:organizer',
-      'taxonomy_term_list:location',
+      'node_list:event',
       'node_list:course',
       'taxonomy_term:' . $this->salsaAmSund,
       'taxonomy_term:' . $this->externalOrganizer,
-      'taxonomy_term:' . $location->id(),
     ] as $tag) {
       self::assertContains($tag, $build['#cache']['tags']);
     }

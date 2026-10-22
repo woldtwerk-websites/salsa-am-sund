@@ -103,7 +103,7 @@ final class InstallPermissionsTest extends EventKernelTestBase {
     self::assertArrayHasKey(OrganizerResolver::EXTERNAL_UUID, $by_uuid);
     self::assertSame('Salsa am Sund', (string) $by_uuid[OrganizerResolver::SALSA_AM_SUND_UUID]->label());
     self::assertSame(0, $by_uuid[OrganizerResolver::SALSA_AM_SUND_UUID]->getWeight());
-    self::assertSame('Extern', (string) $by_uuid[OrganizerResolver::EXTERNAL_UUID]->label());
+    self::assertSame('Sonstige', (string) $by_uuid[OrganizerResolver::EXTERNAL_UUID]->label());
     self::assertSame(1, $by_uuid[OrganizerResolver::EXTERNAL_UUID]->getWeight());
 
     $role = Role::load('content_editor');
@@ -126,6 +126,40 @@ final class InstallPermissionsTest extends EventKernelTestBase {
 
     $terms = $this->termStorage->loadByProperties(['vid' => OrganizerResolver::VOCABULARY]);
     self::assertCount(2, $terms);
+  }
+
+  /**
+   * Tests that the rename update hook keeps a label an editor changed.
+   */
+  public function testExternalOrganizerRename(): void {
+    \Drupal::moduleHandler()->loadInclude('workspace_events', 'install');
+
+    // Sites that installed the module before the rename still have "Extern".
+    $external = $this->loadExternalOrganizer();
+    $external->setName('Extern');
+    $external->save();
+    workspace_events_rename_external_organizer();
+    self::assertSame('Sonstige', (string) $this->loadExternalOrganizer()->label());
+    // A second run does not rename again.
+    workspace_events_rename_external_organizer();
+    self::assertSame('Sonstige', (string) $this->loadExternalOrganizer()->label());
+
+    // A label an editor changed is kept.
+    $external = $this->loadExternalOrganizer();
+    $external->setName('Gäste');
+    $external->save();
+    workspace_events_rename_external_organizer();
+    self::assertSame('Gäste', (string) $this->loadExternalOrganizer()->label());
+  }
+
+  /**
+   * Loads the fixed "Sonstige" organizer term.
+   */
+  private function loadExternalOrganizer(): TermInterface {
+    $terms = $this->termStorage->loadByProperties(['uuid' => OrganizerResolver::EXTERNAL_UUID]);
+    $term = reset($terms);
+    self::assertInstanceOf(TermInterface::class, $term);
+    return $term;
   }
 
   /**

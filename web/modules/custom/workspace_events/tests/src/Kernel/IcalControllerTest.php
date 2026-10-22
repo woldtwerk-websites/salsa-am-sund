@@ -197,7 +197,7 @@ final class IcalControllerTest extends EventKernelTestBase {
 
     $calendar = $this->readCalendar('/termine.ics?type=party,external_party');
     self::assertCount(3, $calendar->select('VEVENT'));
-    self::assertSame('Salsa am Sund – Termine – Salsa am Sund, Extern', $calendar->{'X-WR-CALNAME'}?->getValue());
+    self::assertSame('Salsa am Sund – Termine – Salsa am Sund, Sonstige', $calendar->{'X-WR-CALNAME'}?->getValue());
 
     $calendar = $this->readCalendar('/termine.ics?organizer=' . $this->salsaAmSund);
     self::assertCount(2, $calendar->select('VEVENT'));
@@ -205,7 +205,7 @@ final class IcalControllerTest extends EventKernelTestBase {
 
     $calendar = $this->readCalendar('/termine.ics?organizer=' . $this->externalOrganizer);
     self::assertCount(1, $calendar->select('VEVENT'));
-    self::assertSame('Salsa am Sund – Termine – Extern', $calendar->{'X-WR-CALNAME'}?->getValue());
+    self::assertSame('Salsa am Sund – Termine – Sonstige', $calendar->{'X-WR-CALNAME'}?->getValue());
 
     $calendar = $this->readCalendar('/termine.ics?location=' . $this->locationA);
     $events = $calendar->select('VEVENT');
@@ -234,7 +234,7 @@ final class IcalControllerTest extends EventKernelTestBase {
     // Organizers plus one selected course.
     $calendar = $this->readCalendar('/termine.ics?organizer=' . $this->salsaAmSund . ',' . $this->externalOrganizer . '&course=' . $this->courseId);
     self::assertCount(7, $calendar->select('VEVENT'));
-    self::assertSame('Salsa am Sund – Termine – Salsa am Sund, Extern, Anfänger', $calendar->{'X-WR-CALNAME'}?->getValue());
+    self::assertSame('Salsa am Sund – Termine – Salsa am Sund, Sonstige, Anfänger', $calendar->{'X-WR-CALNAME'}?->getValue());
 
     // An empty course list keeps the previous behaviour and name.
     $calendar = $this->readCalendar('/termine.ics?type=course');
@@ -275,7 +275,7 @@ final class IcalControllerTest extends EventKernelTestBase {
     $open_end = $events[$this->openEndId];
     self::assertNull($open_end->DTEND);
     self::assertSame('https://www.ballhaus-goldfisch.de/', $open_end->URL?->getValue());
-    self::assertSame('Extern', $open_end->CATEGORIES?->getValue());
+    self::assertSame('Sonstige', $open_end->CATEGORIES?->getValue());
     self::assertSame('Salsa am Sund', $all_day->CATEGORIES?->getValue());
   }
 

@@ -171,7 +171,7 @@ final class EventOccurrenceRepositoryTest extends EventKernelTestBase {
     self::assertCount(1, $open_end);
     self::assertNull($open_end[0]->end);
     self::assertFalse($open_end[0]->allDay);
-    self::assertSame('Extern', $open_end[0]->organizer?->label());
+    self::assertSame('Sonstige', $open_end[0]->organizer?->label());
   }
 
   /**

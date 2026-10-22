@@ -1,0 +1,32 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Tab
+description: "Ein Bereich der Tab-Navigation."
+group: "Salsa am Sund"
+status: stable
+props:
+  type: object
+  required:
+    - label
+    - name
+  properties:
+    label:
+      type: string
+      title: Beschriftung
+      examples:
+        - "Karten"
+    name:
+      type: string
+      title: Name
+      description: "Kurzname für URL und Speicher, nur a-z, 0-9 und -"
+      examples:
+        - "karten"
+    icon:
+      type: string
+      title: Icon
+      description: "Name eines Icons aus dem Theme-Icon-Pack 'salsa', z. B. calendar."
+      examples:
+        - "calendar"
+slots:
+  content:
+    title: Inhalt
+    description: "Inhalt des Tabs."

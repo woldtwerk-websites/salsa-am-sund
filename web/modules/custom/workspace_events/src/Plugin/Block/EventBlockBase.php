@@ -248,6 +248,36 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
   }
 
   /**
+   * Builds the component props of an event card.
+   *
+   * @param \Drupal\workspace_events\EventOccurrence $occurrence
+   *   The occurrence.
+   *
+   * @return array<string, string|\Drupal\Component\Render\MarkupInterface>
+   *   The props of the salsa:event component.
+   */
+  protected function buildEventCardProps(EventOccurrence $occurrence): array {
+    $node = $occurrence->node;
+    $props = [
+      'date' => $occurrence->start->format('Y-m-d'),
+      'title' => (string) $node->label(),
+      'href' => $this->getHref($node),
+    ];
+    $time = $this->formatTime($occurrence);
+    if ($time !== NULL) {
+      $props['time'] = $time;
+    }
+    if ($occurrence->location !== NULL) {
+      $props['location'] = (string) $occurrence->location->label();
+    }
+    $description = $this->getDescription($node);
+    if ($description !== NULL) {
+      $props['text'] = $description;
+    }
+    return $props;
+  }
+
+  /**
    * Formats the time of an occurrence for display.
    *
    * @param \Drupal\workspace_events\EventOccurrence $occurrence
