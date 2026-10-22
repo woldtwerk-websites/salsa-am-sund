@@ -1,0 +1,8 @@
+[Unit]
+Description=Drupal cron (%i)
+Requires=drupal-app@%i.service
+After=drupal-app@%i.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/podman exec -w /www/current %i__app vendor/bin/drush cron

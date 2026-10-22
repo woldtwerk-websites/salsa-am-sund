@@ -1,0 +1,11 @@
+[Unit]
+Description=Drupal Pod (%i)
+Wants=network-online.target
+After=network-online.target
+
+[Pod]
+PodName=%i
+Network=proxy
+# The containers share the pod's network stack and reach each other on
+# localhost. The alias keeps the `db` host the site's settings use.
+AddHost=db:127.0.0.1

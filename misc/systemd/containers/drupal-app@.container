@@ -1,0 +1,25 @@
+[Unit]
+Description=Drupal App (%i)
+Wants=network-online.target
+After=network-online.target
+Requires=drupal-tmp-volume@%i.service
+After=drupal-tmp-volume@%i.service
+Wants=drupal-db@%i.service
+After=drupal-db@%i.service
+
+[Container]
+Image=ghcr.io/woldtwerk-websites/frankenphp-drupal:latest
+ContainerName=%i__app
+Pod=drupal@.pod
+Volume=%h/apps/%i:/www:z
+Volume=%i__tmp:/tmp:z
+Label=io.containers.autoupdate=registry
+EnvironmentFile=%h/.config/%i/.env
+Environment=ENV=production
+Environment="FRANKENPHP_CONFIG=php_ini {\nmemory_limit 512M\nupload_max_filesize 20M\npost_max_size 25M\n}"
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

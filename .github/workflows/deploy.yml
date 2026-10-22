@@ -1,0 +1,43 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - production
+  workflow_dispatch:
+
+# Not cancel-in-progress: killing Deployer mid-release leaves the deploy lock
+# behind.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        ref: production
+        lfs: true
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.5'
+    - run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
+    # pnpm reads its version from devEngines in package.json, which
+    # pnpm/action-setup does not.
+    - id: pnpm
+      run: echo "version=$( jq -r '.devEngines.packageManager.version' package.json )" >> "$GITHUB_OUTPUT"
+    - uses: pnpm/action-setup@v6
+      with:
+        version: ${{ steps.pnpm.outputs.version }}
+    - uses: actions/setup-node@v6
+      with:
+        node-version: '26'
+        cache: pnpm
+    # Its postinstall builds the salsa theme's fullcalendar library.
+    - run: pnpm install --frozen-lockfile
+    - uses: deployphp/action@v1
+      with:
+        dep: deploy --file misc/deployer/deploy.yaml production
+        private-key: ${{ secrets.PRIVATE_KEY }}

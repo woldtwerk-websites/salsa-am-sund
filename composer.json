@@ -64,6 +64,7 @@
     "require": {
         "composer/composer": "^2.9.8",
         "composer/installers": "^2.3",
+        "deployer/deployer": "^8.0",
         "drupal/automatic_updates": "^4.1",
         "drupal/autosave_form": "^1.10",
         "drupal/better_content_language_settings": "^1",

@@ -1,0 +1,28 @@
+import:
+  - misc/deployer/rsync.php
+
+config:
+  default_timeout: 600
+  keep_releases: 3
+  cleanup_use_sudo: true
+  shared_files:
+    - web/sites/default/settings.local.php
+  shared_dirs:
+    - web/sites/default/files
+    - private
+
+hosts:
+  production:
+    deploy_path: /home/woldtwerk/apps/salsa-am-sund
+    hostname: woldtwerk.de
+    remote_user: woldtwerk
+
+tasks:
+  # The app resolves its working directory through the `current` symlink at
+  # start-up, so it is restarted before the update runs against the new release.
+  drupal:deploy:
+    - run: systemctl --user restart drupal-app@salsa-am-sund
+    - run: podman exec -w /www/current salsa-am-sund__app misc/hooks/post-update.sh
+
+after:
+  deploy:symlink: drupal:deploy

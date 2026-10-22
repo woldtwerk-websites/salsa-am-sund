@@ -1,0 +1,23 @@
+production:
+  host: woldtwerk.de
+  user: woldtwerk
+  root: /www/current/web
+  uri: https://salsa-am-sund.woldtwerk.de
+  paths:
+    drush-script: /home/woldtwerk/.local/share/bin/drush
+  env-vars:
+    CONTAINER: salsa-am-sund__app
+  command-specific:
+    sql-sync:
+      target-command-specific:
+        sql-sync:
+          simulate: true
+    rsync:
+      target-command-specific:
+        rsync:
+          simulate: true
+  protected:
+    - sql-drop
+    - sql-create
+    - sql-sync
+    - rsync
