@@ -18,6 +18,46 @@
                 "[project-root]/.vscode/tasks.json": {
                     "path": "assets/.vscode/tasks.json",
                     "overwrite": false
+                },
+                "[project-root]/drush/drush.yml": {
+                    "path": "assets/drush/drush.yml",
+                    "overwrite": true
+                },
+                "[project-root]/globals.d.ts": {
+                    "path": "assets/globals.d.ts",
+                    "overwrite": true
+                },
+                "[project-root]/jsconfig.json": {
+                    "path": "assets/jsconfig.json",
+                    "overwrite": true
+                },
+                "[project-root]/package.json": {
+                    "path": "assets/package.json",
+                    "overwrite": false
+                },
+                "[project-root]/phpcs.xml.dist": {
+                    "path": "assets/phpcs.xml.dist",
+                    "overwrite": true
+                },
+                "[project-root]/phpstan.neon": {
+                    "path": "assets/phpstan.neon",
+                    "overwrite": true
+                },
+                "[project-root]/pnpm-workspace.yaml": {
+                    "path": "assets/pnpm-workspace.yaml",
+                    "overwrite": false
+                },
+                "[project-root]/skills-lock.json": {
+                    "path": "assets/skills-lock.json",
+                    "overwrite": true
+                },
+                "[project-root]/taze.config.js": {
+                    "path": "assets/taze.config.js",
+                    "overwrite": true
+                },
+                "[project-root]/tsconfig.json": {
+                    "path": "assets/tsconfig.json",
+                    "overwrite": true
                 }
             }
         }

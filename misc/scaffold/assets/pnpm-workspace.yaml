@@ -1,0 +1,14 @@
+packages:
+  - 'web'
+  - 'web/themes/custom/*'
+  - 'web/modules/custom/*'
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+catalog:
+  esbuild: ^0.28.2
+  tailwindcss: ^4.2.2
+  typescript: ^7.0.0
+
+publicHoistPattern:
+  - '*tailwindcss*'

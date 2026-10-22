@@ -341,6 +341,7 @@ interface HtmxStatic {
 interface SalsaFullCalendarApi {
 	changeView(view: string): void
 	refetchEvents(): void
+	updateSize(): void
 	[key: string]: unknown
 }
 
@@ -354,6 +355,16 @@ interface SalsaFullCalendarElement extends HTMLElement {
 
 interface HTMLElementTagNameMap {
 	'full-calendar': SalsaFullCalendarElement
+}
+
+interface HTMLElement {
+	/**
+	 * The last filter state of a calendar wrapper.
+	 *
+	 * calendar.js dispatches it as well, but either behaviour may attach first,
+	 * so the subscribe dialog reads the state from here on attach.
+	 */
+	salsaCalendarState?: SalsaCalendarFilterState
 }
 
 /**

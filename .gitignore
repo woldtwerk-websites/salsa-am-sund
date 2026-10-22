@@ -46,7 +46,16 @@ node_modules
 /web/themes/custom/salsa/libraries/fullcalendar/*.css
 /web/themes/custom/salsa/libraries/fullcalendar/LICENSE.md
 
-skills-lock.json
+# Scaffolded from misc/scaffold/assets (workspace/scaffold), so the copies in
+# the project root are not tracked.
+/drush/drush.yml
+/globals.d.ts
+/jsconfig.json
+/phpcs.xml.dist
+/phpstan.neon
+/skills-lock.json
+/taze.config.js
+/tsconfig.json
 
 .vscode
 !/misc/scaffold/assets/.vscode
