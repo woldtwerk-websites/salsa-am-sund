@@ -1,0 +1,61 @@
+{#
+/**
+ * @file
+ * On-brand authentication card for login, password reset and registration.
+ *
+ * SalsaHooks suggests this template for the login, password and registration
+ * forms. It wraps the form in the dark surface card, prints the user icon, the
+ * heading, the intro and the secondary links, and puts the OpenID Connect
+ * provider buttons above the password form.
+ *
+ * Available variables:
+ * - attributes: Attributes for the form element.
+ * - children: The form children.
+ * - salsa_auth: Heading, intro and secondary links of the card.
+ * - salsa_sso: Rendered OpenID Connect login form, if a provider is enabled.
+ */
+#}
+{% set auth = salsa_auth|default({}) %}
+{% set intro = auth.intro|default('') %}
+{% set links = auth.links|default([]) %}
+
+<div class="mx-auto w-full max-w-md">
+  <div class="salsa-surface-dark rounded-2xl border border-line bg-ink-2 p-6 shadow-[0_24px_60px_-32px_rgb(13_11_16_/_0.9)] md:p-8">
+    <div class="flex flex-col items-center text-center">
+      <span class="flex size-12 items-center justify-center rounded-full border border-line bg-ink text-flame-gold">
+        {{ icon('salsa', 'user', {size: 24}) }}
+      </span>
+      <h1 class="mt-4 font-display text-3xl leading-[1.05] font-extrabold italic text-balance text-sand md:text-4xl">
+        {{ auth.heading|default('Anmelden'|t) }}
+      </h1>
+      {% if intro|trim is not empty %}
+        <p class="mt-2 text-sm leading-relaxed text-mist">{{ intro }}</p>
+      {% endif %}
+    </div>
+
+    {% if salsa_sso|default('')|trim is not empty %}
+      <div class="mt-7">
+        {{ salsa_sso|raw }}
+      </div>
+      <div class="my-6 flex items-center gap-3" aria-hidden="true">
+        <span class="h-px flex-1 bg-line"></span>
+        <span class="text-xs font-semibold uppercase tracking-[0.2em] text-mist">{{ 'oder'|t }}</span>
+        <span class="h-px flex-1 bg-line"></span>
+      </div>
+    {% endif %}
+
+    <form{{ attributes.addClass('mt-7') }}>
+      {{ children }}
+    </form>
+
+    {% if links is not empty %}
+      <ul class="mt-5 flex list-none flex-col items-center gap-1.5 border-t border-line/70 p-0 pt-4 text-center text-sm">
+        {% for link in links %}
+          <li>
+            <a href="{{ link.url }}" class="font-semibold no-underline hover:underline">{{ link.label }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>

@@ -43,3 +43,46 @@ salsa:
       {% if class %}class="{{ class }}"{% endif %}
       {% if alt %}role="img" aria-label="{{ alt }}"{% else %}aria-hidden="true" focusable="false"{% endif %}
     >{{ content }}</svg>
+
+brands:
+  enabled: true
+  label: Brands
+  description: "Brand icons for login providers, from CoreUI via Iconify."
+  links:
+    - https://iconify.design
+    - https://github.com/coreui/coreui-icons
+  version: 2.0.1
+  license:
+    name: CC0-1.0
+    url: https://creativecommons.org/publicdomain/zero/1.0/
+    gpl-compatible: true
+  extractor: iconfiy
+  config:
+    sources:
+      - node_modules/@iconify-json/cib/icons.json
+  settings:
+    size:
+      title: Size
+      type: integer
+      default: 20
+      multipleOf: 2
+      minimum: 12
+      maximum: 96
+    class:
+      title: CSS classes
+      type: string
+    alt:
+      title: Alt text
+      type: string
+      description: "Accessibility alternative text. Leave empty for a decorative icon."
+  template: >-
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="{{ attributes.viewBox|default('0 0 32 32') }}"
+      width="{{ size|default(20) }}"
+      height="{{ size|default(20) }}"
+      fill="currentColor"
+      {% if class %}class="{{ class }}"{% endif %}
+      {% if alt %}role="img" aria-label="{{ alt }}"{% else %}aria-hidden="true" focusable="false"{% endif %}
+    >{{ content }}</svg>
+

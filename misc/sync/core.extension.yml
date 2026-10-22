@@ -116,6 +116,7 @@ module:
   workspace_admin_ui: 0
   workspace_events: 0
   workspace_gallery: 0
+  workspace_iconify_extractor: 0
   workspace_site: 0
   workspace_tailwindcss_cli: 0
   yoast_seo: 0

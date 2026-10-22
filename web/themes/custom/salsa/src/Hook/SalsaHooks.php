@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Drupal\salsa\Hook;
 
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\File\FileUrlGeneratorInterface;
@@ -32,6 +34,24 @@ final class SalsaHooks {
   use StringTranslationTrait;
 
   /**
+   * OpenID Connect client IDs mapped to their CoreUI brand icon ID.
+   */
+  private const PROVIDER_ICONS = [
+    'google' => 'google',
+    'github' => 'github',
+    'facebook' => 'facebook',
+  ];
+
+  /**
+   * OpenID Connect client IDs mapped to the label on the provider button.
+   */
+  private const PROVIDER_LABELS = [
+    'google' => 'Google',
+    'github' => 'GitHub',
+    'facebook' => 'Meta',
+  ];
+
+  /**
    * Constructs the hook class.
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
@@ -44,6 +64,8 @@ final class SalsaHooks {
    *   The file URL generator.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The config factory.
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   The service container, used to load optional module services lazily.
    */
@@ -53,6 +75,7 @@ final class SalsaHooks {
     private readonly DateFormatterInterface $dateFormatter,
     private readonly FileUrlGeneratorInterface $fileUrlGenerator,
     private readonly TimeInterface $time,
+    private readonly ConfigFactoryInterface $configFactory,
     private readonly ContainerInterface $container,
   ) {}
 
@@ -126,9 +149,16 @@ final class SalsaHooks {
     $variables['#cache'] = $cache;
 
     // Canvas pages carry their own <h1> in the hero component, and profile
-    // pages carry it in the profile component.
+    // pages carry it in the profile component. The authentication card prints
+    // the heading itself, so the page title would duplicate it.
     $route_name = $this->routeMatch->getRouteName();
-    if (in_array($route_name, ['entity.canvas_page.canonical', 'entity.user.canonical'], TRUE)) {
+    if (in_array($route_name, [
+      'entity.canvas_page.canonical',
+      'entity.user.canonical',
+      'user.login',
+      'user.pass',
+      'user.register',
+    ], TRUE)) {
       $variables['title'] = '';
     }
   }
@@ -256,6 +286,133 @@ final class SalsaHooks {
   }
 
   /**
+   * Implements hook_theme_suggestions_form_alter().
+   *
+   * @param array<int, string> $suggestions
+   *   The theme suggestions.
+   * @param array<string, mixed> $variables
+   *   The theme variables.
+   */
+  #[Hook('theme_suggestions_form_alter')]
+  public function themeSuggestionsFormAlter(array &$suggestions, array $variables): void {
+    $element = $variables['element'] ?? NULL;
+    $form_id = is_array($element) ? ($element['#form_id'] ?? NULL) : NULL;
+    if (in_array($form_id, ['user_login_form', 'user_pass', 'user_register_form'], TRUE)) {
+      $suggestions[] = 'form__user_auth';
+    }
+  }
+
+  /**
+   * Implements hook_theme_suggestions_form_element_alter().
+   *
+   * @param array<int, string> $suggestions
+   *   The theme suggestions.
+   * @param array<string, mixed> $variables
+   *   The theme variables.
+   */
+  #[Hook('theme_suggestions_form_element_alter')]
+  public function themeSuggestionsFormElementAlter(array &$suggestions, array $variables): void {
+    $element = $variables['element'] ?? NULL;
+    if (is_array($element) && ($element['#type'] ?? NULL) === 'password') {
+      $suggestions[] = 'form_element__password';
+    }
+  }
+
+  /**
+   * Implements hook_theme_suggestions_input_alter().
+   *
+   * @param array<int, string> $suggestions
+   *   The theme suggestions.
+   * @param array<string, mixed> $variables
+   *   The theme variables.
+   */
+  #[Hook('theme_suggestions_input_alter')]
+  public function themeSuggestionsInputAlter(array &$suggestions, array $variables): void {
+    $element = $variables['element'] ?? NULL;
+    if (is_array($element) && !empty($element['#salsa_brand'])) {
+      $suggestions[] = 'input__submit__brand';
+    }
+  }
+
+  /**
+   * Implements hook_preprocess_form().
+   *
+   * @param array<string, mixed> $variables
+   *   The theme variables.
+   *
+   * @param-out array<string, mixed> $variables
+   */
+  #[Hook('preprocess_form')]
+  public function preprocessForm(array &$variables): void {
+    $element = $variables['element'] ?? NULL;
+    if (!is_array($element)) {
+      return;
+    }
+
+    $form_id = $element['#form_id'] ?? NULL;
+    $auth = $this->buildAuthCard($form_id);
+    if ($auth === NULL) {
+      return;
+    }
+    $variables['salsa_auth'] = $auth;
+
+    $sso = $element['#salsa_sso'] ?? NULL;
+    if ($sso instanceof MarkupInterface || is_string($sso)) {
+      $variables['salsa_sso'] = $sso;
+    }
+  }
+
+  /**
+   * Builds the heading, intro and secondary links of an authentication card.
+   *
+   * @param mixed $form_id
+   *   The form ID, if known.
+   *
+   * @return array<string, mixed>|null
+   *   The card variables, or NULL when the form is not an authentication form.
+   */
+  private function buildAuthCard(mixed $form_id): ?array {
+    switch ($form_id) {
+      case 'user_login_form':
+        $links = [
+          ['url' => Url::fromRoute('user.pass')->toString(), 'label' => $this->t('Passwort vergessen?')],
+        ];
+        $register = $this->configFactory->get('user.settings')->get('register');
+        if (in_array($register, [
+          UserInterface::REGISTER_VISITORS,
+          UserInterface::REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL,
+        ], TRUE)) {
+          $links[] = ['url' => Url::fromRoute('user.register')->toString(), 'label' => $this->t('Konto erstellen')];
+        }
+        return [
+          'heading' => $this->t('Anmelden'),
+          'intro' => $this->t('Melde dich mit deinem Konto an.'),
+          'links' => $links,
+        ];
+
+      case 'user_pass':
+        return [
+          'heading' => $this->t('Passwort zurücksetzen'),
+          'intro' => $this->t('Gib deinen Benutzernamen oder deine E-Mail-Adresse ein.'),
+          'links' => [
+            ['url' => Url::fromRoute('user.login')->toString(), 'label' => $this->t('Zur Anmeldung')],
+          ],
+        ];
+
+      case 'user_register_form':
+        return [
+          'heading' => $this->t('Konto erstellen'),
+          'intro' => $this->t('Erstelle ein Konto, um Kurse zu buchen und Termine im Blick zu behalten.'),
+          'links' => [
+            ['url' => Url::fromRoute('user.login')->toString(), 'label' => $this->t('Zur Anmeldung')],
+          ],
+        ];
+    }
+
+    return NULL;
+  }
+
+  /**
    * Implements hook_form_comment_form_alter().
    *
    * The theme prints comment forms without the text format guidelines and the
@@ -274,6 +431,180 @@ final class SalsaHooks {
   #[Hook('form_comment_form_alter')]
   public function formCommentFormAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
     self::addTextFormatHelperCleanup($form);
+  }
+
+  /**
+   * Implements hook_form_user_login_form_alter().
+   *
+   * @param array<mixed> $form
+   *   The login form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param string $form_id
+   *   The form ID.
+   *
+   * @param-out array<mixed> $form
+   */
+  #[Hook('form_user_login_form_alter')]
+  public function formUserLoginFormAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
+    // The "Konto erstellen" link depends on the registration setting.
+    $form['#cache']['tags'][] = 'config:user.settings';
+    $this->prepareAuthForm($form);
+    $this->prepareLoginFields($form, TRUE);
+    $this->extractOpenIdConnectLoginForm($form);
+  }
+
+  /**
+   * Implements hook_form_user_pass_alter().
+   *
+   * @param array<mixed> $form
+   *   The password reset form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param string $form_id
+   *   The form ID.
+   *
+   * @param-out array<mixed> $form
+   */
+  #[Hook('form_user_pass_alter')]
+  public function formUserPassAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
+    // The card intro already explains where the reset link is sent.
+    unset($form['mail']);
+    $this->prepareLoginFields($form, FALSE);
+    $this->prepareAuthForm($form);
+  }
+
+  /**
+   * Implements hook_form_user_register_form_alter().
+   *
+   * @param array<mixed> $form
+   *   The registration form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param string $form_id
+   *   The form ID.
+   *
+   * @param-out array<mixed> $form
+   */
+  #[Hook('form_user_register_form_alter')]
+  public function formUserRegisterFormAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
+    $this->prepareAuthForm($form);
+  }
+
+  /**
+   * Implements hook_form_openid_connect_login_form_alter().
+   *
+   * The provider buttons sit above the password form. They show the provider
+   * name only and get the matching CoreUI brand icon.
+   *
+   * @param array<mixed> $form
+   *   The OpenID Connect login form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param string $form_id
+   *   The form ID.
+   *
+   * @param-out array<mixed> $form
+   */
+  #[Hook('form_openid_connect_login_form_alter')]
+  public function formOpenIdConnectLoginFormAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
+    $form['#attributes']['class'][] = 'flex flex-col gap-3';
+    foreach (Element::children($form) as $key) {
+      $element = $form[$key] ?? NULL;
+      if (!is_array($element) || ($element['#type'] ?? NULL) !== 'submit') {
+        continue;
+      }
+      $client_id = is_string($element['#name'] ?? NULL) ? $element['#name'] : (is_string($key) ? $key : '');
+      $label = self::PROVIDER_LABELS[$client_id] ?? (string) ($element['#value'] ?? '');
+      $element['#value'] = (string) preg_replace('/^Log in with /i', '', $label);
+      $icon = self::PROVIDER_ICONS[$client_id] ?? NULL;
+      if ($icon !== NULL) {
+        $element['#salsa_brand'] = $icon;
+      }
+      $form[$key] = $element;
+    }
+  }
+
+  /**
+   * Adds placeholders and drops the help texts of the name/password fields.
+   *
+   * The placeholders carry the same information, so the descriptions are
+   * removed on the login and password reset forms. The registration form keeps
+   * its descriptions because they document the username rules.
+   *
+   * @param array<mixed> $form
+   *   The form, passed by reference.
+   * @param bool $with_password
+   *   Whether the form also has a password field.
+   *
+   * @param-out array<mixed> $form
+   */
+  private function prepareLoginFields(array &$form, bool $with_password): void {
+    $name = $form['name'] ?? NULL;
+    if (is_array($name)) {
+      unset($name['#description']);
+      $name['#attributes']['placeholder'] = $this->t('Benutzername oder E-Mail eingeben');
+      $form['name'] = $name;
+    }
+    if (!$with_password) {
+      return;
+    }
+    $pass = $form['pass'] ?? NULL;
+    if (is_array($pass)) {
+      unset($pass['#description']);
+      $pass['#attributes']['placeholder'] = $this->t('Passwort eingeben');
+      // Room for the view_password toggle inside the field.
+      $pass['#attributes']['class'][] = 'pe-12';
+      $form['pass'] = $pass;
+    }
+  }
+
+  /**
+   * Adds the full-width styling to an authentication form's submit button.
+   *
+   * @param array<mixed> $form
+   *   The form, passed by reference.
+   *
+   * @param-out array<mixed> $form
+   */
+  private function prepareAuthForm(array &$form): void {
+    $submit = $form['actions']['submit'] ?? NULL;
+    if (!is_array($submit)) {
+      return;
+    }
+    $submit['#attributes']['class'][] = 'w-full';
+    $form['actions']['submit'] = $submit;
+  }
+
+  /**
+   * Moves the rendered OpenID Connect login form out of the form prefix.
+   *
+   * The openid_connect module prints its own login form above the password
+   * form through #prefix. The card template puts that markup above the divider
+   * instead.
+   *
+   * @param array<mixed> $form
+   *   The login form, passed by reference.
+   *
+   * @param-out array<mixed> $form
+   */
+  private function extractOpenIdConnectLoginForm(array &$form): void {
+    $prefix = $form['#prefix'] ?? NULL;
+    if (!$prefix instanceof MarkupInterface && !is_string($prefix)) {
+      return;
+    }
+    $markup = (string) $prefix;
+    if (!str_contains($markup, 'openid-connect-login-form')) {
+      return;
+    }
+    // Without an enabled client the form is empty; drop it entirely so no
+    // empty provider block or divider is rendered.
+    if (!str_contains($markup, 'openid-connect-client-')) {
+      unset($form['#prefix']);
+      return;
+    }
+    $form['#salsa_sso'] = $prefix;
+    unset($form['#prefix']);
   }
 
   /**
