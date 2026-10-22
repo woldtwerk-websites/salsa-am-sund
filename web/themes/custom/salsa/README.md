@@ -88,9 +88,12 @@ from the modal selection and falls back to `showModal()`/`close()` without
 invoker commands). Both are progressive enhancement: without JS the lightbox
 works exactly as before and the calendar link keeps its server-rendered
 default.
-Mobile navigation and the gallery lightbox are native popovers
-(`popover`/`popovertarget`), and the main menu submenus are native
-`<details name="salsa-main-menu">` accordions. The `scroll-lock` utility locks
+Mobile navigation, the gallery lightbox and the main menu submenus are native
+popovers (`popover`/`popovertarget`). In the main menu the chevron button opens
+the level-2 list, which is anchored to its menu row with CSS anchor positioning
+(`anchor-name`/`position-area`, with `flip-inline` near the viewport edge) and
+closes on light dismiss or Escape; below `lg` the toggle is hidden and the same
+list stays expanded inline under its parent. The `scroll-lock` utility locks
 page scroll while its popover or modal dialog is open (`:popover-open`/`:modal`);
 use a breakpoint variant such as `max-lg:scroll-lock` to limit it to smaller
 viewports. Open/close transitions use `@starting-style` and are disabled under
@@ -131,8 +134,8 @@ component defaults with the `ui` override.
 
 - `layout/page.html.twig` — header/content/footer fallback when no Canvas page
   template exists
-- `navigation/menu--main.html.twig` — desktop dropdowns and mobile accordion
-  via native `<details>`
+- `navigation/menu--main.html.twig` — desktop popover submenus anchored to their
+  menu row via CSS anchor positioning, expanded inline below `lg`
 - `navigation/menu--footer.html.twig` — inline footer list
 - `block/block--system-menu-block.html.twig` — no block chrome, keeps
   `<nav aria-label>`

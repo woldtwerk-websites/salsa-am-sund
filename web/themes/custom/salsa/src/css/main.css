@@ -150,6 +150,12 @@
  * Base
  * ---------------------------------------------------------------------- */
 @layer base {
+  /* Tailwind v4 preflight resets the button cursor to default. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
   :root {
     --salsa-header-h: 5rem;
     color-scheme: dark;
@@ -258,6 +264,33 @@
     color: var(--surface-fg, var(--color-sand));
   }
 
+  /* Checkbox/radio items: control and label stay on one row, the label does
+   * not become a block above/below the control. */
+  .form-item:has(> input[type="checkbox"]),
+  .form-item:has(> input[type="radio"]) {
+    @apply flex flex-wrap items-center gap-x-2.5;
+  }
+
+  .form-item:has(> input[type="checkbox"]) > label,
+  .form-item:has(> input[type="radio"]) > label {
+    @apply mb-0 inline text-sm font-semibold select-none;
+  }
+
+  /* Labels that wrap their control (calendar filter, calendar subscribe):
+   * no text selection, so double/rapid clicks never highlight the label. */
+  label:has(input[type="checkbox"]),
+  label:has(input[type="radio"]) {
+    @apply select-none;
+  }
+
+  /* Description takes its own row, aligned under the label (size-5 + gap-x-2.5). */
+  .form-item:has(> input[type="checkbox"]) > .description,
+  .form-item:has(> input[type="checkbox"]) > .form-item__description,
+  .form-item:has(> input[type="radio"]) > .description,
+  .form-item:has(> input[type="radio"]) > .form-item__description {
+    @apply ms-7.5 basis-full;
+  }
+
   input[type="text"],
   input[type="email"],
   input[type="tel"],
@@ -335,7 +368,9 @@
     background-color: var(--surface-field-bg, var(--color-ink));
   }
 
-  /* view_password contrib toggle: at least 24x24 CSS px (SC 2.5.8). */
+  /* view_password contrib toggle: at least 24x24 CSS px (SC 2.5.8).
+   * The contrib module paints fixed-colour background SVGs; we mask instead,
+   * so the eye follows the text colour (currentColor). */
   button.shwpd {
     display: inline-flex;
     min-block-size: 1.5rem;
@@ -344,6 +379,26 @@
     justify-content: center;
     padding: 0;
     line-height: 1;
+    background-image: none;
+    background-color: currentColor;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: 1.5rem;
+    color: var(--surface-muted, var(--color-mist));
+  }
+
+  /* Module toggles `.eye-close` (hidden) and `.eye-open` (revealed). */
+  button.shwpd.eye-close {
+    mask-image: url("../../icons/eye-off.svg");
+  }
+
+  button.shwpd.eye-open {
+    mask-image: url("../../icons/eye.svg");
+  }
+
+  button.shwpd:hover,
+  button.shwpd:focus-visible {
+    color: var(--surface-link, var(--color-flame-gold));
   }
 
   .form-required::after {
@@ -884,52 +939,97 @@ dialog.salsa-lightbox[data-salsa-lightbox-instant]::backdrop {
 }
 
 /* -------------------------------------------------------------------------
- * Main menu: details/summary submenus
+ * Main menu: popover submenus with anchor positioning
+ *
+ * The chevron button is a popovertarget; the submenu <ul> is a `popover="auto"`
+ * anchored to its `.salsa-menu__row` through an inline `anchor-name`. No
+ * JavaScript, no hover opening: click toggles, light dismiss and Escape close.
  * ---------------------------------------------------------------------- */
-.salsa-submenu__summary {
-  list-style: none;
-}
 
-.salsa-submenu__summary::-webkit-details-marker {
-  display: none;
-}
-
-.salsa-submenu[open] > .salsa-submenu__summary .salsa-submenu__chevron,
+/* Other disclosures (core/contrib markup) still flip their chevron. */
 details[open] > summary svg {
   rotate: 180deg;
 }
 
-@media (width >= 64rem) {
-  .salsa-menu__row > .salsa-submenu > .salsa-menu__submenu {
+/* Mobile: the submenu popover is always expanded in normal flow, so the visual
+ * panel classes only apply from lg up and the toggle is not needed. */
+@media (width < 64rem) {
+  .salsa-submenu__toggle {
     display: none;
   }
 
-  .salsa-menu__item:hover
-    > .salsa-menu__row
-    > .salsa-submenu::details-content,
-  .salsa-menu__item:focus-within
-    > .salsa-menu__row
-    > .salsa-submenu::details-content,
-  .salsa-menu__item
-    > .salsa-menu__row
-    > .salsa-submenu[open]::details-content {
-    content-visibility: visible;
-    block-size: auto;
+  /* Override both the UA popover hiding and its fixed/centered box, so the
+   * submenu renders in normal flow. Applied to the open state too: a popover
+   * left open by a resize from desktop must not float over the nav sheet. */
+  .salsa-menu__submenu[popover] {
+    display: flex;
+    position: static;
+    inset: auto;
+    margin: 0;
+    margin-block-start: 0.25rem;
+    padding: 0;
+    padding-inline-start: 1rem;
+    border: 0;
+    background: none;
+    inline-size: auto;
+    max-inline-size: none;
+    max-block-size: none;
+    overflow: visible;
+    color: inherit;
+  }
+}
+
+@media (width >= 64rem) {
+  /* The closed popover must stay hidden: the `flex` utility would otherwise
+   * outrank the UA `display: none` for `[popover]:not(:popover-open)`. */
+  .salsa-menu__submenu[popover]:not(:popover-open) {
+    display: none;
   }
 
-  .salsa-menu__item:hover
+  /* Reset the UA centering before anchoring. */
+  .salsa-menu__submenu[popover] {
+    inset: auto;
+    margin: 0;
+    max-inline-size: calc(100vw - 2rem);
+  }
+
+  /* Fallback browsers without anchor positioning keep the UA placement. */
+  @supports (anchor-name: --a) {
+    .salsa-menu__submenu[popover] {
+      position-area: bottom span-right;
+      position-try-fallbacks: flip-inline;
+      margin-block-start: 0.5rem;
+    }
+  }
+
+  .salsa-menu__item:has(> .salsa-menu__submenu:popover-open)
     > .salsa-menu__row
-    > .salsa-submenu
-    > .salsa-menu__submenu,
-  .salsa-menu__item:focus-within
-    > .salsa-menu__row
-    > .salsa-submenu
-    > .salsa-menu__submenu,
-  .salsa-menu__item
-    > .salsa-menu__row
-    > .salsa-submenu[open]
-    > .salsa-menu__submenu {
-    display: flex;
+    .salsa-submenu__chevron {
+    rotate: 180deg;
+  }
+}
+
+@media (width >= 64rem) and (prefers-reduced-motion: no-preference) {
+  .salsa-menu__submenu[popover] {
+    opacity: 0;
+    translate: 0 -0.25rem;
+    transition:
+      opacity 150ms ease,
+      translate 150ms ease,
+      display 150ms allow-discrete,
+      overlay 150ms allow-discrete;
+  }
+
+  .salsa-menu__submenu[popover]:popover-open {
+    opacity: 1;
+    translate: none;
+  }
+
+  @starting-style {
+    .salsa-menu__submenu[popover]:popover-open {
+      opacity: 0;
+      translate: 0 -0.25rem;
+    }
   }
 }
 
