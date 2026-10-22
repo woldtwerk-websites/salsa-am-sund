@@ -1,7 +1,6 @@
 production:
   host: woldtwerk.de
   user: woldtwerk
-  root: /www/current/web
   uri: https://salsa-am-sund.woldtwerk.de
   paths:
     drush-script: /home/woldtwerk/.local/share/bin/drush
