@@ -943,6 +943,24 @@ if (is_string($hash_salt) && $hash_salt !== '') {
 unset($hash_salt);
 
 /**
+ * Production trusted host pattern from the release's .env.
+ *
+ * The non-secret .env shipped with every release sets DRUPAL_TRUSTED_HOST to
+ * the site's hostname, the only host Drupal answers to in production.
+ */
+if (getenv('ENV') === 'production') {
+  $trusted_host = getenv('DRUPAL_TRUSTED_HOST');
+  if (is_string($trusted_host) && $trusted_host !== '') {
+    foreach (array_filter(array_map('trim', explode(',', $trusted_host))) as $host) {
+      $settings['trusted_host_patterns'][] = '^' . preg_quote($host) . '$';
+    }
+  } else {
+    $settings['trusted_host_patterns'][] = '^(www\.)?salsa-am-sund\.de$';
+  }
+  unset($trusted_host, $host);
+}
+
+/**
  * Load local development override configuration, if available.
  *
  * Create a settings.local.php file to override variables on secondary (staging,
