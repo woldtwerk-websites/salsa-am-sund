@@ -20,6 +20,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Url;
 use Drupal\canvas\Entity\ContentTemplate;
+use Drupal\canvas\Entity\Page;
 use Drupal\file\FileInterface;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
@@ -152,8 +153,7 @@ final class SalsaHooks {
     // pages carry it in the profile component. The authentication card prints
     // the heading itself, so the page title would duplicate it.
     $route_name = $this->routeMatch->getRouteName();
-    if (in_array($route_name, [
-      'entity.canvas_page.canonical',
+    if ($this->isCanvasPageRoute() || in_array($route_name, [
       'entity.user.canonical',
       'user.login',
       'user.pass',
@@ -448,7 +448,9 @@ final class SalsaHooks {
   #[Hook('form_user_login_form_alter')]
   public function formUserLoginFormAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
     // The "Konto erstellen" link depends on the registration setting.
-    $form['#cache']['tags'][] = 'config:user.settings';
+    CacheableMetadata::createFromRenderArray($form)
+      ->addCacheTags(['config:user.settings'])
+      ->applyTo($form);
     $this->prepareAuthForm($form);
     $this->prepareLoginFields($form, TRUE);
     $this->extractOpenIdConnectLoginForm($form);
@@ -508,14 +510,19 @@ final class SalsaHooks {
    */
   #[Hook('form_openid_connect_login_form_alter')]
   public function formOpenIdConnectLoginFormAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
-    $form['#attributes']['class'][] = 'flex flex-col gap-3';
+    self::addClass($form, 'flex flex-col gap-3');
     foreach (Element::children($form) as $key) {
+      if (!is_string($key) && !is_int($key)) {
+        continue;
+      }
       $element = $form[$key] ?? NULL;
       if (!is_array($element) || ($element['#type'] ?? NULL) !== 'submit') {
         continue;
       }
       $client_id = is_string($element['#name'] ?? NULL) ? $element['#name'] : (is_string($key) ? $key : '');
-      $label = self::PROVIDER_LABELS[$client_id] ?? (string) ($element['#value'] ?? '');
+      $value = $element['#value'] ?? '';
+      $value = (is_string($value) || $value instanceof MarkupInterface) ? (string) $value : '';
+      $label = self::PROVIDER_LABELS[$client_id] ?? $value;
       $element['#value'] = (string) preg_replace('/^Log in with /i', '', $label);
       $icon = self::PROVIDER_ICONS[$client_id] ?? NULL;
       if ($icon !== NULL) {
@@ -543,7 +550,10 @@ final class SalsaHooks {
     $name = $form['name'] ?? NULL;
     if (is_array($name)) {
       unset($name['#description']);
-      $name['#attributes']['placeholder'] = $this->t('Benutzername oder E-Mail eingeben');
+      $attributes = $name['#attributes'] ?? [];
+      $attributes = is_array($attributes) ? $attributes : [];
+      $attributes['placeholder'] = $this->t('Benutzername oder E-Mail eingeben');
+      $name['#attributes'] = $attributes;
       $form['name'] = $name;
     }
     if (!$with_password) {
@@ -552,9 +562,12 @@ final class SalsaHooks {
     $pass = $form['pass'] ?? NULL;
     if (is_array($pass)) {
       unset($pass['#description']);
-      $pass['#attributes']['placeholder'] = $this->t('Passwort eingeben');
+      $attributes = $pass['#attributes'] ?? [];
+      $attributes = is_array($attributes) ? $attributes : [];
+      $attributes['placeholder'] = $this->t('Passwort eingeben');
+      $pass['#attributes'] = $attributes;
       // Room for the view_password toggle inside the field.
-      $pass['#attributes']['class'][] = 'pe-12';
+      self::addClass($pass, 'pe-12');
       $form['pass'] = $pass;
     }
   }
@@ -568,12 +581,17 @@ final class SalsaHooks {
    * @param-out array<mixed> $form
    */
   private function prepareAuthForm(array &$form): void {
-    $submit = $form['actions']['submit'] ?? NULL;
+    $actions = $form['actions'] ?? NULL;
+    if (!is_array($actions)) {
+      return;
+    }
+    $submit = $actions['submit'] ?? NULL;
     if (!is_array($submit)) {
       return;
     }
-    $submit['#attributes']['class'][] = 'w-full';
-    $form['actions']['submit'] = $submit;
+    self::addClass($submit, 'w-full');
+    $actions['submit'] = $submit;
+    $form['actions'] = $actions;
   }
 
   /**
@@ -641,6 +659,26 @@ final class SalsaHooks {
   }
 
   /**
+   * Adds CSS classes to a form element's attributes.
+   *
+   * @param array<mixed> $element
+   *   The form or form element, passed by reference.
+   * @param string $class
+   *   The CSS classes to append.
+   *
+   * @param-out array<mixed> $element
+   */
+  private static function addClass(array &$element, string $class): void {
+    $attributes = $element['#attributes'] ?? [];
+    $attributes = is_array($attributes) ? $attributes : [];
+    $classes = $attributes['class'] ?? [];
+    $classes = is_array($classes) ? $classes : [];
+    $classes[] = $class;
+    $attributes['class'] = $classes;
+    $element['#attributes'] = $attributes;
+  }
+
+  /**
    * After-build callback: removes the text format guidelines and help.
    *
    * When only one text format is available, core hides the format selector but
@@ -689,7 +727,7 @@ final class SalsaHooks {
   }
 
   /**
-   * Injects a prop into every matching component in a render tree.
+   * Injects a prop into the first matching component in a render tree.
    *
    * @param array<mixed> $content
    *   The render tree.
@@ -699,6 +737,9 @@ final class SalsaHooks {
    *   The prop name.
    * @param string $value
    *   The prop value.
+   *
+   * @return bool
+   *   TRUE if a matching component was found.
    */
   private function injectComponentProp(array &$content, string $component_id, string $prop, string $value): bool {
     foreach ($content as &$item) {
@@ -742,10 +783,30 @@ final class SalsaHooks {
   }
 
   /**
+   * Determines whether the current route renders a Canvas page.
+   *
+   * The Canvas editor preview loads the page through the Canvas API layout
+   * routes, so the page entity is a route parameter instead of the route name.
+   */
+  private function isCanvasPageRoute(): bool {
+    if ($this->routeMatch->getRouteName() === 'entity.canvas_page.canonical') {
+      return TRUE;
+    }
+
+    foreach ($this->routeMatch->getParameters() as $parameter) {
+      if ($parameter instanceof Page) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
    * Determines whether the current route is rendered by Canvas itself.
    */
   private function isCanvasRenderedRoute(): bool {
-    if ($this->routeMatch->getRouteName() === 'entity.canvas_page.canonical') {
+    if ($this->isCanvasPageRoute()) {
       return TRUE;
     }
 
