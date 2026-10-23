@@ -16,7 +16,7 @@
                     "overwrite": true
                 },
                 "[project-root]/.ddev/config.versions.yaml": {
-                    "path": "assets/.ddev/config.versions.yml",
+                    "path": "assets/.ddev/config.versions.yaml",
                     "overwrite": true
                 },
                 "[project-root]/.ddev/config.vite-devtools.yaml": {

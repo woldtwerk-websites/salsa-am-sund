@@ -1931,26 +1931,26 @@
         },
         {
             "name": "drupal/autosave_form",
-            "version": "1.11.0",
+            "version": "1.12.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/autosave_form.git",
-                "reference": "8.x-1.11"
+                "reference": "8.x-1.12"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/autosave_form-8.x-1.11.zip",
-                "reference": "8.x-1.11",
-                "shasum": "26b5326a5bff571a5fef1ebf0b3998dadb37f968"
+                "url": "https://ftp.drupal.org/files/projects/autosave_form-8.x-1.12.zip",
+                "reference": "8.x-1.12",
+                "shasum": "83b560ec010b77515294f2bb838f807d6d6430ab"
             },
             "require": {
-                "drupal/core": "^9.5 || ^10 || ^11"
+                "drupal/core": "^10.1 || ^11"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-1.11",
-                    "datestamp": "1774966593",
+                    "version": "8.x-1.12",
+                    "datestamp": "1792760832",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -12862,7 +12862,7 @@
             "dist": {
                 "type": "path",
                 "url": "misc/scaffold",
-                "reference": "cc5841150045830897cdb749205d50481b0facce"
+                "reference": "7a8284b9bc3050ad7b32b28659383c011473002f"
             },
             "type": "library",
             "extra": {
@@ -12880,8 +12880,8 @@
                             "path": "assets/.ddev/config.frankenphp.yaml",
                             "overwrite": true
                         },
-                        "[project-root]/.ddev/config.versions.yml": {
-                            "path": "assets/.ddev/config.versions.yml",
+                        "[project-root]/.ddev/config.versions.yaml": {
+                            "path": "assets/.ddev/config.versions.yaml",
                             "overwrite": true
                         },
                         "[project-root]/.ddev/config.vite-devtools.yaml": {
@@ -12990,7 +12990,7 @@
             "dist": {
                 "type": "path",
                 "url": "web/modules/custom/workspace_admin_ui",
-                "reference": "9b3682af065691cc452659321bca29555d83db97"
+                "reference": "32cff864deb733664b37480e9940fae36bb62a75"
             },
             "require": {
                 "drupal/masquerade": "^2.2"
