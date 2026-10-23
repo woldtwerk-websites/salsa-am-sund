@@ -1,0 +1,38 @@
+name: Promote
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+# Not cancel-in-progress: a cancelled promote could leave production a commit
+# behind main without anyone noticing.
+concurrency:
+  group: promote-production
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: woldtwerk-websites/renovate-config/.github/workflows/drupal-ci.yml@main
+    with:
+      build-script: typecheck
+      # Its post-start hook installs agent skills, not needed in CI.
+      ddev-skip-configs: config.ai.yaml
+
+  promote:
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+        # A deploy key, not GITHUB_TOKEN: GITHUB_TOKEN cannot update a ref
+        # across commits that change .github/workflows, and its pushes do not
+        # trigger deploy.yml. A deploy-key push does.
+        ssh-key: ${{ secrets.PROMOTE_DEPLOY_KEY }}
+    # No --force: fast-forward only, so it fails instead of clobbering
+    # production if the branches diverged.
+    - run: git push origin "$GITHUB_SHA:refs/heads/production"
