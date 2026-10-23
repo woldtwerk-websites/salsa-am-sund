@@ -10,5 +10,4 @@ jobs:
   drupal:
     uses: woldtwerk-websites/renovate-config/.github/workflows/drupal-ci.yml@main
     with:
-      config-dir: misc/sync
       build-script: typecheck
