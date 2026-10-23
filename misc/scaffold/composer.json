@@ -3,9 +3,57 @@
     "extra": {
         "drupal-scaffold": {
             "file-mapping": {
+                "[project-root]/.ddev/addon-metadata/frankenphp/manifest.yaml": {
+                    "path": "assets/.ddev/addon-metadata/frankenphp/manifest.yaml",
+                    "overwrite": true
+                },
+                "[project-root]/.ddev/config.ai.yaml": {
+                    "path": "assets/.ddev/config.ai.yaml",
+                    "overwrite": true
+                },
+                "[project-root]/.ddev/config.frankenphp.yaml": {
+                    "path": "assets/.ddev/config.frankenphp.yaml",
+                    "overwrite": true
+                },
+                "[project-root]/.ddev/config.versions.yml": {
+                    "path": "assets/.ddev/config.versions.yml",
+                    "overwrite": true
+                },
+                "[project-root]/.ddev/config.vite-devtools.yaml": {
+                    "path": "assets/.ddev/config.vite-devtools.yaml",
+                    "overwrite": true
+                },
+                "[project-root]/.ddev/config.vite.yml": {
+                    "path": "assets/.ddev/config.vite.yml",
+                    "overwrite": true
+                },
+                "[project-root]/.ddev/docker-compose.frankenphp.yaml": {
+                    "path": "assets/.ddev/docker-compose.frankenphp.yaml",
+                    "overwrite": true
+                },
+                "[project-root]/.ddev/web-build/Caddyfile.frankenphp": {
+                    "path": "assets/.ddev/web-build/Caddyfile.frankenphp",
+                    "overwrite": true
+                },
+                "[project-root]/.ddev/web-build/Dockerfile.frankenphp": {
+                    "path": "assets/.ddev/web-build/Dockerfile.frankenphp",
+                    "overwrite": true
+                },
+                "[project-root]/.ddev/web-build/pre.Dockerfile.frankenphp": {
+                    "path": "assets/.ddev/web-build/pre.Dockerfile.frankenphp",
+                    "overwrite": true
+                },
                 "[project-root]/.gitattributes": {
                     "mode": "append",
                     "append": "assets/.gitattributes"
+                },
+                "[project-root]/.node-version": {
+                    "path": "assets/.node-version",
+                    "overwrite": true
+                },
+                "[project-root]/.php-version": {
+                    "path": "assets/.php-version",
+                    "overwrite": true
                 },
                 "[project-root]/.vscode/launch.json": {
                     "path": "assets/.vscode/launch.json",

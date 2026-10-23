@@ -70,3 +70,5 @@ CLAUDE.md
 # Local DDEV environment overrides, including real OpenID Connect credentials.
 # .ddev/.env.example stays tracked as a template.
 /.ddev/.env
+/.node-version
+/.php-version
