@@ -98,3 +98,8 @@ When working in web always use these skills:
 - drupal
 - drupal-expert
 - drupal-security
+- drupal-testing
+
+## Commit
+
+Always commit in english
