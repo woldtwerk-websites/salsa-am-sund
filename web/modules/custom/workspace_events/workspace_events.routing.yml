@@ -30,4 +30,3 @@ workspace_events.events_json:
   methods: [GET]
   requirements:
     _access: 'TRUE'
-

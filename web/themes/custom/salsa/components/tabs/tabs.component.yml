@@ -1,7 +1,7 @@
 $schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
 name: Tabs
-description: "Bereiche nacheinander anzeigen, umschaltbar über eine Reiterleiste. Ohne JavaScript bleiben alle Bereiche sichtbar."
-group: "Salsa am Sund"
+description: 'Bereiche nacheinander anzeigen, umschaltbar über eine Reiterleiste. Ohne JavaScript bleiben alle Bereiche sichtbar.'
+group: 'Salsa am Sund'
 status: stable
 props:
   type: object
@@ -9,9 +9,9 @@ props:
     param:
       type: string
       title: URL-Parameter
-      description: "Wenn gesetzt, wird der aktive Tab in der URL (?<param>=<name>) und im Browser gespeichert."
+      description: 'Wenn gesetzt, wird der aktive Tab in der URL (?<param>=<name>) und im Browser gespeichert.'
       examples:
-        - "ansicht"
+        - 'ansicht'
     align:
       type: string
       title: Ausrichtung
@@ -27,6 +27,6 @@ props:
 slots:
   tabs:
     title: Tabs
-    description: "Die Bereiche der Tab-Navigation."
+    description: 'Die Bereiche der Tab-Navigation.'
     expected:
       - sdc.salsa.tab

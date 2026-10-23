@@ -1,4 +1,3 @@
-
 name: TailwindCSS CLI
 type: module
 description: Use TailwindCSS CLI to compile your CSS.

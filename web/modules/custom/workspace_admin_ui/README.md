@@ -1,25 +1,27 @@
 # Admin UI
 
 ## Functionality
-- add the *Masquerade* tab with its two shortcuts, *User* and *Editor*, to
+
+- add the _Masquerade_ tab with its two shortcuts, _User_ and _Editor_, to
   the toolbar
-- add *Masquerade as User* and *Masquerade as Editor* to the user popover in
+- add _Masquerade as User_ and _Masquerade as Editor_ to the user popover in
   the footer of core's Navigation sidebar
-- add the *Unmasquerade* link to the toolbar user menu
-  (`#toolbar-item-user-tray`), next to *View profile*, *Edit profile* and
-  *Log out*, and to the Navigation user popover
+- add the _Unmasquerade_ link to the toolbar user menu
+  (`#toolbar-item-user-tray`), next to _View profile_, _Edit profile_ and
+  _Log out_, and to the Navigation user popover
 - keep the toolbar and the Navigation sidebar for an admin masquerading as an
   account without `access toolbar` / `access navigation`
 - drop the status message masquerade shows after a switch
-- move *Taxonomy*, *Menus* (both from *Structure*) and *URL aliases* (from
-  *Configuration*) to the Content section of the Navigation sidebar, after
-  *Media*
+- move _Taxonomy_, _Menus_ (both from _Structure_) and _URL aliases_ (from
+  _Configuration_) to the Content section of the Navigation sidebar, after
+  _Media_
 - keep Layout Builder in gin's palette, so its canvas, drop zones and remove
   button are dark in dark mode instead of white
 
 ## The masquerade shortcuts
-`hook_toolbar()` adds a *Masquerade* tab whose tray holds a *User* and an
-*Editor* link into `entity.user.masquerade`. One tab rather than two: names
+
+`hook_toolbar()` adds a _Masquerade_ tab whose tray holds a _User_ and an
+_Editor_ link into `entity.user.masquerade`. One tab rather than two: names
 sitting in the toolbar with nothing above them say nothing about what clicking
 them does. The tab itself goes to `/masquerade`, masquerade's own form, which
 is both a sensible target and the fallback where the JavaScript that opens the
@@ -42,7 +44,7 @@ otherwise.
 Each link asks `masquerade_target_user_access()` and is left out when the
 answer is no — the account does not exist, or the current user may not
 masquerade as it, or a masquerade is already running, which takes every link
-and with them the whole tab away and leaves *Unmasquerade* as the only move.
+and with them the whole tab away and leaves _Unmasquerade_ as the only move.
 The toolbar item carries `user.permissions`, `session.is_masquerading` and the
 accounts' cache tags — `user_list` for a name no account holds, so the link
 appears once one does. The menu links carry the same contexts and tags.
@@ -65,21 +67,23 @@ gin masks the pseudo-element with — so the shape is all the file carries and
 the colour follows the theme into dark mode.
 
 ## The Unmasquerade link
+
 `ToolbarLinkBuilder` decorates core's `user.toolbar_link_builder` and inserts
-the link above *Log out* while masquerading; the tray varies by
+the link above _Log out_ while masquerading; the tray varies by
 `session.is_masquerading`. `hook_toolbar_alter()` drops masquerade's own
 standalone toolbar tab so the action appears once, in the user menu.
 
 For the Navigation sidebar, `workspace_admin_ui.links.menu.yml` adds an
-*Unmasquerade* link to `navigation-user-links`. It reuses
+_Unmasquerade_ link to `navigation-user-links`. It reuses
 `masquerade.unmasquerade`, whose route already refuses access except while
 masquerading, so the link is hidden by the menu tree's access check and needs
 no custom class.
 
 ## The toolbar and sidebar while masquerading
+
 `MasqueradeToolbarAccessPolicy` is an access policy that grants `access
 toolbar` and `access navigation` to the masqueraded account, so the toolbar,
-the Navigation sidebar and *Unmasquerade* in them stay when an admin steps into
+the Navigation sidebar and _Unmasquerade_ in them stay when an admin steps into
 `user`, which holds no role. Core, gin and gin_toolbar check `access toolbar`;
 core's Navigation module checks `access navigation`, so both are granted in the
 one place that reaches them all.
@@ -94,6 +98,7 @@ added for requests with masquerade's own session bag: Drush and other CLI
 requests carry Symfony's metadata bag, where the context throws.
 
 ## The switch message
+
 `MasqueradeMessageSubscriber` takes masquerade's "You are now masquerading
 as @user" off the session at `kernel.response`, on `entity.user.masquerade`
 and `masquerade.unmasquerade`. Only the status type goes — the same controller
@@ -101,6 +106,7 @@ reports a refused switch as an error. Nothing else runs on those two routes,
 so there is no other status message to take with it.
 
 ## Taxonomy, URL aliases and menus under Content
+
 Core's Navigation module renders the Content section from the `content` menu,
 not from the Content subtree of the admin menu: its admin block starts at
 level 2, and `NavigationHooks` removes `system.admin_content` entirely. The
@@ -108,7 +114,7 @@ links in Structure and Configuration therefore live in the wrong menu.
 
 `hook_menu_links_discovered_alter()` moves the three existing definitions out
 of the `admin` menu and into `content`, dropping their old parent and giving
-them a weight after *Media* (0) and before the trash (1000). Titles,
+them a weight after _Media_ (0) and before the trash (1000). Titles,
 descriptions, paths and access checks stay core's; Navigation's menu tree
 still runs the route access check, so a link appears only for a user who may
 reach the page. To move another link, add it to `AdminUiHooks::contentLinks()`
@@ -127,6 +133,7 @@ installed. They were removed together with the `.toolbar-link--*` icon rules;
 `css/toolbar.css` now only carries the Masquerade toolbar tab icon.
 
 ## Layout Builder in dark mode
+
 Core's `layout-builder.css` paints the builder in fixed light colours — a white
 canvas inside a `#2f91da` frame, `#f7f7f7` and `#eff6fc` drop zones, a white
 remove button — which gin's dark mode does not touch. `css/layout-builder.css`

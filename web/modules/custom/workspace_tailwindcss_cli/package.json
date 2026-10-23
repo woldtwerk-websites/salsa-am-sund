@@ -1,8 +1,8 @@
 {
   "name": "@workspace/workspace_tailwindcss_cli",
   "version": "0.0.1",
-  "author": "",
   "license": "ISC",
+  "author": "",
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.3"
   }

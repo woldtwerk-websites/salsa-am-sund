@@ -49,19 +49,21 @@
               return;
             }
             const rect = lightbox.getBoundingClientRect();
-            const inside = event.clientX >= rect.left
-              && event.clientX <= rect.right
-              && event.clientY >= rect.top
-              && event.clientY <= rect.bottom;
+            const inside =
+              event.clientX >= rect.left &&
+              event.clientX <= rect.right &&
+              event.clientY >= rect.top &&
+              event.clientY <= rect.bottom;
             if (!inside) {
               lightbox.close();
             }
           });
         }
 
-        const lightboxes = () => /** @type {HTMLDialogElement[]} */ (
-          Array.from(gallery.querySelectorAll('.salsa-lightbox'))
-        );
+        const lightboxes = () =>
+          /** @type {HTMLDialogElement[]} */ (
+            Array.from(gallery.querySelectorAll('.salsa-lightbox'))
+          );
 
         if (lightboxes().length < 2) {
           return;
@@ -106,9 +108,7 @@
           const target = all[(current + direction + all.length) % all.length];
           const targetButton = /** @type {HTMLElement | null} */ (
             target.querySelector(
-              direction < 0
-                ? '[data-salsa-lightbox-prev]'
-                : '[data-salsa-lightbox-next]',
+              direction < 0 ? '[data-salsa-lightbox-prev]' : '[data-salsa-lightbox-next]',
             )
           );
 
@@ -134,8 +134,7 @@
           if (event.key === 'ArrowLeft') {
             event.preventDefault();
             go(-1);
-          }
-          else if (event.key === 'ArrowRight') {
+          } else if (event.key === 'ArrowRight') {
             event.preventDefault();
             go(1);
           }

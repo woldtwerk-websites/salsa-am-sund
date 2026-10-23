@@ -1,7 +1,7 @@
 $schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
 name: Kalender
-description: "Karten- und Kalenderansicht der Termine aus dem JSON-Endpunkt, mit gemeinsamen Filtern für Veranstalter, Partys und Kurse. Wird vom Block „Veranstaltungskalender“ genutzt, nicht im Canvas-Seitenbau."
-group: "Salsa am Sund"
+description: 'Karten- und Kalenderansicht der Termine aus dem JSON-Endpunkt, mit gemeinsamen Filtern für Veranstalter, Partys und Kurse. Wird vom Block „Veranstaltungskalender“ genutzt, nicht im Canvas-Seitenbau.'
+group: 'Salsa am Sund'
 status: stable
 # The component is bound to the block's data and has no meaning in Canvas.
 noUi: true
@@ -22,21 +22,21 @@ props:
       type: string
       title: Element-ID
       examples:
-        - "salsa-calendar"
+        - 'salsa-calendar'
     events_url:
       type: string
       title: JSON-Endpunkt
-      description: "Adresse der Termine als JSON, ohne Query."
+      description: 'Adresse der Termine als JSON, ohne Query.'
       format: uri-reference
       examples:
-        - "/termine.json"
+        - '/termine.json'
     ical_url:
       type: string
       title: iCal-Feed
-      description: "Adresse des iCal-Feeds für den Hinweis ohne JavaScript."
+      description: 'Adresse des iCal-Feeds für den Hinweis ohne JavaScript.'
       format: uri-reference
       examples:
-        - "/termine.ics"
+        - '/termine.ics'
     organizers:
       type: array
       title: Veranstalter
@@ -50,18 +50,18 @@ props:
             type: string
             title: Wert
             examples:
-              - "2"
+              - '2'
           label:
             type: string
             title: Beschriftung
             examples:
-              - "Salsa am Sund"
+              - 'Salsa am Sund'
 slots:
   cards:
     title: Karten
-    description: "Die Termine als Karten im Raster."
+    description: 'Die Termine als Karten im Raster.'
   subscribe:
     title: Kalender abonnieren
-    description: "Popover mit dem iCal-Feed zum Abonnieren."
+    description: 'Popover mit dem iCal-Feed zum Abonnieren.'
     expected:
       - sdc.salsa.calendar-subscribe

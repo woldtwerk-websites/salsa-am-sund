@@ -32,9 +32,9 @@ ddev drush site:install /var/www/html/recipes/drupal_cms_starter --yes
 
 ## Documentation
 
-* [Drupal CMS User Guide](https://project.pages.drupalcode.org/drupal_cms/)
-* Learn more about managing a Drupal-based application in the [Drupal User Guide](https://www.drupal.org/docs/user_guide/en/index.html).
-* [Product roadmap](https://drupalcmsroadmap1.acquia.site/)
+- [Drupal CMS User Guide](https://project.pages.drupalcode.org/drupal_cms/)
+- Learn more about managing a Drupal-based application in the [Drupal User Guide](https://www.drupal.org/docs/user_guide/en/index.html).
+- [Product roadmap](https://drupalcmsroadmap1.acquia.site/)
 
 ## Contributing & Support
 

@@ -120,9 +120,8 @@
    * @return {string[]}
    *   The known organizer IDs, without duplicates.
    */
-  const allowedOrganizers = (ids, allOrganizers) => (
-    [...new Set(ids)].filter((id) => allOrganizers.includes(id))
-  );
+  const allowedOrganizers = (ids, allOrganizers) =>
+    [...new Set(ids)].filter((id) => allOrganizers.includes(id));
 
   /**
    * Returns whether the query contains a calendar filter.
@@ -178,8 +177,7 @@
     let raw;
     try {
       raw = window.localStorage.getItem(FILTERS_KEY);
-    }
-    catch {
+    } catch {
       // Storage can be blocked by the browser.
       return null;
     }
@@ -188,8 +186,7 @@
     }
     try {
       return parseState(JSON.parse(raw), allOrganizers);
-    }
-    catch {
+    } catch {
       return null;
     }
   };
@@ -203,8 +200,7 @@
   const writeStoredState = (state) => {
     try {
       window.localStorage.setItem(FILTERS_KEY, JSON.stringify(state));
-    }
-    catch {
+    } catch {
       // Storage can be blocked by the browser.
     }
   };
@@ -290,11 +286,12 @@
      * @return {string[]}
      *   The values of the checked boxes.
      */
-    const values = (name) => Array.from(
-      /** @type {NodeListOf<HTMLInputElement>} */ (
-        root.querySelectorAll(`input[name="${name}"]:checked`)
-      ),
-    ).map((input) => input.value);
+    const values = (name) =>
+      Array.from(
+        /** @type {NodeListOf<HTMLInputElement>} */ (
+          root.querySelectorAll(`input[name="${name}"]:checked`)
+        ),
+      ).map((input) => input.value);
     const parties = /** @type {HTMLInputElement | null} */ (
       root.querySelector('[data-salsa-calendar-parties]')
     );
@@ -324,11 +321,9 @@
     ['organizer', 'location', 'parties', 'courses'].forEach((key) => params.delete(key));
     if (state.organizers.length === allOrganizers.length) {
       // Every organizer is selected: the default needs no argument.
-    }
-    else if (state.organizers.length === 0) {
+    } else if (state.organizers.length === 0) {
       params.set('organizer', '');
-    }
-    else {
+    } else {
       params.set('organizer', state.organizers.join(','));
     }
     if (!state.parties) {
@@ -463,7 +458,9 @@
           writeState(state, allOrganizers);
           // The subscription dialog mirrors the selection.
           root.salsaCalendarState = state;
-          root.dispatchEvent(new CustomEvent('salsa-calendar:filters', { detail: state, bubbles: false }));
+          root.dispatchEvent(
+            new CustomEvent('salsa-calendar:filters', { detail: state, bubbles: false }),
+          );
           // A new selection starts at the first page again.
           limit = PAGE_SIZE;
           applyCardFilter(root, state, limit);
@@ -497,7 +494,9 @@
         // The cards are already filtered, so the dialog gets the state even
         // when FullCalendar did not load.
         root.salsaCalendarState = state;
-        root.dispatchEvent(new CustomEvent('salsa-calendar:filters', { detail: state, bubbles: false }));
+        root.dispatchEvent(
+          new CustomEvent('salsa-calendar:filters', { detail: state, bubbles: false }),
+        );
 
         const calendar = root.querySelector('full-calendar');
         if (!calendar || !customElements.get('full-calendar')) {

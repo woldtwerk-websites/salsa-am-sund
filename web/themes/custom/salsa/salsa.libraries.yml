@@ -36,4 +36,3 @@ fullcalendar:
     libraries/fullcalendar/locale-de.global.min.js:
       minified: true
       preprocess: false
-

@@ -1,7 +1,7 @@
 $schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
 name: Abschnitt
-description: "Farbiger Seitenabschnitt mit Breite, vertikalem Abstand und optionaler Wellenlinie am oberen Rand."
-group: "Salsa am Sund"
+description: 'Farbiger Seitenabschnitt mit Breite, vertikalem Abstand und optionaler Wellenlinie am oberen Rand.'
+group: 'Salsa am Sund'
 status: stable
 props:
   type: object
@@ -60,13 +60,13 @@ props:
     wave_top:
       type: boolean
       title: Wellenlinie oben
-      description: "Setzt eine weiche Wasserlinie des Sunds an den oberen Rand."
+      description: 'Setzt eine weiche Wasserlinie des Sunds an den oberen Rand.'
       default: false
     anchor:
       type: string
       title: Sprungmarke
-      description: "Optionale ID für Ankerlinks, z. B. kurse."
+      description: 'Optionale ID für Ankerlinks, z. B. kurse.'
 slots:
   content:
     title: Inhalt
-    description: "Komponenten, die in diesem Abschnitt erscheinen."
+    description: 'Komponenten, die in diesem Abschnitt erscheinen.'

@@ -56,8 +56,7 @@
   const readStorage = (key) => {
     try {
       return window.localStorage.getItem(key);
-    }
-    catch {
+    } catch {
       // Storage can be blocked by the browser.
       return null;
     }
@@ -74,8 +73,7 @@
   const writeStorage = (key, value) => {
     try {
       window.localStorage.setItem(key, value);
-    }
-    catch {
+    } catch {
       // Storage can be blocked by the browser.
     }
   };
@@ -112,7 +110,9 @@
     attach(context) {
       once('salsa-tabs', '[data-salsa-tabs]', context).forEach((element) => {
         const root = /** @type {HTMLElement} */ (element);
-        const list = /** @type {HTMLElement | null} */ (root.querySelector('[data-salsa-tabs-list]'));
+        const list = /** @type {HTMLElement | null} */ (
+          root.querySelector('[data-salsa-tabs-list]')
+        );
         // Only the direct children belong to this instance, so tabs nested in
         // a panel do not end up in the parent's list.
         const panels = /** @type {HTMLElement[]} */ (
@@ -196,8 +196,7 @@
             button.append(icon.content.cloneNode(true));
             button.setAttribute('aria-label', panel.label);
             button.title = panel.label;
-          }
-          else {
+          } else {
             button.append(document.createTextNode(panel.label));
           }
           button.addEventListener('click', () => select(index, true));
@@ -205,14 +204,11 @@
             let target = -1;
             if (event.key === 'ArrowLeft') {
               target = (index - 1 + panels.length) % panels.length;
-            }
-            else if (event.key === 'ArrowRight') {
+            } else if (event.key === 'ArrowRight') {
               target = (index + 1) % panels.length;
-            }
-            else if (event.key === 'Home') {
+            } else if (event.key === 'Home') {
               target = 0;
-            }
-            else if (event.key === 'End') {
+            } else if (event.key === 'End') {
               target = panels.length - 1;
             }
             if (target === -1) {

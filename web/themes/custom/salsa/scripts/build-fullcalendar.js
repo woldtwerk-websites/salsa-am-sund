@@ -56,9 +56,7 @@ try {
   );
 
   await Promise.all(
-    copies.map(({ source, target }) =>
-      copyFile(join(packageDir, source), join(outputDir, target)),
-    ),
+    copies.map(({ source, target }) => copyFile(join(packageDir, source), join(outputDir, target))),
   );
 
   console.log(

@@ -14,15 +14,15 @@ The script resolves the package from the theme, minifies the JavaScript with
 esbuild, keeps the license banners inline, and copies the classic palette
 unchanged:
 
-| Output | Source |
-| --- | --- |
-| `skeleton.styles.min.js` | `skeleton.styles.js` |
+| Output                        | Source                           |
+| ----------------------------- | -------------------------------- |
+| `skeleton.styles.min.js`      | `skeleton.styles.js`             |
 | `theme-classic.styles.min.js` | `themes/classic/theme.styles.js` |
-| `fullcalendar.global.min.js` | `all/global.js` |
-| `theme-classic.global.min.js` | `themes/classic/global.js` |
-| `locale-de.global.min.js` | `locales/de/global.js` |
-| `theme-classic.palette.css` | `themes/classic/palette.css` |
-| `LICENSE.md` | `LICENSE.md` |
+| `fullcalendar.global.min.js`  | `all/global.js`                  |
+| `theme-classic.global.min.js` | `themes/classic/global.js`       |
+| `locale-de.global.min.js`     | `locales/de/global.js`           |
+| `theme-classic.palette.css`   | `themes/classic/palette.css`     |
+| `LICENSE.md`                  | `LICENSE.md`                     |
 
 ## Load order
 

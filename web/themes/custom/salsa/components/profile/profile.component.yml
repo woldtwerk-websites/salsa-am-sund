@@ -1,7 +1,7 @@
 $schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
 name: Profil
-description: "Profilkarte mit Avatar, Anzeigename, Mitglied-seit-Zeile und restlichen Profilfeldern."
-group: "Salsa am Sund"
+description: 'Profilkarte mit Avatar, Anzeigename, Mitglied-seit-Zeile und restlichen Profilfeldern.'
+group: 'Salsa am Sund'
 status: stable
 props:
   type: object
@@ -12,22 +12,22 @@ props:
       type: string
       title: Name
       examples:
-        - "Kerstin Stettner"
+        - 'Kerstin Stettner'
     picture:
       $ref: json-schema-definitions://canvas.module/image
       title: Profilbild
       type: object
       examples:
-        - src: "assets/profil.jpg"
-          alt: "Profilbild von Kerstin Stettner"
+        - src: 'assets/profil.jpg'
+          alt: 'Profilbild von Kerstin Stettner'
           width: 210
           height: 293
     member_since:
       type: string
       title: Mitglied seit
       examples:
-        - "Mitglied seit 12.03.2021 (vor 5 Jahren)"
+        - 'Mitglied seit 12.03.2021 (vor 5 Jahren)'
 slots:
   content:
     title: Inhalt
-    description: "Weitere Profilfelder unter der Kopfzeile."
+    description: 'Weitere Profilfelder unter der Kopfzeile.'

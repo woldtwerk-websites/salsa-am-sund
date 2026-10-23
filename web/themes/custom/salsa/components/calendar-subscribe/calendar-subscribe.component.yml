@@ -1,7 +1,7 @@
 $schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
 name: Kalender abonnieren
-description: "Popover, in dem Partys und Kurse für den iCal-Feed ausgewählt werden. Wird von den Blöcken „Nächste Termine“, „Kurszeiten“ und „Veranstaltungskalender“ genutzt, nicht im Canvas-Seitenbau."
-group: "Salsa am Sund"
+description: 'Popover, in dem Partys und Kurse für den iCal-Feed ausgewählt werden. Wird von den Blöcken „Nächste Termine“, „Kurszeiten“ und „Veranstaltungskalender“ genutzt, nicht im Canvas-Seitenbau.'
+group: 'Salsa am Sund'
 status: stable
 # The component is bound to the block's data and has no meaning in Canvas.
 noUi: true
@@ -19,15 +19,15 @@ props:
     action:
       type: string
       title: Formularziel
-      description: "Absolute URL des iCal-Feeds ohne Query."
+      description: 'Absolute URL des iCal-Feeds ohne Query.'
       format: uri
       examples:
-        - "https://salsa-am-sund.localhost/termine.ics"
+        - 'https://salsa-am-sund.localhost/termine.ics'
     id:
       type: string
       title: Popover-ID
       examples:
-        - "salsa-calendar-subscribe"
+        - 'salsa-calendar-subscribe'
     options:
       type: array
       title: Auswahl
@@ -44,17 +44,17 @@ props:
             type: string
             title: Feldname
             examples:
-              - "organizer[]"
+              - 'organizer[]'
           value:
             type: string
             title: Wert
             examples:
-              - "2"
+              - '2'
           label:
             type: string
             title: Beschriftung
             examples:
-              - "Anfänger"
+              - 'Anfänger'
           checked:
             type: boolean
             title: Vorausgewählt
@@ -75,7 +75,7 @@ props:
             type: string
             title: Zusatzzeile
             examples:
-              - "Montag · 18:15 – 19:15 Uhr · Bootshaus"
+              - 'Montag · 18:15 – 19:15 Uhr · Bootshaus'
     hidden:
       type: array
       title: Versteckte Felder
@@ -89,9 +89,9 @@ props:
             type: string
             title: Feldname
             examples:
-              - "location"
+              - 'location'
           value:
             type: string
             title: Wert
             examples:
-              - "3"
+              - '3'

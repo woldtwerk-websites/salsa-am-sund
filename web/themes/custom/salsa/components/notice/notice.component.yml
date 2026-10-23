@@ -1,7 +1,7 @@
 $schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
 name: Hinweis
-description: "Hervorgehobener Hinweis mit Icon, z. B. für Termine oder Kursinfos."
-group: "Salsa am Sund"
+description: 'Hervorgehobener Hinweis mit Icon, z. B. für Termine oder Kursinfos.'
+group: 'Salsa am Sund'
 status: stable
 props:
   type: object
@@ -14,14 +14,14 @@ props:
       type: string
       title: Titel
       examples:
-        - "Neu: Schnupperkurs"
+        - 'Neu: Schnupperkurs'
     text:
       type: string
       title: Text
       contentMediaType: text/html
       x-formatting-context: block
       examples:
-        - "<p>Jeden Samstag um 11 Uhr kannst du eine Stunde kostenlos reinschnuppern. Keine Anmeldung nötig.</p>"
+        - '<p>Jeden Samstag um 11 Uhr kannst du eine Stunde kostenlos reinschnuppern. Keine Anmeldung nötig.</p>'
     tone:
       type: string
       title: Farbton

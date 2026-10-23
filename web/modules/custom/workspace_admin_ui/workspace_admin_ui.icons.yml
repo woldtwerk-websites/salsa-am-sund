@@ -2,7 +2,7 @@
 # the Navigation sidebar. Navigation reads a link's `options.icon` and defaults
 # the pack to `navigation`, so the links name this pack explicitly.
 workspace_admin_ui:
-  label: "Admin UI"
+  label: 'Admin UI'
   description: "Icons for the Admin UI module's links."
   version: 11.x
   license:
@@ -15,15 +15,15 @@ workspace_admin_ui:
       - icons/*.svg
   settings:
     size:
-      title: "Size"
-      description: "Set a size for this icon."
-      type: "integer"
+      title: 'Size'
+      description: 'Set a size for this icon.'
+      type: 'integer'
       default: 20
     class:
-      title: "Class"
-      description: "Set a class for this icon."
-      type: "string"
-      default: ""
+      title: 'Class'
+      description: 'Set a class for this icon.'
+      type: 'string'
+      default: ''
   template: >
     <svg
       {{ attributes

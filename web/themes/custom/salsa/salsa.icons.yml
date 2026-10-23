@@ -1,7 +1,7 @@
 salsa:
   enabled: true
   label: Salsa am Sund
-  description: "Line icons for the Salsa am Sund theme, based on Lucide."
+  description: 'Line icons for the Salsa am Sund theme, based on Lucide.'
   links:
     - https://lucide.dev
     - https://github.com/lucide-icons/lucide
@@ -28,7 +28,7 @@ salsa:
     alt:
       title: Alt text
       type: string
-      description: "Accessibility alternative text. Leave empty for a decorative icon."
+      description: 'Accessibility alternative text. Leave empty for a decorative icon.'
   template: >-
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -47,7 +47,7 @@ salsa:
 brands:
   enabled: true
   label: Brands
-  description: "Brand icons for login providers, from CoreUI via Iconify."
+  description: 'Brand icons for login providers, from CoreUI via Iconify.'
   links:
     - https://iconify.design
     - https://github.com/coreui/coreui-icons
@@ -74,7 +74,7 @@ brands:
     alt:
       title: Alt text
       type: string
-      description: "Accessibility alternative text. Leave empty for a decorative icon."
+      description: 'Accessibility alternative text. Leave empty for a decorative icon.'
   template: >-
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -85,4 +85,3 @@ brands:
       {% if class %}class="{{ class }}"{% endif %}
       {% if alt %}role="img" aria-label="{{ alt }}"{% else %}aria-hidden="true" focusable="false"{% endif %}
     >{{ content }}</svg>
-

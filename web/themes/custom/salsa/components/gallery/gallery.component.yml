@@ -1,7 +1,7 @@
 $schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
 name: Galerie
-description: "Bildergalerie mit Lightbox als nativer Popover, ohne JavaScript."
-group: "Salsa am Sund"
+description: 'Bildergalerie mit Lightbox als nativer Popover, ohne JavaScript.'
+group: 'Salsa am Sund'
 status: stable
 props:
   type: object
@@ -12,29 +12,29 @@ props:
       type: string
       title: Überschrift
       examples:
-        - "Momente vom Parkett"
+        - 'Momente vom Parkett'
     text:
       type: string
       title: Einleitung
       contentMediaType: text/html
       x-formatting-context: block
       examples:
-        - "<p>Ein paar Eindrücke aus dem Studio und von unseren Abenden am Sund.</p>"
+        - '<p>Ein paar Eindrücke aus dem Studio und von unseren Abenden am Sund.</p>'
     columns:
       type: string
       title: Spalten
       enum:
-        - "3"
-        - "4"
+        - '3'
+        - '4'
       meta:enum:
-        "3": Drei Spalten
-        "4": Vier Spalten
-      default: "3"
+        '3': Drei Spalten
+        '4': Vier Spalten
+      default: '3'
       examples:
-        - "3"
+        - '3'
 slots:
   images:
     title: Bilder
-    description: "Galerie-Bilder. Jedes Bild öffnet sich in der Lightbox."
+    description: 'Galerie-Bilder. Jedes Bild öffnet sich in der Lightbox.'
     expected:
       - sdc.salsa.gallery-image

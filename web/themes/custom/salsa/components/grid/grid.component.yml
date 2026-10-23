@@ -1,7 +1,7 @@
 $schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
 name: Raster
-description: "Responsives Raster für Karten und andere Komponenten."
-group: "Salsa am Sund"
+description: 'Responsives Raster für Karten und andere Komponenten.'
+group: 'Salsa am Sund'
 status: stable
 props:
   type: object
@@ -13,16 +13,16 @@ props:
       type: string
       title: Spalten
       enum:
-        - "2"
-        - "3"
-        - "4"
+        - '2'
+        - '3'
+        - '4'
       meta:enum:
-        "2": Zwei Spalten
-        "3": Drei Spalten
-        "4": Vier Spalten
-      default: "3"
+        '2': Zwei Spalten
+        '3': Drei Spalten
+        '4': Vier Spalten
+      default: '3'
       examples:
-        - "3"
+        - '3'
     gap:
       type: string
       title: Abstand
@@ -38,4 +38,4 @@ props:
 slots:
   items:
     title: Elemente
-    description: "Karten oder andere Komponenten im Raster. Auf Mobilgeräten eine Spalte."
+    description: 'Karten oder andere Komponenten im Raster. Auf Mobilgeräten eine Spalte.'

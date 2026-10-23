@@ -1,7 +1,7 @@
 # Salsa am Sund — Drupal theme
 
 Custom Drupal 11 theme for the salsa dance course in Stralsund. Design direction:
-*Evening at the Sund* — night-black surfaces, a red → orange → gold flame
+_Evening at the Sund_ — night-black surfaces, a red → orange → gold flame
 gradient, Archivo display type and Instrument Sans body type.
 
 The theme is a Canvas-ready SDC component library. Every component in
@@ -56,29 +56,29 @@ prop (`auto`/`light`/`dark`) so the same component works on both section tones.
 
 ## Components
 
-| Component | Purpose |
-| --- | --- |
-| `page-main` | Main landmark for Canvas page variants (`#main-content`, skip-link target) |
-| `section` | Coloured full-width section with width, spacing, optional wave line and anchor |
-| `heading` | Display/title/kicker heading with optional flame gradient |
-| `text` | Rich text with on-brand prose styles and light/dark `tone` |
-| `image` | Single image with caption, ratio (original/16:9/4:3/square) and rounded corners |
-| `button` | Flame / outline / ghost / light link button with optional icon |
-| `hero` | Flame hero with drifting ribbons, H1, actions slot and optional skyline band |
-| `grid` | Responsive 2/3/4-column grid for cards and other components |
-| `card` | Image card; whole card clickable when a link is set |
-| `course` | One class in the timetable (day, time, level badge, location) |
-| `schedule` | Timetable wrapper with heading, intro and a 2-column course grid |
-| `event` | Event with large German date, time, location and description |
-| `notice` | Highlighted callout with icon and flame/sea/sand tone |
-| `quote` | Large italic quote with a flame quotation mark |
-| `link-list` / `link-item` | Link list and its entries (external-link icon) |
-| `contact` | Address, phone (`tel:`), e-mail (`mailto:`) and route link |
-| `gallery` / `gallery-image` | Gallery with a native popover lightbox; square thumbnails work without JS |
-| `calendar-subscribe` | Calendar subscription modal dialog (organizers/courses) used by the "Nächste Termine" block; `noUi`, so it stays out of the Canvas library |
-| `profile` | User profile card with avatar/initials, name, "Mitglied seit" and remaining fields |
-| `site-header` | Sticky, blurred header with wordmark, navigation slot, mobile toggle and actions |
-| `site-footer` | Footer with flame hairline, content and navigation slots and copyright |
+| Component                   | Purpose                                                                                                                                    |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `page-main`                 | Main landmark for Canvas page variants (`#main-content`, skip-link target)                                                                 |
+| `section`                   | Coloured full-width section with width, spacing, optional wave line and anchor                                                             |
+| `heading`                   | Display/title/kicker heading with optional flame gradient                                                                                  |
+| `text`                      | Rich text with on-brand prose styles and light/dark `tone`                                                                                 |
+| `image`                     | Single image with caption, ratio (original/16:9/4:3/square) and rounded corners                                                            |
+| `button`                    | Flame / outline / ghost / light link button with optional icon                                                                             |
+| `hero`                      | Flame hero with drifting ribbons, H1, actions slot and optional skyline band                                                               |
+| `grid`                      | Responsive 2/3/4-column grid for cards and other components                                                                                |
+| `card`                      | Image card; whole card clickable when a link is set                                                                                        |
+| `course`                    | One class in the timetable (day, time, level badge, location)                                                                              |
+| `schedule`                  | Timetable wrapper with heading, intro and a 2-column course grid                                                                           |
+| `event`                     | Event with large German date, time, location and description                                                                               |
+| `notice`                    | Highlighted callout with icon and flame/sea/sand tone                                                                                      |
+| `quote`                     | Large italic quote with a flame quotation mark                                                                                             |
+| `link-list` / `link-item`   | Link list and its entries (external-link icon)                                                                                             |
+| `contact`                   | Address, phone (`tel:`), e-mail (`mailto:`) and route link                                                                                 |
+| `gallery` / `gallery-image` | Gallery with a native popover lightbox; square thumbnails work without JS                                                                  |
+| `calendar-subscribe`        | Calendar subscription modal dialog (organizers/courses) used by the "Nächste Termine" block; `noUi`, so it stays out of the Canvas library |
+| `profile`                   | User profile card with avatar/initials, name, "Mitglied seit" and remaining fields                                                         |
+| `site-header`               | Sticky, blurred header with wordmark, navigation slot, mobile toggle and actions                                                           |
+| `site-footer`               | Footer with flame hairline, content and navigation slots and copyright                                                                     |
 
 The theme ships almost no custom JavaScript: the lightbox navigation in
 `components/gallery-image/gallery-image.js` (previous/next buttons, arrow keys

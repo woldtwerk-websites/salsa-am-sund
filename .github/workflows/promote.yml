@@ -26,13 +26,13 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-        # A deploy key, not GITHUB_TOKEN: GITHUB_TOKEN cannot update a ref
-        # across commits that change .github/workflows, and its pushes do not
-        # trigger deploy.yml. A deploy-key push does.
-        ssh-key: ${{ secrets.PROMOTE_DEPLOY_KEY }}
-    # No --force: fast-forward only, so it fails instead of clobbering
-    # production if the branches diverged.
-    - run: git push origin "$GITHUB_SHA:refs/heads/production"
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          # A deploy key, not GITHUB_TOKEN: GITHUB_TOKEN cannot update a ref
+          # across commits that change .github/workflows, and its pushes do not
+          # trigger deploy.yml. A deploy-key push does.
+          ssh-key: ${{ secrets.PROMOTE_DEPLOY_KEY }}
+      # No --force: fast-forward only, so it fails instead of clobbering
+      # production if the branches diverged.
+      - run: git push origin "$GITHUB_SHA:refs/heads/production"

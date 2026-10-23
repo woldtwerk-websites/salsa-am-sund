@@ -1,7 +1,7 @@
 $schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
 name: Text
-description: "Formatierter Fließtext mit Tailwind-Typography-Prosa-Stilen für Absätze, Listen, Links, Zitate und Tabellen."
-group: "Salsa am Sund"
+description: 'Formatierter Fließtext mit Tailwind-Typography-Prosa-Stilen für Absätze, Listen, Links, Zitate und Tabellen.'
+group: 'Salsa am Sund'
 status: stable
 props:
   type: object
@@ -16,7 +16,7 @@ props:
       contentMediaType: text/html
       x-formatting-context: block
       examples:
-        - "<p>Salsa ist mehr als Schritte: Es ist Rhythmus, Begegnung und ein Abend am Sund. Bei uns tanzt du vom ersten Takt an – mit oder ohne Vorkenntnisse.</p>"
+        - '<p>Salsa ist mehr als Schritte: Es ist Rhythmus, Begegnung und ein Abend am Sund. Bei uns tanzt du vom ersten Takt an – mit oder ohne Vorkenntnisse.</p>'
     size:
       type: string
       title: Schriftgröße
@@ -44,7 +44,7 @@ props:
     tone:
       type: string
       title: Hintergrund
-      description: "Automatisch entspricht dem dunklen Seitenhintergrund."
+      description: 'Automatisch entspricht dem dunklen Seitenhintergrund.'
       enum:
         - auto
         - light

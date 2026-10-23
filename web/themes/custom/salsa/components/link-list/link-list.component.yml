@@ -1,7 +1,7 @@
 $schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
 name: Linkliste
-description: "Liste von Links mit optionaler Überschrift."
-group: "Salsa am Sund"
+description: 'Liste von Links mit optionaler Überschrift.'
+group: 'Salsa am Sund'
 status: stable
 props:
   type: object
@@ -10,10 +10,10 @@ props:
       type: string
       title: Überschrift
       examples:
-        - "Gut zu wissen"
+        - 'Gut zu wissen'
 slots:
   links:
     title: Links
-    description: "Link-Einträge für die Liste."
+    description: 'Link-Einträge für die Liste.'
     expected:
       - sdc.salsa.link-item

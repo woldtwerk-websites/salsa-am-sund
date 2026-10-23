@@ -1,7 +1,7 @@
 $schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
 name: Hauptinhalt
-description: "Main-Landmark für Canvas-Seitenvarianten. Umschließt den Seiteninhalt und trägt das Sprungziel des Skip-Links."
-group: "Salsa am Sund"
+description: 'Main-Landmark für Canvas-Seitenvarianten. Umschließt den Seiteninhalt und trägt das Sprungziel des Skip-Links.'
+group: 'Salsa am Sund'
 status: stable
 props:
   type: object
@@ -9,4 +9,4 @@ props:
 slots:
   content:
     title: Inhalt
-    description: "Der Inhalt der Seite, in der Regel eine Abschnitts-Komponente."
+    description: 'Der Inhalt der Seite, in der Regel eine Abschnitts-Komponente.'
