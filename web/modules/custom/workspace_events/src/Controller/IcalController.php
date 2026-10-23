@@ -328,7 +328,10 @@ final class IcalController implements ContainerInjectionInterface {
 
     if ($occurrence->allDay) {
       $event->add('DTSTART', $occurrence->start->format('Ymd'), ['VALUE' => 'DATE']);
-      $event->add('DTEND', $occurrence->start->modify('+1 day')->format('Ymd'), ['VALUE' => 'DATE']);
+      // The stored end date is inclusive, while iCal expects an exclusive
+      // DTEND, so a multi-day event ends on the day after its last day.
+      $end = $occurrence->end ?? $occurrence->start;
+      $event->add('DTEND', $end->modify('+1 day')->format('Ymd'), ['VALUE' => 'DATE']);
       return;
     }
 

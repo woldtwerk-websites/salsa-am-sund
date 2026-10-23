@@ -343,18 +343,20 @@ abstract class EventKernelTestBase extends CanvasKernelTestBase {
    * Creates an all-day date delta.
    *
    * @param \DateTimeImmutable $day
-   *   The day.
+   *   The first day.
+   * @param \DateTimeImmutable|null $lastDay
+   *   The last day of a multi-day range, or NULL for a single day.
    *
    * @return array<string, mixed>
    *   The field delta.
    */
-  protected function allDayDelta(\DateTimeImmutable $day): array {
+  protected function allDayDelta(\DateTimeImmutable $day, ?\DateTimeImmutable $lastDay = NULL): array {
     $start = $day->setTime(0, 0);
-    $end = $day->setTime(23, 59);
+    $end = ($lastDay ?? $day)->setTime(23, 59);
     return [
       'value' => $start->getTimestamp(),
       'end_value' => $end->getTimestamp(),
-      'duration' => 1439,
+      'duration' => (int) (($end->getTimestamp() - $start->getTimestamp()) / 60),
       'timezone' => self::TIMEZONE,
     ];
   }
