@@ -39,6 +39,10 @@
                     "path": "assets/.ddev/web-build/Dockerfile.frankenphp",
                     "overwrite": true
                 },
+                "[project-root]/.ddev/web-build/Dockerfile.pnpm": {
+                    "path": "assets/.ddev/web-build/Dockerfile.pnpm",
+                    "overwrite": true
+                },
                 "[project-root]/.ddev/web-build/pre.Dockerfile.frankenphp": {
                     "path": "assets/.ddev/web-build/pre.Dockerfile.frankenphp",
                     "overwrite": true

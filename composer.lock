@@ -12862,7 +12862,7 @@
             "dist": {
                 "type": "path",
                 "url": "misc/scaffold",
-                "reference": "dc3ea4acafd2b8a92c17460e2c0e829627a51f6f"
+                "reference": "cc5841150045830897cdb749205d50481b0facce"
             },
             "type": "library",
             "extra": {
@@ -12902,6 +12902,10 @@
                         },
                         "[project-root]/.ddev/web-build/Dockerfile.frankenphp": {
                             "path": "assets/.ddev/web-build/Dockerfile.frankenphp",
+                            "overwrite": true
+                        },
+                        "[project-root]/.ddev/web-build/Dockerfile.pnpm": {
+                            "path": "assets/.ddev/web-build/Dockerfile.pnpm",
                             "overwrite": true
                         },
                         "[project-root]/.ddev/web-build/pre.Dockerfile.frankenphp": {
