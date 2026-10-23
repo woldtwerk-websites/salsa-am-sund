@@ -1,17 +1,21 @@
 {
   "name": "@workspace/root",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "upgrade:check": "pnpx taze -r -f",
+    "upgrade:apply": "pnpx taze -r -w",
+    "prepare": "vp config"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
+  },
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
       "version": "12.14.0",
       "onFail": "download"
     }
-  },
-  "type": "module",
-  "scripts": {
-    "typecheck": "tsc -p tsconfig.json"
-  },
-  "devDependencies": {
-    "typescript": "catalog:"
   }
 }

@@ -7,6 +7,26 @@
                     "path": "assets/.ddev/addon-metadata/frankenphp/manifest.yaml",
                     "overwrite": true
                 },
+                "[project-root]/.ddev/addon-metadata/viteplus/manifest.yaml": {
+                    "path": "assets/.ddev/addon-metadata/viteplus/manifest.yaml",
+                    "overwrite": true
+                },
+                "[project-root]/.ddev/commands/host/autocomplete/vp": {
+                    "path": "assets/.ddev/commands/host/autocomplete/vp",
+                    "overwrite": true
+                },
+                "[project-root]/.ddev/commands/host/vp": {
+                    "path": "assets/.ddev/commands/host/vp",
+                    "overwrite": true
+                },
+                "[project-root]/.ddev/commands/host/vpr": {
+                    "path": "assets/.ddev/commands/host/vpr",
+                    "overwrite": true
+                },
+                "[project-root]/.ddev/commands/host/vpx": {
+                    "path": "assets/.ddev/commands/host/vpx",
+                    "overwrite": true
+                },
                 "[project-root]/.ddev/config.ai.yaml": {
                     "path": "assets/.ddev/config.ai.yaml",
                     "overwrite": true
@@ -31,16 +51,20 @@
                     "path": "assets/.ddev/docker-compose.frankenphp.yaml",
                     "overwrite": true
                 },
+                "[project-root]/.ddev/docker-compose.viteplus-cache.yaml": {
+                    "path": "assets/.ddev/docker-compose.viteplus-cache.yaml",
+                    "overwrite": true
+                },
+                "[project-root]/.ddev/docker-compose.viteplus.yaml": {
+                    "path": "assets/.ddev/docker-compose.viteplus.yaml",
+                    "overwrite": true
+                },
                 "[project-root]/.ddev/web-build/Caddyfile.frankenphp": {
                     "path": "assets/.ddev/web-build/Caddyfile.frankenphp",
                     "overwrite": true
                 },
                 "[project-root]/.ddev/web-build/Dockerfile.frankenphp": {
                     "path": "assets/.ddev/web-build/Dockerfile.frankenphp",
-                    "overwrite": true
-                },
-                "[project-root]/.ddev/web-build/Dockerfile.pnpm": {
-                    "path": "assets/.ddev/web-build/Dockerfile.pnpm",
                     "overwrite": true
                 },
                 "[project-root]/.ddev/web-build/pre.Dockerfile.frankenphp": {
@@ -57,6 +81,14 @@
                 },
                 "[project-root]/.php-version": {
                     "path": "assets/.php-version",
+                    "overwrite": true
+                },
+                "[project-root]/.vite-hooks/pre-commit": {
+                    "path": "assets/.vite-hooks/pre-commit",
+                    "overwrite": true
+                },
+                "[project-root]/.vscode/drupal-libraries.schema.json": {
+                    "path": "assets/.vscode/drupal-libraries.schema.json",
                     "overwrite": true
                 },
                 "[project-root]/.vscode/launch.json": {
@@ -109,6 +141,10 @@
                 },
                 "[project-root]/tsconfig.json": {
                     "path": "assets/tsconfig.json",
+                    "overwrite": true
+                },
+                "[project-root]/vite.config.ts": {
+                    "path": "assets/vite.config.ts",
                     "overwrite": true
                 }
             }

@@ -12862,7 +12862,7 @@
             "dist": {
                 "type": "path",
                 "url": "misc/scaffold",
-                "reference": "7a8284b9bc3050ad7b32b28659383c011473002f"
+                "reference": "75d3c8b4e944e08157e2177ad07d72519fa2ee55"
             },
             "type": "library",
             "extra": {
@@ -12870,6 +12870,26 @@
                     "file-mapping": {
                         "[project-root]/.ddev/addon-metadata/frankenphp/manifest.yaml": {
                             "path": "assets/.ddev/addon-metadata/frankenphp/manifest.yaml",
+                            "overwrite": true
+                        },
+                        "[project-root]/.ddev/addon-metadata/viteplus/manifest.yaml": {
+                            "path": "assets/.ddev/addon-metadata/viteplus/manifest.yaml",
+                            "overwrite": true
+                        },
+                        "[project-root]/.ddev/commands/host/autocomplete/vp": {
+                            "path": "assets/.ddev/commands/host/autocomplete/vp",
+                            "overwrite": true
+                        },
+                        "[project-root]/.ddev/commands/host/vp": {
+                            "path": "assets/.ddev/commands/host/vp",
+                            "overwrite": true
+                        },
+                        "[project-root]/.ddev/commands/host/vpr": {
+                            "path": "assets/.ddev/commands/host/vpr",
+                            "overwrite": true
+                        },
+                        "[project-root]/.ddev/commands/host/vpx": {
+                            "path": "assets/.ddev/commands/host/vpx",
                             "overwrite": true
                         },
                         "[project-root]/.ddev/config.ai.yaml": {
@@ -12896,16 +12916,20 @@
                             "path": "assets/.ddev/docker-compose.frankenphp.yaml",
                             "overwrite": true
                         },
+                        "[project-root]/.ddev/docker-compose.viteplus-cache.yaml": {
+                            "path": "assets/.ddev/docker-compose.viteplus-cache.yaml",
+                            "overwrite": true
+                        },
+                        "[project-root]/.ddev/docker-compose.viteplus.yaml": {
+                            "path": "assets/.ddev/docker-compose.viteplus.yaml",
+                            "overwrite": true
+                        },
                         "[project-root]/.ddev/web-build/Caddyfile.frankenphp": {
                             "path": "assets/.ddev/web-build/Caddyfile.frankenphp",
                             "overwrite": true
                         },
                         "[project-root]/.ddev/web-build/Dockerfile.frankenphp": {
                             "path": "assets/.ddev/web-build/Dockerfile.frankenphp",
-                            "overwrite": true
-                        },
-                        "[project-root]/.ddev/web-build/Dockerfile.pnpm": {
-                            "path": "assets/.ddev/web-build/Dockerfile.pnpm",
                             "overwrite": true
                         },
                         "[project-root]/.ddev/web-build/pre.Dockerfile.frankenphp": {
@@ -12922,6 +12946,10 @@
                         },
                         "[project-root]/.php-version": {
                             "path": "assets/.php-version",
+                            "overwrite": true
+                        },
+                        "[project-root]/.vite-hooks/pre-commit": {
+                            "path": "assets/.vite-hooks/pre-commit",
                             "overwrite": true
                         },
                         "[project-root]/.vscode/launch.json": {
@@ -12974,6 +13002,10 @@
                         },
                         "[project-root]/tsconfig.json": {
                             "path": "assets/tsconfig.json",
+                            "overwrite": true
+                        },
+                        "[project-root]/vite.config.ts": {
+                            "path": "assets/vite.config.ts",
                             "overwrite": true
                         }
                     }

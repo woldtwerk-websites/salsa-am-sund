@@ -60,9 +60,12 @@
 
           // A GET submit would serialize the form the same way; fromQuery()
           // accepts both the repeated and the comma separated notation. The
-          // form has no file inputs, so the entries are plain strings.
+          // form has no file inputs; a File would be sent as its name.
           const query = new URLSearchParams(
-            Array.from(new FormData(form), ([key, value]) => [key, String(value)]),
+            Array.from(new FormData(form), ([key, value]) => [
+              key,
+              typeof value === 'string' ? value : value.name,
+            ]),
           ).toString();
           const action = form.getAttribute('action') || window.location.pathname;
           const base = new URL(action, window.location.href)

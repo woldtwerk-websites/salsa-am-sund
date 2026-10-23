@@ -21,7 +21,8 @@
 
   /* Override sdc schema (add Attributes and https://github.com/redhat-developer/vscode-yaml/issues/694) */
   "yaml.schemas": {
-    "https://gist.githubusercontent.com/woldtwerk/74fe3d168f6ddab017a6a1aa362c1000/raw/metadata.schema.json": "*.component.yml"
+    "https://gist.githubusercontent.com/woldtwerk/74fe3d168f6ddab017a6a1aa362c1000/raw/metadata.schema.json": "*.component.yml",
+    "./.vscode/drupal-libraries.schema.json": "*.libraries.yml"
   },
 
   /* General Editor Settings */
@@ -67,11 +68,47 @@
 
   "npm.packageManager": "pnpm",
 
-  "intelephense.environment.includePaths": [
-    "web/core/",
-    "web/core/includes",
-    "vendor/"
-  ],
+  "intelephense.environment.includePaths": ["web/core/", "web/core/includes", "vendor/"],
   "twigcs.executablePath": "vendor/bin/twigcs",
-  "js/ts.experimental.useTsgo": true
+  "js/ts.experimental.useTsgo": true,
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "[javascript]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.oxc": "explicit"
+    }
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.oxc": "explicit"
+    }
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.oxc": "explicit"
+    }
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.oxc": "explicit"
+    }
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file"
+  },
+  "oxc.disableNestedConfig": true,
+  "oxc.fmt.disableNestedConfig": true
 }

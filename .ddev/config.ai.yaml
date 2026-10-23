@@ -1,6 +1,7 @@
 hooks:
   post-start:
-    - exec: pnpx skills@1.5.23 experimental_install
+    - exec: vpx skills@1.5.23 experimental_install
+      service: viteplus
     - exec: |
         mkdir -p misc/ai/plans .claude .opencode
         ln -sfn ../misc/ai/plans .claude/plans
