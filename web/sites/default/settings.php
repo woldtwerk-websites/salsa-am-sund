@@ -943,22 +943,53 @@ if (is_string($hash_salt) && $hash_salt !== '') {
 unset($hash_salt);
 
 /**
- * Production trusted host pattern from the release's .env.
+ * Trusted host pattern from drush/sites/self.site.yml.
  *
- * The non-secret .env shipped with every release sets DRUPAL_TRUSTED_HOST to
- * the site's hostname, the only host Drupal answers to in production.
+ * Runs for ENV production and preview, each trusting only the host from the
+ * uri of the alias named after ENV; the preview alias is optional and the
+ * www. variant is allowed too. Without a resolvable host for ENV no host is
+ * trusted. The finished pattern list is cached in APCu per environment and
+ * release ($app_root), so the lookup needs no filesystem access; deploys and
+ * restarts invalidate it. Edits to self.site.yml inside a running release are
+ * not picked up until the next restart. Without APCu (CLI, minimal images) the
+ * file is parsed on every request instead.
  */
-if (getenv('ENV') === 'production') {
-  $trusted_host = getenv('DRUPAL_TRUSTED_HOST');
-  if (is_string($trusted_host) && $trusted_host !== '') {
-    foreach (array_filter(array_map('trim', explode(',', $trusted_host))) as $host) {
-      $settings['trusted_host_patterns'][] = '^' . preg_quote($host) . '$';
+$trusted_host_env = getenv('ENV');
+if (in_array($trusted_host_env, ['production', 'preview'], TRUE)) {
+  $trusted_host_apcu = function_exists('apcu_enabled') && apcu_enabled();
+  $trusted_host_key = 'trusted_host_patterns:' . $trusted_host_env . ':' . $app_root;
+  $trusted_host_patterns = $trusted_host_apcu ? apcu_fetch($trusted_host_key) : NULL;
+  if (!is_array($trusted_host_patterns)) {
+    $trusted_host_patterns = [];
+    $trusted_host_file = $app_root . '/../drush/sites/self.site.yml';
+    if (is_file($trusted_host_file)) {
+      $trusted_host_yaml = file_get_contents($trusted_host_file);
+      if (is_string($trusted_host_yaml)) {
+        $trusted_host_aliases = \Drupal\Component\Serialization\Yaml::decode($trusted_host_yaml);
+        $trusted_host_alias = is_array($trusted_host_aliases) ? ($trusted_host_aliases[$trusted_host_env] ?? NULL) : NULL;
+        if (is_array($trusted_host_alias) && is_string($trusted_host_alias['uri'] ?? NULL)) {
+          $trusted_host = parse_url($trusted_host_alias['uri'], PHP_URL_HOST);
+          if (is_string($trusted_host) && $trusted_host !== '') {
+            // One pattern for the host, www. prefix optional.
+            $trusted_host = preg_replace('/^www\./i', '', $trusted_host);
+            $trusted_host_patterns[] = '^(www\.)?' . preg_quote($trusted_host) . '$';
+          }
+        }
+      }
     }
-  } else {
-    $settings['trusted_host_patterns'][] = '^(www\.)?salsa-am-sund\.de$';
+    // Never cache an empty list: Drupal trusts every host without patterns.
+    // This pattern matches nothing, so web requests get a 400 instead. Drush
+    // and the CLI skip the trusted host check, so they keep working.
+    if (!$trusted_host_patterns) {
+      $trusted_host_patterns = ['(?!)'];
+    }
+    if ($trusted_host_apcu) {
+      apcu_store($trusted_host_key, $trusted_host_patterns);
+    }
   }
-  unset($trusted_host, $host);
+  $settings['trusted_host_patterns'] = array_merge($settings['trusted_host_patterns'] ?? [], $trusted_host_patterns);
 }
+unset($trusted_host_env, $trusted_host_apcu, $trusted_host_key, $trusted_host_patterns, $trusted_host_file, $trusted_host_yaml, $trusted_host_aliases, $trusted_host_alias, $trusted_host);
 
 /**
  * Load local development override configuration, if available.
