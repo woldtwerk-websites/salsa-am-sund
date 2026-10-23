@@ -12,6 +12,9 @@ use Drupal\Core\Site\Settings;
 use Drupal\masquerade\Masquerade;
 use Drupal\masquerade\Session\MetadataBag;
 use Drupal\Tests\UnitTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -21,11 +24,9 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 /**
  * Tests the masquerade toolbar access policy.
- *
- * @group workspace_admin_ui
- *
- * @coversDefaultClass \Drupal\workspace_admin_ui\Access\MasqueradeToolbarAccessPolicy
  */
+#[Group('workspace_admin_ui')]
+#[CoversClass(MasqueradeToolbarAccessPolicy::class)]
 class MasqueradeToolbarAccessPolicyTest extends UnitTestCase {
 
   /**
@@ -102,8 +103,6 @@ class MasqueradeToolbarAccessPolicyTest extends UnitTestCase {
 
   /**
    * Tests the persistent cache context only appears for a web session.
-   *
-   * @covers ::getPersistentCacheContexts
    */
   public function testPersistentCacheContexts(): void {
     $this->masquerade = $this->createMock(Masquerade::class);
@@ -125,8 +124,6 @@ class MasqueradeToolbarAccessPolicyTest extends UnitTestCase {
 
   /**
    * Tests no permissions are calculated without a masquerade web session.
-   *
-   * @covers ::calculatePermissions
    */
   public function testNoPermissionsWithoutMasqueradeSession(): void {
     $this->masquerade = $this->createMock(Masquerade::class);
@@ -144,9 +141,27 @@ class MasqueradeToolbarAccessPolicyTest extends UnitTestCase {
   }
 
   /**
+   * Tests a web session without a running masquerade grants nothing.
+   */
+  public function testNoPermissionWithoutRunningMasquerade(): void {
+    $this->masquerade = $this->createMock(Masquerade::class);
+    $this->masquerade->method('isMasquerading')->willReturn(FALSE);
+    // The session is only read once masquerading is known to be running.
+    $this->session = $this->createMock(SessionInterface::class);
+    $this->session->expects($this->never())->method('get');
+
+    $account = $this->createMock(AccountInterface::class);
+    $account->method('id')->willReturn(7);
+
+    $permissions = $this->policy($this->stackWithMasqueradeSession())
+      ->calculatePermissions($account, AccessPolicyInterface::SCOPE_DRUPAL);
+
+    $this->assertFalse($permissions->getItem());
+    $this->assertNotContains('user', $permissions->getCacheContexts());
+  }
+
+  /**
    * Tests the masqueraded account gets the navigation permissions.
-   *
-   * @covers ::calculatePermissions
    */
   public function testPermissionForMasqueradedAccount(): void {
     $this->masquerade = $this->createMock(Masquerade::class);
@@ -167,9 +182,42 @@ class MasqueradeToolbarAccessPolicyTest extends UnitTestCase {
   }
 
   /**
-   * Tests other accounts are left alone while masquerading.
+   * Tests a masqueraded account with an unusable session uid gets nothing.
    *
-   * @covers ::calculatePermissions
+   * @param mixed $uid
+   *   The value the session holds for the masqueraded uid.
+   */
+  #[DataProvider('invalidSessionUidProvider')]
+  public function testNoPermissionForInvalidSessionUid(mixed $uid): void {
+    $this->masquerade = $this->createMock(Masquerade::class);
+    $this->masquerade->method('isMasquerading')->willReturn(TRUE);
+    $this->session = $this->createMock(SessionInterface::class);
+    $this->session->method('get')->with('uid')->willReturn($uid);
+
+    $account = $this->createMock(AccountInterface::class);
+    $account->method('id')->willReturn(7);
+
+    $permissions = $this->policy($this->stackWithMasqueradeSession())
+      ->calculatePermissions($account, AccessPolicyInterface::SCOPE_DRUPAL);
+
+    $this->assertFalse($permissions->getItem());
+  }
+
+  /**
+   * Provides session uid values that identify no account.
+   *
+   * @return array<string, array{mixed}>
+   *   The session uid values, keyed by a label.
+   */
+  public static function invalidSessionUidProvider(): array {
+    return [
+      'null' => [NULL],
+      'array' => [['7']],
+    ];
+  }
+
+  /**
+   * Tests other accounts are left alone while masquerading.
    */
   public function testPermissionForOtherAccount(): void {
     $this->masquerade = $this->createMock(Masquerade::class);
