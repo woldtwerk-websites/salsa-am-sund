@@ -225,7 +225,7 @@
         ],
         "test": [
             "Composer\\Config::disableProcessTimeout",
-            "@php web/core/scripts/run-tests.sh --sqlite /tmp/run-tests.sqlite --dburl mysql://db:db@db/db --url http://localhost --concurrency \"$(nproc)\" --color --non-html --directory modules/custom"
+            "@php web/core/scripts/run-tests.sh --sqlite /tmp/run-tests.sqlite --dburl mysql://db:db@db/db --url http://localhost --concurrency \"$(nproc)\" --suppress-deprecations --color --non-html --directory modules/custom"
         ]
     }
 }
