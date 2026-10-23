@@ -42,6 +42,7 @@
         class: 'h-full w-full object-cover object-bottom',
         sizes: '100vw',
         loading: 'eager',
+        attributes: create_attribute({fetchpriority: 'high'}),
       } only %}
       <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-night/90 via-night/20 to-transparent" aria-hidden="true"></div>
     </div>
