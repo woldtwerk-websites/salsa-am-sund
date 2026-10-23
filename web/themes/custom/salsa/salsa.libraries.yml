@@ -3,7 +3,7 @@ global:
   css:
     theme:
       src/css/fonts.css:
-        preprocess: false
+        preprocess: true
       src/css/main.css:
         preprocess: true
 
