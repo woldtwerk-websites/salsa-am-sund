@@ -14,6 +14,7 @@ description: Additional instructions for working with drupal.
 - Always prefer using sdc over drupal templates.
 - use cva with ui prop and tailwind merge.
 - sdc should work with canvas
+- never put a bare `&` in sdc markup, e.g. tailwind arbitrary variants like `[&_a]:z-10` in a class attribute. canvas parses the html before every `{{ variable }}` (`CanvasPropVisitor`, masterminds html5) and silently stops adding its prop/slot markers after the first parse error, so every later prop or slot in that template can't be clicked or edited in the canvas preview (layers still work). use named variants (`prose-a:`, `*:`, `has-[…]:`) or css instead.
 - use canvas for building view modes, templates and pages
 - prefer css/tailwind over js.
 - prefer modern html apis over custom js, e.g. popover (`popovertarget`), invoker commands (`commandfor`/`command`), `<dialog>`, `<details name>`, `:has()`, `:popover-open`, `@starting-style`, css anchor positioning. only add js when there is no declarative way.
