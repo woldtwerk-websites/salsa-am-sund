@@ -21,15 +21,6 @@ interface OrganizerLookupInterface {
   public function id(string $uuid): ?int;
 
   /**
-   * Returns the IDs of all fixed organizer terms.
-   *
-   * @return int[]
-   *   The term IDs in the order of OrganizerResolver::TERMS, missing terms
-   *   left out.
-   */
-  public function termIds(): array;
-
-  /**
    * Returns the term IDs keyed by UUID.
    *
    * @return array<string, int>

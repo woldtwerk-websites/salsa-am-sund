@@ -332,13 +332,6 @@ final class EventFilterTest extends UnitTestCase {
       /**
        * {@inheritdoc}
        */
-      public function termIds(): array {
-        return [];
-      }
-
-      /**
-       * {@inheritdoc}
-       */
       public function ids(): array {
         return [];
       }
@@ -398,13 +391,6 @@ final class EventFilterTest extends UnitTestCase {
           OrganizerResolver::EXTERNAL_UUID => EventFilterTest::EXTERNAL_ID,
         ];
         return $ids[$uuid] ?? NULL;
-      }
-
-      /**
-       * {@inheritdoc}
-       */
-      public function termIds(): array {
-        return [EventFilterTest::SALSA_ID, EventFilterTest::EXTERNAL_ID];
       }
 
       /**

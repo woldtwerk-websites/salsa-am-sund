@@ -92,24 +92,6 @@ final class OrganizerResolver implements OrganizerLookupInterface {
   }
 
   /**
-   * Returns the IDs of all fixed organizer terms.
-   *
-   * @return int[]
-   *   The term IDs in the order of self::TERMS,
-   *   missing terms left out.
-   */
-  public function termIds(): array {
-    $ids = [];
-    foreach (array_keys(self::TERMS) as $uuid) {
-      $id = $this->id($uuid);
-      if ($id !== NULL) {
-        $ids[] = $id;
-      }
-    }
-    return $ids;
-  }
-
-  /**
    * Returns the term IDs keyed by UUID.
    *
    * @return array<string, int>
