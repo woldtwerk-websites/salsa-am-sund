@@ -6,10 +6,11 @@ Requires=drupal-db-volume@%i.service drupal-tmp-volume@%i.service
 After=drupal-db-volume@%i.service drupal-tmp-volume@%i.service
 
 [Container]
-Image=docker.io/library/mariadb:11
+Image=docker.io/library/mariadb:lts
 ContainerName=%i__db
 Pod=drupal@.pod
 EnvironmentFile=%h/.config/%i/.env
+Environment=MARIADB_AUTO_UPGRADE=1
 Volume=%i__db:/var/lib/mysql
 Volume=%i__tmp:/tmp:z
 # The pod is on the proxy network, so MariaDB only listens on localhost.
