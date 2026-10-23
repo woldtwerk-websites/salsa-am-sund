@@ -131,7 +131,6 @@
     "require-dev": {
         "behat/mink": "^1.11",
         "behat/mink-browserkit-driver": "^2.2",
-        "brianium/paratest": "^7.8",
         "drupal/coder": "^9.0",
         "mglaman/phpstan-drupal": "^2.2",
         "mikey179/vfsstream": "^1.6.11",
@@ -224,6 +223,9 @@
             "@phpstan",
             "@phpcs"
         ],
-        "test": "SIMPLETEST_DB=mysql://db:db@db/db SIMPLETEST_BASE_URL=https://salsa-am-sund.localhost paratest -c web/core/phpunit.xml.dist --processes=auto web/modules/custom"
+        "test": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php web/core/scripts/run-tests.sh --sqlite /tmp/run-tests.sqlite --dburl mysql://db:db@db/db --url http://localhost --concurrency 4 --suppress-deprecations --color --non-html --directory modules/custom"
+        ]
     }
 }
