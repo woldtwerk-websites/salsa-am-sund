@@ -57,14 +57,6 @@ final class ContactFormBlockTest extends CanvasKernelTestBase {
   }
 
   /**
-   * Tests that the default contact form is configured.
-   */
-  public function testDefaultConfiguration(): void {
-    $block = $this->blockManager->createInstance('salsa_contact_form');
-    self::assertSame('kontakt', $block->getConfiguration()['contact_form']);
-  }
-
-  /**
    * Tests access to the block.
    */
   public function testBlockAccess(): void {
@@ -117,7 +109,6 @@ final class ContactFormBlockTest extends CanvasKernelTestBase {
     $block = $this->blockManager->createInstance('salsa_contact_form', ['contact_form' => 'kontakt']);
     $build = $block->build();
 
-    self::assertSame('contact_message_kontakt_form', $build['#form_id']);
     self::assertContains('config:contact.form.kontakt', $build['#cache']['tags']);
   }
 

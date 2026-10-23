@@ -25,7 +25,7 @@ final class CanvasComponentsTest extends EventKernelTestBase {
     // Trigger Canvas component discovery, like a cache rebuild would.
     $this->container->get(ComponentSourceManager::class)->generateComponents();
 
-    foreach (['block.salsa_events', 'block.salsa_course_schedule'] as $id) {
+    foreach (['block.salsa_events', 'block.salsa_course_schedule', 'block.salsa_event_calendar'] as $id) {
       $component = Component::load($id);
       self::assertInstanceOf(Component::class, $component, "The component $id was not discovered.");
       self::assertTrue($component->status(), "The component $id is not enabled.");

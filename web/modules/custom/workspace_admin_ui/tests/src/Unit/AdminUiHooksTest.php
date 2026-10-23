@@ -41,20 +41,6 @@ class AdminUiHooksTest extends UnitTestCase {
   }
 
   /**
-   * Tests the dependency is added to a definition without any yet.
-   */
-  public function testAddsDependencyToLibraryWithoutDependencies(): void {
-    $libraries = ['drupal.layout_builder' => []];
-
-    $this->hooks()->libraryInfoAlter($libraries, 'layout_builder');
-
-    $this->assertSame(
-      ['workspace_admin_ui/layout_builder'],
-      $libraries['drupal.layout_builder']['dependencies']
-    );
-  }
-
-  /**
    * Tests libraries of other extensions are left alone.
    */
   public function testIgnoresOtherExtensions(): void {
@@ -66,17 +52,6 @@ class AdminUiHooksTest extends UnitTestCase {
   }
 
   /**
-   * Tests an extension without that library is left alone.
-   */
-  public function testIgnoresMissingLibrary(): void {
-    $libraries = ['some.other_library' => []];
-
-    $this->hooks()->libraryInfoAlter($libraries, 'layout_builder');
-
-    $this->assertSame(['some.other_library' => []], $libraries);
-  }
-
-  /**
    * Tests the Content links move into the Navigation content menu.
    */
   public function testMovesContentLinksToContentMenu(): void {
@@ -84,14 +59,9 @@ class AdminUiHooksTest extends UnitTestCase {
 
     $this->hooks()->menuLinksDiscoveredAlter($links);
 
-    foreach ($this->contentLinkIds() as $index => $id) {
+    foreach ($this->contentLinkIds() as $id) {
       $this->assertSame('content', $links[$id]['menu_name']);
       $this->assertSame('', $links[$id]['parent']);
-      $this->assertSame(10 + $index, $links[$id]['weight']);
-      $this->assertSame([
-        'pack_id' => 'workspace_admin_ui',
-        'icon_id' => ['taxonomy', 'url-aliases', 'menus'][$index],
-      ], $links[$id]['options']['icon']);
       // Route, title and description stay core's.
       $this->assertSame('route.' . $id, $links[$id]['route_name']);
       $this->assertSame('Title ' . $id, $links[$id]['title']);

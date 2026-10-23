@@ -18,8 +18,6 @@ use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the page comments resolver.
- *
- * @coversDefaultClass \Drupal\workspace_site\PageCommentsResolver
  */
 #[CoversClass(PageCommentsResolver::class)]
 #[Group('workspace_site')]

@@ -113,33 +113,4 @@ final readonly class EventFilter {
       && $this->eventIds === [];
   }
 
-  /**
-   * Returns the filter as query parameters.
-   *
-   * The organizer, course and location selections use the comma separated
-   * notation of the iCal feed. A course-only filter additionally emits the
-   * legacy `type=course` parameter, so the result can be parsed back. The
-   * event node selection stays internal, because the feed has no parameter
-   * for single events.
-   *
-   * @return array<string, string>
-   *   The query parameters.
-   */
-  public function toQuery(): array {
-    $query = [];
-    if ($this->organizerIds !== []) {
-      $query['organizer'] = implode(',', $this->organizerIds);
-    }
-    if ($this->courseIds !== []) {
-      $query['course'] = implode(',', $this->courseIds);
-    }
-    if ($this->locationIds !== []) {
-      $query['location'] = implode(',', $this->locationIds);
-    }
-    if ($this->includeCourses && !$this->includeEvents) {
-      $query['type'] = 'course';
-    }
-    return $query;
-  }
-
 }

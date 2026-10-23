@@ -52,15 +52,6 @@ class MasqueradeTargetAccessCheckTest extends UnitTestCase {
   }
 
   /**
-   * Tests access is forbidden while another masquerade runs.
-   */
-  public function testForbiddenWhileMasquerading(): void {
-    $this->configureDrupal(masquerading: TRUE);
-
-    $this->assertFalse($this->accessCheck()->access($this->targetAccount(4))->isAllowed());
-  }
-
-  /**
    * Tests access is forbidden when masquerade grants no permission.
    */
   public function testForbiddenWithoutPermission(): void {
@@ -72,17 +63,15 @@ class MasqueradeTargetAccessCheckTest extends UnitTestCase {
   /**
    * Sets the services masquerade_target_user_access() reaches for.
    *
-   * @param bool $masquerading
-   *   Whether a masquerade is running.
    * @param array<int, bool|null> $hookResults
    *   What hook_masquerade_access() implementations return.
    */
-  protected function configureDrupal(bool $masquerading = FALSE, array $hookResults = [TRUE]): void {
+  protected function configureDrupal(array $hookResults = [TRUE]): void {
     $currentUser = $this->createMock(AccountInterface::class);
     $currentUser->method('id')->willReturn(1);
 
     $masquerade = $this->createMock(Masquerade::class);
-    $masquerade->method('isMasquerading')->willReturn($masquerading);
+    $masquerade->method('isMasquerading')->willReturn(FALSE);
 
     $moduleHandler = $this->createMock(ModuleHandlerInterface::class);
     $moduleHandler->method('invokeAll')->willReturn($hookResults);

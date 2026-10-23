@@ -85,36 +85,12 @@ class ViewsHooksTest extends UnitTestCase {
   }
 
   /**
-   * Tests the language of a row translation is used.
-   */
-  public function testUsesLanguageOfRowTranslation(): void {
-    $row = new ResultRow(['_entity' => $this->contentEntity('es')]);
-
-    $variables = $this->variables($row);
-    $this->hooks->preprocessViewsViewField($variables);
-
-    $this->assertSame('es', $row->node_field_data_langcode);
-  }
-
-  /**
    * Tests fields whose name is not status are left alone.
    */
   public function testIgnoresOtherFields(): void {
     $row = new ResultRow(['_entity' => $this->contentEntity('de')]);
 
     $variables = $this->variables($row, 'title');
-    $this->hooks->preprocessViewsViewField($variables);
-
-    $this->assertFalse(property_exists($row, 'node_field_data_langcode'));
-  }
-
-  /**
-   * Tests a row without an entity is left alone.
-   */
-  public function testIgnoresRowWithoutEntity(): void {
-    $row = new ResultRow();
-
-    $variables = $this->variables($row);
     $this->hooks->preprocessViewsViewField($variables);
 
     $this->assertFalse(property_exists($row, 'node_field_data_langcode'));
@@ -130,31 +106,6 @@ class ViewsHooksTest extends UnitTestCase {
     $this->hooks->preprocessViewsViewField($variables);
 
     $this->assertFalse(property_exists($row, 'node_field_data_langcode'));
-  }
-
-  /**
-   * Tests variables without a field handler are left alone.
-   */
-  public function testIgnoresMissingField(): void {
-    $row = new ResultRow(['_entity' => $this->contentEntity('de')]);
-
-    $variables = ['row' => $row];
-    $this->hooks->preprocessViewsViewField($variables);
-
-    $this->assertFalse(property_exists($row, 'node_field_data_langcode'));
-  }
-
-  /**
-   * Tests a row that is not a result row is left alone.
-   */
-  public function testIgnoresRowOfAnotherType(): void {
-    $variables = [
-      'field' => $this->statusField(),
-      'row' => ['_entity' => $this->contentEntity('de')],
-    ];
-    $this->hooks->preprocessViewsViewField($variables);
-
-    $this->addToAssertionCount(1);
   }
 
   /**

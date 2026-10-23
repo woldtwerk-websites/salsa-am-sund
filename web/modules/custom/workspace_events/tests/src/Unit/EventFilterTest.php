@@ -352,42 +352,32 @@ final class EventFilterTest extends UnitTestCase {
   }
 
   /**
-   * Tests the empty check and query serialization.
+   * Tests the empty check.
    */
-  public function testEmptyAndQuery(): void {
+  public function testEmpty(): void {
     $filter = new EventFilter();
     self::assertTrue($filter->isEmpty());
-    self::assertSame([], $filter->toQuery());
 
     $filter = new EventFilter(locationIds: [3, 7]);
     self::assertFalse($filter->isEmpty());
-    self::assertSame(['location' => '3,7'], $filter->toQuery());
 
     $filter = new EventFilter(includeEvents: TRUE, organizerIds: [3, 7], includeCourses: TRUE);
     self::assertFalse($filter->isEmpty());
-    self::assertSame(['organizer' => '3,7'], $filter->toQuery());
 
     // Selecting individual courses is not an empty filter either.
     $filter = EventFilter::coursesOnly([2, 4]);
     self::assertFalse($filter->isEmpty());
-    self::assertSame([
-      'course' => '2,4',
-      'type' => 'course',
-    ], $filter->toQuery());
 
     // A course-only filter without a course selection still means every
     // course.
     $filter = EventFilter::coursesOnly();
     self::assertFalse($filter->isEmpty());
-    self::assertSame(['type' => 'course'], $filter->toQuery());
 
     self::assertFalse(EventFilter::eventsOnly([3])->isEmpty());
 
-    // Selecting individual events is not an empty filter either, but the
-    // internal selection has no query notation.
+    // Selecting individual events is not an empty filter either.
     $filter = EventFilter::eventsOnly(eventIds: [5, 7]);
     self::assertFalse($filter->isEmpty());
-    self::assertSame([], $filter->toQuery());
   }
 
   /**

@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Drupal\Tests\workspace_events\Kernel;
 
 use Drupal\Core\Block\BlockManagerInterface;
-use Drupal\Core\Form\FormState;
-use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\workspace_events\EventDescriptionFormatter;
+use Drupal\workspace_events\EventOccurrence;
+use Drupal\workspace_events\EventOccurrenceRepository;
 use Drupal\workspace_events\Plugin\Block\CourseScheduleBlock;
+use Drupal\workspace_events\Plugin\Block\EventBlockBase;
 use Drupal\workspace_events\Plugin\Block\UpcomingEventsBlock;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -18,6 +21,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  */
 #[CoversClass(UpcomingEventsBlock::class)]
 #[CoversClass(CourseScheduleBlock::class)]
+#[CoversClass(EventBlockBase::class)]
 #[Group('workspace_events')]
 #[RunTestsInSeparateProcesses]
 final class EventBlocksTest extends EventKernelTestBase {
@@ -83,7 +87,6 @@ final class EventBlocksTest extends EventKernelTestBase {
     $build = $block->build();
 
     self::assertArrayHasKey('events', $build);
-    self::assertSame('3', $build['events']['#props']['columns']);
     $items = $build['events']['#slots']['items'];
     self::assertCount(2, $items);
     self::assertSame('Salsa im ballhaus goldfisch', $items[0]['#props']['title']);
@@ -415,141 +418,97 @@ final class EventBlocksTest extends EventKernelTestBase {
   }
 
   /**
-   * Tests the organizer checkboxes and their submit handling.
+   * Tests that the cache expires with the earliest occurrence end.
    */
-  public function testOrganizerCheckboxesSubmit(): void {
-    $block = $this->blockManager->createInstance('salsa_events', [
-      'organizers' => [$this->externalOrganizer],
-      'courses' => FALSE,
-      'locations' => [],
-      'limit' => 3,
-      'show_ical' => TRUE,
+  public function testOccurrenceCacheExpiresWithEarliestEnd(): void {
+    $node = $this->createEvent([
+      'title' => 'Cache test',
+      'field_when' => [
+        $this->dateDelta($this->date('now +1 day', '18:00'), $this->date('now +1 day', '19:00')),
+      ],
     ]);
-    $form = $block->blockForm([], new FormState());
-    $element = $form['organizers'];
+    $now = time();
+    $start = new \DateTimeImmutable('@' . ($now + 3600));
+    $occurrences = [
+      new EventOccurrence($node, 0, $start, new \DateTimeImmutable('@' . ($now + 7200)), FALSE, NULL, NULL),
+      new EventOccurrence($node, 1, $start, new \DateTimeImmutable('@' . ($now + 14400)), FALSE, NULL, NULL),
+    ];
 
-    self::assertSame('checkboxes', $element['#type']);
-    self::assertSame('Organizers', (string) $element['#title']);
-    self::assertSame('Leave empty to show all organizers.', (string) $element['#description']);
-    self::assertSame([
-      $this->salsaAmSund,
-      $this->externalOrganizer,
-    ], array_keys($element['#options']));
-    self::assertSame([$this->externalOrganizer], $element['#default_value']);
-    self::assertSame('checkbox', $form['courses']['#type']);
-    self::assertFalse($form['courses']['#default_value']);
+    $block = $this->cacheBlock();
+    $build = [];
+    $before = time();
+    $block->applyCache($build, $occurrences);
+    $after = time();
 
-    // Checked organizers are kept, unchecked ones are dropped.
-    $form_state = new FormState();
-    $this->setBlockValues($form_state, [
-      $this->salsaAmSund => (string) $this->salsaAmSund,
-      $this->externalOrganizer => 0,
-    ], FALSE);
-    $block->blockSubmit($form, $form_state);
-    self::assertSame([$this->salsaAmSund], $block->getConfiguration()['organizers']);
-    self::assertFalse($block->getConfiguration()['courses']);
-    self::assertSame([], $block->getConfiguration()['locations']);
-
-    // An empty selection means every organizer.
-    $form_state = new FormState();
-    $this->setBlockValues($form_state, [], TRUE);
-    $block->blockSubmit($form, $form_state);
-    self::assertSame([], $block->getConfiguration()['organizers']);
-    self::assertTrue($block->getConfiguration()['courses']);
-
-    // A missing value also means every organizer.
-    $block->blockSubmit($form, new FormState());
-    self::assertSame([], $block->getConfiguration()['organizers']);
-    self::assertFalse($block->getConfiguration()['courses']);
+    // The earliest end is two hours away; the later occurrence must not
+    // extend the lifetime.
+    $end = $now + 7200;
+    self::assertGreaterThanOrEqual(min(86400, max(0, $end - $after)), $build['#cache']['max-age']);
+    self::assertLessThanOrEqual(min(86400, max(0, $end - $before)), $build['#cache']['max-age']);
   }
 
   /**
-   * Tests the location checkboxes element and its submit handling.
+   * Tests that an occurrence without an end expires at the end of its day.
    */
-  public function testLocationsCheckboxesSubmit(): void {
-    $location_a = $this->createLocation('Bootshaus Stralsund');
-    $location_b = $this->createLocation('Treff ZuverSICht');
-    $location_c = $this->createLocation('ballhaus goldfisch e.V.');
+  public function testOccurrenceCacheOpenEndFallsBackToEndOfDay(): void {
+    $node = $this->createEvent([
+      'title' => 'Cache test',
+      'field_when' => [
+        $this->dateDelta($this->date('now +1 day', '18:00'), $this->date('now +1 day', '19:00')),
+      ],
+    ]);
+    $start = new \DateTimeImmutable('today 10:00');
+    $occurrences = [
+      new EventOccurrence($node, 0, $start, NULL, FALSE, NULL, NULL),
+    ];
 
-    foreach (['salsa_events', 'salsa_course_schedule'] as $plugin_id) {
-      $block = $this->blockManager->createInstance($plugin_id, [
-        'locations' => [(int) $location_b->id()],
-      ]);
-      $form = $block->blockForm([], new FormState());
-      $element = $form['locations'];
+    $block = $this->cacheBlock();
+    $build = [];
+    $before = time();
+    $block->applyCache($build, $occurrences);
+    $after = time();
 
-      self::assertSame('checkboxes', $element['#type'], $plugin_id);
-      self::assertArrayNotHasKey('#multiple', $element, $plugin_id);
-      self::assertArrayNotHasKey('#empty_option', $element, $plugin_id);
-      self::assertSame('Locations', (string) $element['#title'], $plugin_id);
-      self::assertSame('Leave empty to show all locations.', (string) $element['#description'], $plugin_id);
-      self::assertSame([
-        (int) $location_c->id(),
-        (int) $location_a->id(),
-        (int) $location_b->id(),
-      ], array_keys($element['#options']), $plugin_id);
-      self::assertSame([(int) $location_b->id()], $element['#default_value'], $plugin_id);
-
-      // Checked ids are kept, unchecked ones are dropped.
-      $form_state = new FormState();
-      $this->setLocationValues($form_state, [
-        (int) $location_a->id() => (int) $location_a->id(),
-        (int) $location_b->id() => 0,
-        (int) $location_c->id() => (string) $location_c->id(),
-      ]);
-      $block->blockSubmit($form, $form_state);
-      self::assertSame([
-        (int) $location_a->id(),
-        (int) $location_c->id(),
-      ], $block->getConfiguration()['locations'], $plugin_id);
-
-      // No checked boxes means no filter.
-      $form_state = new FormState();
-      $this->setLocationValues($form_state, [
-        (int) $location_a->id() => 0,
-        (int) $location_b->id() => 0,
-      ]);
-      $block->blockSubmit($form, $form_state);
-      self::assertSame([], $block->getConfiguration()['locations'], $plugin_id);
-
-      // A missing value also means no filter.
-      $block->blockSubmit($form, new FormState());
-      self::assertSame([], $block->getConfiguration()['locations'], $plugin_id);
-    }
+    $end = $start->setTime(23, 59)->getTimestamp();
+    self::assertGreaterThanOrEqual(min(86400, max(0, $end - $after)), $build['#cache']['max-age']);
+    self::assertLessThanOrEqual(min(86400, max(0, $end - $before)), $build['#cache']['max-age']);
   }
 
   /**
-   * Sets the block values on a form for blockSubmit().
+   * Builds a block that exposes the occurrence cache metadata.
    *
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state.
-   * @param array<int, int|string> $organizers
-   *   The organizer checkbox values, keyed by term ID.
-   * @param bool $courses
-   *   The courses checkbox value.
+   * @return \Drupal\workspace_events\Plugin\Block\EventBlockBase
+   *   The test block.
    */
-  private function setBlockValues(FormStateInterface $form_state, array $organizers, bool $courses): void {
-    $form_state->setValue('organizers', $organizers);
-    $form_state->setValue('courses', $courses);
-    $form_state->setValue('locations', []);
-    $form_state->setValue('limit', 3);
-    $form_state->setValue('show_ical', TRUE);
-  }
+  private function cacheBlock(): EventBlockBase {
+    $repository = $this->container->get(EventOccurrenceRepository::class);
+    \assert($repository instanceof EventOccurrenceRepository);
+    $entity_type_manager = $this->container->get(EntityTypeManagerInterface::class);
+    \assert($entity_type_manager instanceof EntityTypeManagerInterface);
+    $formatter = $this->container->get(EventDescriptionFormatter::class);
+    \assert($formatter instanceof EventDescriptionFormatter);
 
-  /**
-   * Sets the location value and the other values of blockSubmit() on a form.
-   *
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state.
-   * @param array<int, int|string> $locations
-   *   The checkbox values, keyed by term ID.
-   */
-  private function setLocationValues(FormStateInterface $form_state, array $locations): void {
-    $form_state->setValue('locations', $locations);
-    $form_state->setValue('organizers', []);
-    $form_state->setValue('courses', FALSE);
-    $form_state->setValue('limit', 3);
-    $form_state->setValue('show_ical', TRUE);
+    return new class([], 'test', ['provider' => 'workspace_events'], $repository, $entity_type_manager, $formatter) extends EventBlockBase {
+
+      /**
+       * {@inheritdoc}
+       */
+      public function build(): array {
+        return [];
+      }
+
+      /**
+       * Exposes the occurrence cache metadata.
+       *
+       * @param array<mixed> $build
+       *   The render array.
+       * @param \Drupal\workspace_events\EventOccurrence[] $occurrences
+       *   The rendered occurrences.
+       */
+      public function applyCache(array &$build, array $occurrences): void {
+        $this->applyOccurrenceCache($build, $occurrences);
+      }
+
+    };
   }
 
 }

@@ -57,16 +57,6 @@ final class MasqueradeLinks {
   }
 
   /**
-   * The names of the shortcut accounts, in the order they are offered.
-   *
-   * @return list<string>
-   *   The user names.
-   */
-  public static function accountNames(): array {
-    return self::ACCOUNTS;
-  }
-
-  /**
    * Loads the account with a user name.
    *
    * @param string $name

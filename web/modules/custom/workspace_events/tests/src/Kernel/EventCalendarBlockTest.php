@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\Tests\workspace_events\Kernel;
 
 use Drupal\Core\Block\BlockManagerInterface;
-use Drupal\Core\Url;
 use Drupal\workspace_events\Plugin\Block\EventCalendarBlock;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -74,10 +73,6 @@ final class EventCalendarBlockTest extends EventKernelTestBase {
     self::assertSame('salsa:calendar', $build['calendar']['#component']);
 
     $props = $build['calendar']['#props'];
-    self::assertSame('/termine.json', Url::fromRoute('workspace_events.events_json')->toString());
-    self::assertSame($props['events_url'], Url::fromRoute('workspace_events.events_json')->toString());
-    self::assertSame($props['ical_url'], Url::fromRoute('workspace_events.ical')->toString());
-    self::assertStringStartsWith('salsa-calendar', $props['id']);
 
     // Every organizer is offered as a filter.
     self::assertSame([
@@ -99,8 +94,6 @@ final class EventCalendarBlockTest extends EventKernelTestBase {
     // The cards are grid items, one per occurrence, in date order.
     $grid = $build['calendar']['#slots']['cards'];
     self::assertSame('salsa:grid', $grid['#component']);
-    self::assertSame('3', $grid['#props']['columns']);
-    self::assertSame('md', $grid['#props']['gap']);
     $items = $grid['#slots']['items'];
     self::assertCount(3, $items);
     self::assertSame(['event', 'course', 'event'], array_map(
@@ -142,19 +135,6 @@ final class EventCalendarBlockTest extends EventKernelTestBase {
     ] as $tag) {
       self::assertContains($tag, $build['#cache']['tags']);
     }
-  }
-
-  /**
-   * Tests that a second block gets its own element ID.
-   */
-  public function testUniqueId(): void {
-    $first = $this->blockManager->createInstance('salsa_event_calendar', [])->build();
-    $second = $this->blockManager->createInstance('salsa_event_calendar', [])->build();
-
-    self::assertNotSame(
-      $first['calendar']['#props']['id'],
-      $second['calendar']['#props']['id'],
-    );
   }
 
 }

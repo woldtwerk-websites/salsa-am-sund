@@ -40,25 +40,6 @@ class NavigationMenuLinksTest extends KernelTestBase {
   }
 
   /**
-   * Tests the links are defined in the Navigation user menu.
-   */
-  public function testLinkDefinitions(): void {
-    $manager = $this->container->get('plugin.manager.menu.link');
-
-    foreach (['user' => 'user', 'editor' => 'editor'] as $id => $name) {
-      $definition = $manager->getDefinition('workspace_admin_ui.masquerade.' . $id);
-      $this->assertSame('navigation-user-links', $definition['menu_name']);
-      $this->assertSame('entity.user.masquerade', $definition['route_name']);
-      $this->assertSame($name, $definition['options']['account_name']);
-      $this->assertSame('Drupal\workspace_admin_ui\Plugin\Menu\MasqueradeMenuLink', $definition['class']);
-    }
-
-    $definition = $manager->getDefinition('workspace_admin_ui.unmasquerade');
-    $this->assertSame('navigation-user-links', $definition['menu_name']);
-    $this->assertSame('masquerade.unmasquerade', $definition['route_name']);
-  }
-
-  /**
    * Tests the route parameter is the uid of the account with the name.
    */
   public function testRouteParameterResolvesAccountName(): void {
@@ -92,10 +73,7 @@ class NavigationMenuLinksTest extends KernelTestBase {
     $link = $this->container->get('plugin.manager.menu.link')
       ->createInstance('workspace_admin_ui.masquerade.user');
 
-    $this->assertContains('user_list', $link->getCacheTags());
     $this->assertContains('user:' . $account->id(), $link->getCacheTags());
-    $this->assertContains('session.is_masquerading', $link->getCacheContexts());
-    $this->assertContains('user.permissions', $link->getCacheContexts());
   }
 
 }

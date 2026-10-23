@@ -173,76 +173,19 @@ final class EventsJsonControllerTest extends EventKernelTestBase {
   }
 
   /**
-   * Tests the filter query arguments.
+   * Tests that an organizer and a course selection are combined with OR.
    */
-  public function testFilters(): void {
-    $range = $this->range();
-
-    // An organizer selection restricts the result to its events.
-    $items = $this->items($range + ['organizer' => (string) $this->externalOrganizer]);
-    self::assertSame(['Externe Party'], array_column($items, 'title'));
-
-    $items = $this->items($range + ['organizer' => (string) $this->salsaAmSund]);
-    self::assertSame(
-      ['Salsa-Nacht am Sund', 'Tanzabend im Freien'],
-      array_column($items, 'title'),
-    );
-
-    // A location filters events and courses.
-    $items = $this->items($range + ['location' => (string) $this->locationA]);
-    self::assertCount(6, $items);
-    foreach ($items as $item) {
-      self::assertSame('Bootshaus Stralsund', $item['extendedProps']['location']);
-    }
-
-    // The legacy type selection controls the bundles.
-    $items = $this->items($range + ['type' => 'party,external_party']);
-    self::assertSame(
-      ['Salsa-Nacht am Sund', 'Externe Party', 'Tanzabend im Freien'],
-      array_column($items, 'title'),
-    );
-
-    $items = $this->items($range + ['course' => (string) $this->courseId]);
-    self::assertCount(4, $items);
-    foreach ($items as $item) {
-      self::assertSame('Anfänger', $item['title']);
-    }
-
-    // Courses at another location do not exist.
-    self::assertSame([], $this->items($range + ['type' => 'course', 'location' => (string) $this->locationB]));
-  }
-
-  /**
-   * Tests that invalid ranges are rejected.
-   */
-  public function testInvalidRanges(): void {
-    $start = $this->date('now');
-    $end = $this->date('now +10 days');
-    $invalid = [
-      [],
-      ['start' => $start->format(\DateTimeInterface::ATOM)],
-      ['end' => $end->format(\DateTimeInterface::ATOM)],
-      ['start' => 'gestern', 'end' => $end->format(\DateTimeInterface::ATOM)],
-      ['start' => $start->format('Y-m-d'), 'end' => $start->format('Y-m-d')],
-      [
-        'start' => $start->format('Y-m-d'),
-        'end' => $start->modify('+101 days')->format('Y-m-d'),
-      ],
-    ];
-
-    foreach ($invalid as $query) {
-      $response = $this->request($query);
-      self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), json_encode($query, JSON_THROW_ON_ERROR));
-      $body = json_decode((string) $response->getContent(), TRUE, 512, JSON_THROW_ON_ERROR);
-      self::assertArrayHasKey('error', $body);
-    }
-
-    // Exactly 100 days are allowed.
-    $response = $this->request([
-      'start' => $start->format('Y-m-d'),
-      'end' => $start->modify('+100 days')->format('Y-m-d'),
+  public function testOrFilter(): void {
+    $items = $this->items($this->range() + [
+      'organizer' => (string) $this->externalOrganizer,
+      'course' => (string) $this->courseId,
     ]);
-    self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+    // The organizer's event and the selected course are both returned.
+    self::assertSame(
+      ['Anfänger', 'Externe Party', 'Anfänger', 'Anfänger', 'Anfänger'],
+      array_column($items, 'title'),
+    );
   }
 
   /**

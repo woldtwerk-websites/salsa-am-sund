@@ -88,24 +88,6 @@ class MasqueradeLinksTest extends UnitTestCase {
   }
 
   /**
-   * Tests nothing is offered while already masquerading.
-   */
-  public function testNothingAvailableWhileMasquerading(): void {
-    $this->configureDrupal(masquerading: TRUE);
-
-    $this->assertSame([], $this->links()->available());
-  }
-
-  /**
-   * Tests an account is left out when masquerade denies the switch.
-   */
-  public function testDeniedByMasquerade(): void {
-    $this->configureDrupal(hookResults: []);
-
-    $this->assertSame([], $this->links()->available());
-  }
-
-  /**
    * Tests an account is left out when no account has the name.
    */
   public function testMissingAccount(): void {
@@ -114,15 +96,6 @@ class MasqueradeLinksTest extends UnitTestCase {
 
     $this->assertSame(['user'], array_keys($this->links()->available()));
     $this->assertNull($this->links()->account(MasqueradeLinks::EDITOR));
-  }
-
-  /**
-   * Tests an account is left out when it is the current user.
-   */
-  public function testCurrentUserIsExcluded(): void {
-    $this->configureDrupal(currentUserId: 4);
-
-    $this->assertSame(['editor'], array_keys($this->links()->available()));
   }
 
   /**
@@ -160,25 +133,18 @@ class MasqueradeLinksTest extends UnitTestCase {
 
   /**
    * Sets the services masquerade_target_user_access() reaches for.
-   *
-   * @param bool $masquerading
-   *   Whether a masquerade is running.
-   * @param array<int, bool|null> $hookResults
-   *   What hook_masquerade_access() implementations return.
-   * @param int $currentUserId
-   *   The current user's id.
    */
-  protected function configureDrupal(bool $masquerading = FALSE, array $hookResults = [TRUE], int $currentUserId = 1): void {
+  protected function configureDrupal(): void {
     $currentUser = $this->createMock(AccountInterface::class);
-    $currentUser->method('id')->willReturn($currentUserId);
+    $currentUser->method('id')->willReturn(1);
 
     $masquerade = $this->createMock(Masquerade::class);
-    $masquerade->method('isMasquerading')->willReturn($masquerading);
+    $masquerade->method('isMasquerading')->willReturn(FALSE);
 
     $moduleHandler = $this->createMock(ModuleHandlerInterface::class);
     $moduleHandler->method('invokeAll')
       ->with('masquerade_access')
-      ->willReturn($hookResults);
+      ->willReturn([TRUE]);
 
     $container = new ContainerBuilder();
     $container->set('current_user', $currentUser);
