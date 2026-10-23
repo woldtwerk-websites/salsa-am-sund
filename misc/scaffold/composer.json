@@ -15,7 +15,7 @@
                     "path": "assets/.ddev/config.frankenphp.yaml",
                     "overwrite": true
                 },
-                "[project-root]/.ddev/config.versions.yml": {
+                "[project-root]/.ddev/config.versions.yaml": {
                     "path": "assets/.ddev/config.versions.yml",
                     "overwrite": true
                 },

@@ -168,10 +168,10 @@ catalogs:
       specifier: ^0.28.2
       version: 0.28.2
     tailwindcss:
-      specifier: ^4.2.2
+      specifier: ^4.3.3
       version: 4.3.3
     typescript:
-      specifier: ^7.0.0
+      specifier: ^7.0.2
       version: 7.0.2
 
 importers:
@@ -187,7 +187,7 @@ importers:
   web/modules/custom/workspace_tailwindcss_cli:
     devDependencies:
       '@tailwindcss/cli':
-        specifier: ^4.2.2
+        specifier: ^4.3.3
         version: 4.3.3
 
   web/themes/custom/salsa:
