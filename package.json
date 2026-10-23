@@ -3,8 +3,8 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "upgrade:check": "pnpx taze -r -f",
-    "upgrade:apply": "pnpx taze -r -w",
+    "upgrade:check": "vp dlx taze -r -f",
+    "upgrade:apply": "vp dlx taze -r -w",
     "prepare": "vp config"
   },
   "devDependencies": {

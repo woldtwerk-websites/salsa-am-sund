@@ -12862,7 +12862,7 @@
             "dist": {
                 "type": "path",
                 "url": "misc/scaffold",
-                "reference": "75d3c8b4e944e08157e2177ad07d72519fa2ee55"
+                "reference": "4c37169026da6da1199b7d795c4d4755e770f5e4"
             },
             "type": "library",
             "extra": {
@@ -12936,6 +12936,18 @@
                             "path": "assets/.ddev/web-build/pre.Dockerfile.frankenphp",
                             "overwrite": true
                         },
+                        "[project-root]/.github/workflows/ci.yml": {
+                            "path": "assets/.github/workflows/ci.yml",
+                            "overwrite": true
+                        },
+                        "[project-root]/.github/workflows/deploy.yml": {
+                            "path": "assets/.github/workflows/deploy.yml",
+                            "overwrite": true
+                        },
+                        "[project-root]/.github/workflows/promote.yml": {
+                            "path": "assets/.github/workflows/promote.yml",
+                            "overwrite": true
+                        },
                         "[project-root]/.gitattributes": {
                             "mode": "append",
                             "append": "assets/.gitattributes"
@@ -12950,6 +12962,10 @@
                         },
                         "[project-root]/.vite-hooks/pre-commit": {
                             "path": "assets/.vite-hooks/pre-commit",
+                            "overwrite": true
+                        },
+                        "[project-root]/.vscode/drupal-libraries.schema.json": {
+                            "path": "assets/.vscode/drupal-libraries.schema.json",
                             "overwrite": true
                         },
                         "[project-root]/.vscode/launch.json": {
@@ -12991,6 +13007,10 @@
                         "[project-root]/pnpm-workspace.yaml": {
                             "path": "assets/pnpm-workspace.yaml",
                             "overwrite": false
+                        },
+                        "[project-root]/renovate.json": {
+                            "path": "assets/renovate.json",
+                            "overwrite": true
                         },
                         "[project-root]/skills-lock.json": {
                             "path": "assets/skills-lock.json",

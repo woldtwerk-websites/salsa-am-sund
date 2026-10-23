@@ -71,6 +71,18 @@
                     "path": "assets/.ddev/web-build/pre.Dockerfile.frankenphp",
                     "overwrite": true
                 },
+                "[project-root]/.github/workflows/ci.yml": {
+                    "path": "assets/.github/workflows/ci.yml",
+                    "overwrite": true
+                },
+                "[project-root]/.github/workflows/deploy.yml": {
+                    "path": "assets/.github/workflows/deploy.yml",
+                    "overwrite": true
+                },
+                "[project-root]/.github/workflows/promote.yml": {
+                    "path": "assets/.github/workflows/promote.yml",
+                    "overwrite": true
+                },
                 "[project-root]/.gitattributes": {
                     "mode": "append",
                     "append": "assets/.gitattributes"
@@ -130,6 +142,10 @@
                 "[project-root]/pnpm-workspace.yaml": {
                     "path": "assets/pnpm-workspace.yaml",
                     "overwrite": false
+                },
+                "[project-root]/renovate.json": {
+                    "path": "assets/renovate.json",
+                    "overwrite": true
                 },
                 "[project-root]/skills-lock.json": {
                     "path": "assets/skills-lock.json",

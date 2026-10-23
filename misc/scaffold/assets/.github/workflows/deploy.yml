@@ -1,0 +1,39 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - production
+  workflow_dispatch:
+
+# Not cancel-in-progress: killing Deployer mid-release leaves the deploy lock
+# behind.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Requires a manual approval before deploying.
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: production
+          lfs: true
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+      - run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
+      # Its postinstall builds theme libraries.
+      - uses: voidzero-dev/setup-vp@6a033122543ee100d01838245fe74a26a038da6d # v1.21.2
+        with:
+          node-version-file: .node-version
+          cache: true
+          run-install: |
+            - args: ['--frozen-lockfile']
+      - uses: deployphp/action@v1
+        with:
+          dep: deploy --file misc/deployer/deploy.yaml production
+          private-key: ${{ secrets.PRIVATE_KEY }}
