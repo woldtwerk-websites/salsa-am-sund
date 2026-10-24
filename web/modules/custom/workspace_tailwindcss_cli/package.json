@@ -4,6 +4,6 @@
   "license": "ISC",
   "author": "",
   "devDependencies": {
-    "@tailwindcss/cli": "^4.3.3"
+    "@tailwindcss/cli": "4.3.3"
   }
 }

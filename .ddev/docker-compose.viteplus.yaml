@@ -2,7 +2,7 @@
 services:
   viteplus:
     container_name: ddev-${DDEV_SITENAME}-viteplus
-    image: ghcr.io/voidzero-dev/vite-plus:latest
+    image: ghcr.io/voidzero-dev/vite-plus:latest@sha256:5dfa2031f7d014b6376407fd99e0747bed329d792c79c184a65ec9a0765bee0e
     command: tail -f /dev/null
     restart: no
     working_dir: /app

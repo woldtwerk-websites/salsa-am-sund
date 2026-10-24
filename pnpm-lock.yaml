@@ -196,25 +196,25 @@ importers:
   web/modules/custom/workspace_tailwindcss_cli:
     devDependencies:
       '@tailwindcss/cli':
-        specifier: ^4.3.3
+        specifier: 4.3.3
         version: 4.3.3
 
   web/themes/custom/salsa:
     devDependencies:
       '@fontsource-variable/archivo':
-        specifier: ^5.3.0
+        specifier: 5.3.0
         version: 5.3.0
       '@fontsource-variable/instrument-sans':
-        specifier: ^5.3.0
+        specifier: 5.3.0
         version: 5.3.0
       '@fullcalendar/web-component':
-        specifier: ^7.1.3
+        specifier: 7.1.3
         version: 7.1.3(temporal-polyfill@1.0.6)
       '@iconify-json/cib':
-        specifier: ^1.2.3
+        specifier: 1.2.3
         version: 1.2.3
       '@types/node':
-        specifier: ^26.6.5
+        specifier: 26.6.5
         version: 26.6.5
       esbuild:
         specifier: 'catalog:'

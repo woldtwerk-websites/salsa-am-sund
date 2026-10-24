@@ -8,7 +8,7 @@ Wants=drupal-db@%i.service
 After=drupal-db@%i.service
 
 [Container]
-Image=ghcr.io/woldtwerk-websites/frankenphp-drupal:latest
+Image=ghcr.io/woldtwerk-websites/frankenphp-drupal:latest@sha256:9ba87407f7ba3b7c51b6c57bcb7529e27c784abae7c804885fd3ee894e52173a
 ContainerName=%i__app
 Pod=drupal@.pod
 Volume=%h/apps/%i:/www:z
