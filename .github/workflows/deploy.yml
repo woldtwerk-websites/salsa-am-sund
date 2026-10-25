@@ -22,7 +22,7 @@ jobs:
         with:
           ref: production
           lfs: true
-      - uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: '8.5'
       - run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
@@ -33,7 +33,7 @@ jobs:
           cache: true
           run-install: |
             - args: ['--frozen-lockfile']
-      - uses: deployphp/action@v1
+      - uses: deployphp/action@a1b46c204dbde25a32ed0d7bb6751ac3377ca1e9 # v1
         with:
           dep: deploy --file misc/deployer/deploy.yaml production
           private-key: ${{ secrets.PRIVATE_KEY }}
