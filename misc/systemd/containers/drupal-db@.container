@@ -6,7 +6,7 @@ Requires=drupal-db-volume@%i.service drupal-tmp-volume@%i.service
 After=drupal-db-volume@%i.service drupal-tmp-volume@%i.service
 
 [Container]
-Image=docker.io/library/mariadb:lts
+Image=docker.io/library/mariadb:12
 ContainerName=%i__db
 Pod=drupal@.pod
 EnvironmentFile=%h/.config/%i/.env
