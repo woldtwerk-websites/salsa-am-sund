@@ -127,6 +127,14 @@
                     "path": "assets/jsconfig.json",
                     "overwrite": true
                 },
+                "[project-root]/misc/snapshot/ci-snapshot.sh": {
+                    "path": "assets/misc/snapshot/ci-snapshot.sh",
+                    "overwrite": true
+                },
+                "[project-root]/misc/snapshot/sanitize.sql": {
+                    "path": "assets/misc/snapshot/sanitize.sql",
+                    "overwrite": true
+                },
                 "[project-root]/package.json": {
                     "path": "assets/package.json",
                     "overwrite": false
