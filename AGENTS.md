@@ -75,6 +75,43 @@ Only test what matters: the custom logic in this repo.
 - Don't test Drupal core, contributed modules or other third-party code.
 - Don't write UI tests (no browser, rendering or markup tests).
 
+## Writing Drupal code: checklist
+
+These are the mistakes reviews keep finding. Check every change against them.
+
+Before you write code:
+
+- Read the code next to your change. If a field or value is already read or computed elsewhere
+  (e.g. in a preprocess hook), reuse it or move it into a shared service. Never copy the logic:
+  copies drift apart and then behave differently.
+- Check `composer.json` and `web/modules/contrib` for a module that already covers the task. If you
+  build it custom anyway, say why in the PR body. Don't add a dependency without asking.
+- Don't hardcode content that lives in the database (term or node labels, the site name). Load the
+  entity (e.g. by the UUID constants in `OrganizerResolver`) and add it as a cache dependency.
+
+Every render-time code path must handle:
+
+- Unsaved entities: node previews render with `isNew() === TRUE`, and `toUrl()` throws then.
+- Other routes: the same view mode renders on previews, revision pages and embedded in other pages
+  (Canvas, blocks, views). Add page-level output (`html_head`, metatags, page title) only on the
+  entity's canonical route, checking that the route parameter is the same entity, and add the
+  `route` cache context.
+- Cacheability: add every entity or config you output as a cacheable dependency, and a cache context
+  for everything the output varies by (`route`, `url.site`, `user.permissions`, …).
+- Empty fields and missing referenced entities.
+
+Efficiency:
+
+- Move work that doesn't change out of loops: URL generation, entity loads, building the same array.
+  Memoize lookups per request in the service.
+- Don't branch on the same condition in both caller and callee; call the specific method directly.
+
+Tests: cover each edge case above that applies to your change (unsaved entity, other route, missing
+referenced entity), not only the happy path.
+
+Before you open the PR, re-read your whole diff as a reviewer and fix what this checklist finds. In the
+PR body, list the edge cases you handled and the design decisions you made (e.g. contrib vs. custom).
+
 ## Claude Code: delegate coding to opencode
 
 This section is for Claude Code only. opencode reads this file too: if you are
