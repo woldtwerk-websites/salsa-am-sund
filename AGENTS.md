@@ -17,6 +17,18 @@ State which one you picked before running commands. If neither applies, stop and
 than guessing at a command that will fail. In the workflow sections below, substitute the Composer
 and Drush commands for the option you resolved.
 
+## In GitHub Actions
+
+When `GITHUB_ACTIONS=true`, DDEV is installed but not started, and there is no site yet.
+
+- If the task needs a working site or tooling (PHP, modules, config, theme, frontend build, tests), run
+  `.github/scripts/ci-site-install.sh` once before any `ddev` command. It starts DDEV, installs the site
+  from the repository configuration and installs the frontend dependencies. Then use DDEV as described
+  below: frontend tooling with `ddev exec -s viteplus vp` (e.g. `vp check`), tests with
+  `ddev exec composer run-script test`, and `ddev drush config:export --yes` after config changes.
+- For docs, workflows or other changes that don't need a running site, skip the script and don't run
+  any `ddev` command; setting up the site takes several minutes.
+
 ## Local environment (DDEV)
 
 Run commands from the project root:
