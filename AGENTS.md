@@ -38,6 +38,8 @@ Run commands from the project root:
 - Install PHP dependencies with `ddev composer install`.
 - Open the site with `ddev launch`.
 - Run Drush commands with `ddev drush <command>` such as `status`, `user:login`, `cache:rebuild`, and `updatedb`.
+- Import the scrubbed production database with `ddev drush ci-snapshot:pull` (it asks first; `ddev snapshot`
+  keeps the current one). `ddev drush ci-snapshot:check < ~/path/to/key` tests the CI endpoint.
 
 DDEV project config lives in `.ddev/config.yaml`. Use `.ddev/config.local.yaml` for machine-specific overrides.
 

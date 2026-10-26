@@ -115,6 +115,10 @@
                     "path": "assets/.vscode/tasks.json",
                     "overwrite": false
                 },
+                "[project-root]/drush/Commands/CiSnapshotCommands.php": {
+                    "path": "assets/drush/Commands/CiSnapshotCommands.php",
+                    "overwrite": true
+                },
                 "[project-root]/drush/drush.yml": {
                     "path": "assets/drush/drush.yml",
                     "overwrite": true
