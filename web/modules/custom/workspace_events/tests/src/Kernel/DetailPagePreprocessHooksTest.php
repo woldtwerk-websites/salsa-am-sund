@@ -137,6 +137,12 @@ final class DetailPagePreprocessHooksTest extends EventKernelTestBase {
     // The page may be cached until the next date has ended.
     $request_time = $this->container->get('datetime.time')->getRequestTime();
     self::assertSame($deltas[0]['end_value'] - $request_time, $cache['max-age']);
+
+    $structured_data = $this->getAttachedJsonLd($variables);
+    self::assertSame('https://schema.org', $structured_data['@context']);
+    $graph = $structured_data['@graph'];
+    \assert(is_array($graph));
+    self::assertSame('Course', $graph[0]['@type']);
   }
 
   /**
@@ -251,6 +257,14 @@ final class DetailPagePreprocessHooksTest extends EventKernelTestBase {
     // The page may be cached until the next date has ended.
     $request_time = $this->container->get('datetime.time')->getRequestTime();
     self::assertSame($deltas[0]['end_value'] - $request_time, $cache['max-age']);
+
+    $structured_data = $this->getAttachedJsonLd($variables);
+    self::assertSame('https://schema.org', $structured_data['@context']);
+    $graph = $structured_data['@graph'];
+    \assert(is_array($graph));
+    self::assertCount(6, $graph);
+    self::assertSame('Event', $graph[0]['@type']);
+    self::assertSame('Salsa Night', $graph[0]['name']);
   }
 
   /**
@@ -312,6 +326,32 @@ final class DetailPagePreprocessHooksTest extends EventKernelTestBase {
     ];
     $this->hooks->preprocessNode($variables);
     self::assertArrayNotHasKey('course_next_dates', $variables);
+  }
+
+  /**
+   * Returns the JSON-LD attached to a node's theme variables.
+   *
+   * @param array<string, mixed> $variables
+   *   The theme variables.
+   *
+   * @return array<string, mixed>
+   *   The decoded structured data.
+   */
+  private function getAttachedJsonLd(array $variables): array {
+    $attached = $variables['#attached'] ?? [];
+    \assert(is_array($attached));
+    $html_head = $attached['html_head'] ?? [];
+    \assert(is_array($html_head));
+    self::assertArrayHasKey(0, $html_head);
+
+    $script = $html_head[0][0] ?? [];
+    \assert(is_array($script));
+    self::assertSame('script', $script['#tag']);
+    self::assertSame('application/ld+json', $script['#attributes']['type']);
+
+    $data = json_decode((string) $script['#value'], TRUE);
+    \assert(is_array($data));
+    return $data;
   }
 
 }

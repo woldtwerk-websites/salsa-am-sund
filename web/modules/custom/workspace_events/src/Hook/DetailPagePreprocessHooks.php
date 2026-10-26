@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\workspace_events\Hook;
 
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Hook\Attribute\Hook;
@@ -16,6 +17,7 @@ use Drupal\taxonomy\TermInterface;
 use Drupal\workspace_events\EventFilter;
 use Drupal\workspace_events\EventOccurrence;
 use Drupal\workspace_events\EventOccurrenceRepository;
+use Drupal\workspace_events\StructuredDataBuilder;
 
 /**
  * Prepares the data of the course and event detail pages.
@@ -45,12 +47,15 @@ final class DetailPagePreprocessHooks {
    *   The current route match.
    * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter
    *   The date formatter.
+   * @param \Drupal\workspace_events\StructuredDataBuilder $structuredDataBuilder
+   *   The schema.org structured data builder.
    */
   public function __construct(
     private readonly EventOccurrenceRepository $repository,
     private readonly TimeInterface $time,
     private readonly RouteMatchInterface $routeMatch,
     private readonly DateFormatterInterface $dateFormatter,
+    private readonly StructuredDataBuilder $structuredDataBuilder,
   ) {}
 
   /**
@@ -80,7 +85,44 @@ final class DetailPagePreprocessHooks {
       $this->prepareEvent($variables, $node, $occurrences);
     }
 
+    $this->attachStructuredData($variables, $node, $occurrences);
     $this->applyCacheability($variables, $node, $occurrences);
+  }
+
+  /**
+   * Attaches the schema.org JSON-LD of a detail page to the document head.
+   *
+   * @param array<string, mixed> $variables
+   *   The theme variables.
+   * @param \Drupal\node\NodeInterface $node
+   *   The course or event node.
+   * @param \Drupal\workspace_events\EventOccurrence[] $occurrences
+   *   The upcoming occurrences.
+   *
+   * @param-out array<string, mixed> $variables
+   */
+  private function attachStructuredData(array &$variables, NodeInterface $node, array $occurrences): void {
+    $data = $this->structuredDataBuilder->build($node, $occurrences);
+    if ($data === []) {
+      return;
+    }
+
+    $attached = $variables['#attached'] ?? [];
+    $attached = is_array($attached) ? $attached : [];
+    $html_head = $attached['html_head'] ?? [];
+    $html_head = is_array($html_head) ? $html_head : [];
+    $html_head[] = [
+      [
+        '#tag' => 'script',
+        '#attributes' => ['type' => 'application/ld+json'],
+        // Json::encode() escapes the HTML characters that could end the
+        // script element, so a title or description cannot inject markup.
+        '#value' => Json::encode($data),
+      ],
+      'workspace_events_json_ld',
+    ];
+    $attached['html_head'] = $html_head;
+    $variables['#attached'] = $attached;
   }
 
   /**
