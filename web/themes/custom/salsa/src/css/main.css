@@ -913,7 +913,7 @@
     }
   }
 
-  /* On small screens the dialog is a bottom sheet and slides up. */
+  /* On small screens the dialog fills the viewport and slides up. */
   @media (width < 40rem) {
     .salsa-subscribe:not([open]) {
       transform: translateY(1rem);
