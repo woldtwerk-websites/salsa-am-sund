@@ -41,6 +41,10 @@ jobs:
       - uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          # Nobody can answer permission prompts in CI; a pending "ask" hangs the
+          # job silently (it waited 48 min on reading a screenshot from /tmp).
+          OPENCODE_CONFIG_CONTENT: >-
+            {"permission": {"external_directory": "allow", "doom_loop": "deny"}}
         with:
           model: ${{ vars.OPENCODE_MODEL }}
           # Issues carry no comment to read instructions from; PRs default to a review.
