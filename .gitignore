@@ -66,6 +66,8 @@ node_modules
 CLAUDE.md
 
 !misc/db/db.sql.gz
+!misc/scaffold/assets/misc/snapshot/sanitize.sql
+!misc/snapshot/sanitize.sql
 
 # Local DDEV environment overrides, including real OpenID Connect credentials.
 # .ddev/.env.example stays tracked as a template.

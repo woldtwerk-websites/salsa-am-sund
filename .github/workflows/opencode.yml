@@ -38,6 +38,39 @@ jobs:
         with:
           autostart: false
 
+      # The repository is public, so the dump never becomes an artifact or a log
+      # line. It stays in $RUNNER_TEMP, outside the checkout, where the agent
+      # cannot commit it; `ddev import-db` reads it from there.
+      - name: Fetch scrubbed production database
+        env:
+          DB_SNAPSHOT_HOST: ${{ vars.DB_SNAPSHOT_HOST }}
+          DB_SNAPSHOT_KEY: ${{ secrets.DB_SNAPSHOT_KEY }}
+          DB_SNAPSHOT_KNOWN_HOSTS: ${{ vars.DB_SNAPSHOT_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+
+          # Without a host or credentials, ci-site-install.sh installs a fresh site.
+          if [ -z "$DB_SNAPSHOT_HOST" ] || [ -z "$DB_SNAPSHOT_KEY" ] || [ -z "$DB_SNAPSHOT_KNOWN_HOSTS" ]; then
+            echo "::notice::No database snapshot host or credentials, installing a fresh site instead."
+            exit 0
+          fi
+
+          umask 077
+          key="$RUNNER_TEMP/db-snapshot-key"
+          known_hosts="$RUNNER_TEMP/db-snapshot-known-hosts"
+          dump="$RUNNER_TEMP/db.sql.gz"
+          trap 'rm -f "$key"' EXIT
+          printf '%s\n' "$DB_SNAPSHOT_KEY" > "$key"
+          printf '%s\n' "$DB_SNAPSHOT_KNOWN_HOSTS" > "$known_hosts"
+
+          # The key's authorized_keys entry forces the scrubbing snapshot script.
+          ssh -i "$key" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=30 \
+            -o UserKnownHostsFile="$known_hosts" -o StrictHostKeyChecking=yes \
+            "$DB_SNAPSHOT_HOST" > "$dump" < /dev/null
+          gzip -t "$dump"
+
+          echo "CI_DB_DUMP=$dump" >> "$GITHUB_ENV"
+
       - uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
