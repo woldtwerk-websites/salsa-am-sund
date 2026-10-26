@@ -6,17 +6,26 @@ on:
       - production
   workflow_dispatch:
 
-# Not cancel-in-progress: killing Deployer mid-release leaves the deploy lock
-# behind.
-concurrency:
-  group: deploy-production
-  cancel-in-progress: false
-
 jobs:
-  deploy:
+  approve:
     runs-on: ubuntu-latest
     # Requires a manual approval before deploying.
     environment: production
+    # A newer push supersedes a deploy that is still waiting for approval.
+    concurrency:
+      group: deploy-production-approval
+      cancel-in-progress: true
+    steps:
+      - run: echo "Approved"
+
+  deploy:
+    needs: approve
+    runs-on: ubuntu-latest
+    # Not cancel-in-progress: killing Deployer mid-release leaves the deploy lock
+    # behind.
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
