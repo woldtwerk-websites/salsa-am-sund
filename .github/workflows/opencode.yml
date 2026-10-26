@@ -5,17 +5,26 @@ on:
     types: [created]
   pull_request_review_comment:
     types: [created]
+  issues:
+    types: [labeled]
+  pull_request:
+    types: [labeled]
 
 jobs:
   opencode:
+    # Labels need triage rights, so only comments check the author.
     if: |
-      (contains(github.event.comment.body, '/oc') ||
-       contains(github.event.comment.body, '/opencode')) &&
-      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+      ((github.event_name == 'issues' || github.event_name == 'pull_request') &&
+       github.event.label.name == 'opencode') ||
+      ((contains(github.event.comment.body, '/oc') ||
+        contains(github.event.comment.body, '/opencode')) &&
+       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association))
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
+      pull-requests: read
+      issues: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -27,3 +36,5 @@ jobs:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         with:
           model: opencode-go/deepseek-v4.1-flash
+          # Issues carry no comment to read instructions from; PRs default to a review.
+          prompt: ${{ github.event_name == 'issues' && 'Implement this issue and open a pull request.' || '' }}
