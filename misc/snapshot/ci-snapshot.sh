@@ -2,10 +2,11 @@
 #
 # Prints a gzipped, scrubbed SQL dump of the production database to stdout.
 #
-# Runs on the production host from the `current` release, where CI reaches it over
-# SSH with a key whose authorized_keys entry forces this script. Arguments and
-# SSH_ORIGINAL_COMMAND are ignored on purpose: the caller cannot influence what
-# the script does.
+# Runs on the production host from the `current` release. CI normally reaches it
+# through ci-snapshot-dispatch.sh, the forced command of the shared CI key, which
+# runs this file without arguments and with SSH_ORIGINAL_COMMAND unset; it also
+# works as a per-project forced command. Arguments and SSH_ORIGINAL_COMMAND are
+# ignored on purpose: the caller cannot influence what the script does.
 #
 # The scrub happens here, on the server that holds the data, and only the scrubbed
 # copy is written to stdout. Diagnostics go to stderr.

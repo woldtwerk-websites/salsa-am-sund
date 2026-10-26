@@ -127,6 +127,10 @@
                     "path": "assets/jsconfig.json",
                     "overwrite": true
                 },
+                "[project-root]/misc/snapshot/ci-snapshot-dispatch.sh": {
+                    "path": "assets/misc/snapshot/ci-snapshot-dispatch.sh",
+                    "overwrite": true
+                },
                 "[project-root]/misc/snapshot/ci-snapshot.sh": {
                     "path": "assets/misc/snapshot/ci-snapshot.sh",
                     "overwrite": true

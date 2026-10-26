@@ -63,10 +63,12 @@ jobs:
           printf '%s\n' "$DB_SNAPSHOT_KEY" > "$key"
           printf '%s\n' "$DB_SNAPSHOT_KNOWN_HOSTS" > "$known_hosts"
 
-          # The key's authorized_keys entry forces the scrubbing snapshot script.
+          # The key's authorized_keys entry forces ci-snapshot-dispatch, which
+          # reads the project name from this SSH command. By convention that name
+          # equals the project's Deployer directory under ~/apps.
           ssh -i "$key" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=30 \
             -o UserKnownHostsFile="$known_hosts" -o StrictHostKeyChecking=yes \
-            "$DB_SNAPSHOT_HOST" > "$dump" < /dev/null
+            "$DB_SNAPSHOT_HOST" "${GITHUB_REPOSITORY#*/}" > "$dump" < /dev/null
           gzip -t "$dump"
 
           echo "CI_DB_DUMP=$dump" >> "$GITHUB_ENV"
