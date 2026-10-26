@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\workspace_events\Kernel;
 
-use Drupal\node\Entity\NodeType;
+use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\TermInterface;
 use Drupal\workspace_events\EventOccurrence;
+use Drupal\workspace_events\OrganizerResolver;
 use Drupal\workspace_events\StructuredDataBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -30,6 +31,20 @@ final class StructuredDataBuilderTest extends EventKernelTestBase {
    */
   protected function setUp(): void {
     parent::setUp();
+
+    // The base class creates the fixed terms; guard against a configuration
+    // where only the content model is reused without them.
+    $provider = reset($this->termStorage->loadByProperties([
+      'uuid' => OrganizerResolver::SALSA_AM_SUND_UUID,
+    ]));
+    if (!$provider instanceof TermInterface) {
+      Term::create([
+        'uuid' => OrganizerResolver::SALSA_AM_SUND_UUID,
+        'vid' => OrganizerResolver::VOCABULARY,
+        'name' => OrganizerResolver::TERMS[OrganizerResolver::SALSA_AM_SUND_UUID]['name'],
+      ])->save();
+    }
+
     $builder = $this->container->get(StructuredDataBuilder::class);
     \assert($builder instanceof StructuredDataBuilder);
     $this->builder = $builder;
@@ -73,7 +88,7 @@ final class StructuredDataBuilderTest extends EventKernelTestBase {
       new EventOccurrence($event, 1, $start->modify('+1 week'), $end->modify('+1 week'), FALSE, $organizer, $location_term),
     ];
 
-    $data = $this->builder->build($event, $occurrences);
+    $data = $this->builder->buildEvent($event, $occurrences);
     self::assertSame('https://schema.org', $data['@context']);
 
     $events = $data['@graph'];
@@ -135,7 +150,7 @@ final class StructuredDataBuilderTest extends EventKernelTestBase {
     $occurrences = [
       new EventOccurrence($event, 0, $day, NULL, TRUE, NULL, NULL),
     ];
-    $data = $this->builder->build($event, $occurrences);
+    $data = $this->builder->buildEvent($event, $occurrences);
 
     $events = $data['@graph'];
     \assert(is_array($events));
@@ -153,7 +168,7 @@ final class StructuredDataBuilderTest extends EventKernelTestBase {
   public function testEventWithoutOccurrences(): void {
     $event = $this->createEvent(['title' => 'Vergangene Party']);
 
-    self::assertSame([], $this->builder->build($event, []));
+    self::assertSame([], $this->builder->buildEvent($event, []));
   }
 
   /**
@@ -187,7 +202,7 @@ final class StructuredDataBuilderTest extends EventKernelTestBase {
       new EventOccurrence($course, 1, $start->modify('+1 week'), $end->modify('+1 week'), FALSE, NULL, $location_term),
     ];
 
-    $data = $this->builder->build($course, $occurrences);
+    $data = $this->builder->buildCourse($course, $occurrences);
     self::assertSame('https://schema.org', $data['@context']);
 
     $graph = $data['@graph'];
@@ -205,8 +220,10 @@ final class StructuredDataBuilderTest extends EventKernelTestBase {
 
     $provider = $course_data['provider'];
     \assert(is_array($provider));
+    $provider_term = $this->termStorage->load($this->salsaAmSund);
+    \assert($provider_term instanceof TermInterface);
     self::assertSame('Organization', $provider['@type']);
-    self::assertSame('Salsa am Sund', $provider['name']);
+    self::assertSame((string) $provider_term->label(), $provider['name']);
     self::assertStringStartsWith('http', $provider['url']);
 
     $instances = $course_data['hasCourseInstance'];
@@ -237,7 +254,7 @@ final class StructuredDataBuilderTest extends EventKernelTestBase {
   public function testCourseWithoutOccurrences(): void {
     $course = $this->createCourse(['title' => 'Anfänger']);
 
-    $data = $this->builder->build($course, []);
+    $data = $this->builder->buildCourse($course, []);
     $graph = $data['@graph'];
     \assert(is_array($graph));
     $course_data = $graph[0];
@@ -247,20 +264,64 @@ final class StructuredDataBuilderTest extends EventKernelTestBase {
   }
 
   /**
-   * Tests that other bundles have no structured data.
+   * Tests that a location without a map link falls back to the address search.
    */
-  public function testOtherBundle(): void {
-    NodeType::create([
-      'type' => 'page',
-      'name' => 'Seite',
-    ])->save();
-    $node = $this->nodeStorage->create([
-      'type' => 'page',
-      'title' => 'Seite',
+  public function testLocationAddressFallbackMap(): void {
+    $start = $this->date('next friday', '20:00');
+    $address = "Friedrich-Naumann-Straße 5\n18435 Stralsund";
+    $location = $this->createLocation('Bootshaus Stralsund', $address);
+    $event = $this->createEvent([
+      'title' => 'Tanzabend',
+      'field_location' => $location->id(),
+      'field_when' => [$this->dateDelta($start, NULL)],
     ]);
-    $node->save();
 
-    self::assertSame([], $this->builder->build($node, []));
+    $occurrences = [
+      new EventOccurrence($event, 0, $start, NULL, FALSE, NULL, $location),
+    ];
+    $data = $this->builder->buildEvent($event, $occurrences);
+
+    $events = $data['@graph'];
+    \assert(is_array($events));
+    $first = $events[0];
+    \assert(is_array($first));
+    $place = $first['location'];
+    \assert(is_array($place));
+    self::assertSame(
+      'https://www.openstreetmap.org/search?query=' . rawurlencode("Friedrich-Naumann-Straße 5, 18435 Stralsund"),
+      $place['hasMap'],
+    );
+  }
+
+  /**
+   * Tests that a course without the provider term has no provider.
+   */
+  public function testCourseWithoutProvider(): void {
+    $provider = $this->termStorage->load($this->salsaAmSund);
+    \assert($provider instanceof TermInterface);
+    $provider->delete();
+
+    $course = $this->createCourse(['title' => 'Anfänger']);
+
+    $data = $this->builder->buildCourse($course, []);
+    $graph = $data['@graph'];
+    \assert(is_array($graph));
+    $course_data = $graph[0];
+    \assert(is_array($course_data));
+    self::assertArrayNotHasKey('provider', $course_data);
+  }
+
+  /**
+   * Tests that an unsaved course has no structured data.
+   */
+  public function testNewCourseHasNoStructuredData(): void {
+    $course = $this->nodeStorage->create([
+      'type' => 'course',
+      'title' => 'Neuer Kurs',
+    ]);
+    \assert($course->isNew());
+
+    self::assertSame([], $this->builder->buildCourse($course, []));
   }
 
 }

@@ -3,6 +3,8 @@ services:
     autowire: true
   Drupal\workspace_events\EventDescriptionFormatter:
     autowire: true
+  Drupal\workspace_events\DetailFieldResolver:
+    autowire: true
   Drupal\workspace_events\StructuredDataBuilder:
     autowire: true
   Drupal\workspace_events\OrganizerResolver:
