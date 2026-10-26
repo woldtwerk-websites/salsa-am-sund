@@ -37,4 +37,5 @@ jobs:
         with:
           model: opencode-go/deepseek-v4.1-flash
           # Issues carry no comment to read instructions from; PRs default to a review.
-          prompt: ${{ github.event_name == 'issues' && 'Implement this issue and open a pull request.' || '' }}
+          prompt: >-
+            ${{ github.event_name == 'issues' && format('Implement this issue and open a pull request. Title: {0}. Description: {1}', github.event.issue.title, github.event.issue.body) || '' }}
