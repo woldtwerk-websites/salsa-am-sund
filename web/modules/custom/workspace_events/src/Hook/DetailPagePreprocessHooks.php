@@ -14,6 +14,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\TermInterface;
+use Drupal\workspace_events\DetailFieldResolver;
 use Drupal\workspace_events\EventFilter;
 use Drupal\workspace_events\EventOccurrence;
 use Drupal\workspace_events\EventOccurrenceRepository;
@@ -49,6 +50,8 @@ final class DetailPagePreprocessHooks {
    *   The date formatter.
    * @param \Drupal\workspace_events\StructuredDataBuilder $structuredDataBuilder
    *   The schema.org structured data builder.
+   * @param \Drupal\workspace_events\DetailFieldResolver $detailFieldResolver
+   *   The reader of the location and link fields.
    */
   public function __construct(
     private readonly EventOccurrenceRepository $repository,
@@ -56,6 +59,7 @@ final class DetailPagePreprocessHooks {
     private readonly RouteMatchInterface $routeMatch,
     private readonly DateFormatterInterface $dateFormatter,
     private readonly StructuredDataBuilder $structuredDataBuilder,
+    private readonly DetailFieldResolver $detailFieldResolver,
   ) {}
 
   /**
@@ -85,7 +89,6 @@ final class DetailPagePreprocessHooks {
       $this->prepareEvent($variables, $node, $occurrences);
     }
 
-    $this->attachStructuredData($variables, $node, $occurrences);
     $this->applyCacheability($variables, $node, $occurrences);
   }
 
@@ -94,15 +97,12 @@ final class DetailPagePreprocessHooks {
    *
    * @param array<string, mixed> $variables
    *   The theme variables.
-   * @param \Drupal\node\NodeInterface $node
-   *   The course or event node.
-   * @param \Drupal\workspace_events\EventOccurrence[] $occurrences
-   *   The upcoming occurrences.
+   * @param array<string, mixed> $data
+   *   The JSON-LD data, or an empty array when the page has none.
    *
    * @param-out array<string, mixed> $variables
    */
-  private function attachStructuredData(array &$variables, NodeInterface $node, array $occurrences): void {
-    $data = $this->structuredDataBuilder->build($node, $occurrences);
+  private function attachStructuredData(array &$variables, array $data): void {
     if ($data === []) {
       return;
     }
@@ -180,6 +180,11 @@ final class DetailPagePreprocessHooks {
     $variables['course_link'] = $this->buildLink($node);
     $variables['course_ical_url'] = $this->buildIcalUrl(['course' => (int) $node->id()]);
     $variables['course_overview_url'] = Url::fromUserInput('/salsa-kurse')->toString();
+
+    $data = $this->isCanonicalPage($node)
+      ? $this->structuredDataBuilder->buildCourse($node, $occurrences)
+      : [];
+    $this->attachStructuredData($variables, $data);
   }
 
   /**
@@ -207,6 +212,34 @@ final class DetailPagePreprocessHooks {
       $organizer === NULL ? [] : ['organizer' => (int) $organizer->id()],
     );
     $variables['event_overview_url'] = Url::fromUserInput('/veranstaltungen')->toString();
+
+    $data = $this->isCanonicalPage($node)
+      ? $this->structuredDataBuilder->buildEvent($node, $occurrences)
+      : [];
+    $this->attachStructuredData($variables, $data);
+  }
+
+  /**
+   * Returns whether the node is rendered on its own canonical page.
+   *
+   * Previews, revision pages and nodes embedded on another page are excluded,
+   * so the JSON-LD is only attached where its canonical URL is the page.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The course or event node.
+   *
+   * @return bool
+   *   TRUE when the current route is the node's canonical page.
+   */
+  private function isCanonicalPage(NodeInterface $node): bool {
+    if ($node->isNew() || $this->routeMatch->getRouteName() !== 'entity.node.canonical') {
+      return FALSE;
+    }
+    $route_node = $this->routeMatch->getParameter('node');
+    if (!$route_node instanceof NodeInterface) {
+      return FALSE;
+    }
+    return (int) $route_node->id() === (int) $node->id();
   }
 
   /**
@@ -232,15 +265,22 @@ final class DetailPagePreprocessHooks {
 
     $cacheability = CacheableMetadata::createFromRenderArray($variables);
     $cacheability->addCacheableDependency($node);
-    // The subscription URLs are absolute, so they depend on the site host.
-    $cacheability->addCacheContexts(['url.site']);
-    $location = $node->hasField('field_location') ? $node->get('field_location')->entity : NULL;
-    if ($location instanceof TermInterface) {
+    // The subscription URLs are absolute, so they depend on the site host. The
+    // JSON-LD is only attached on the node's canonical route.
+    $cacheability->addCacheContexts(['url.site', 'route']);
+    $location = $this->detailFieldResolver->getLocationTerm($node);
+    if ($location !== NULL) {
       $cacheability->addCacheableDependency($location);
     }
     $organizer = $this->findOrganizer($node);
     if ($organizer !== NULL) {
       $cacheability->addCacheableDependency($organizer);
+    }
+    if ($node->bundle() === 'course') {
+      $provider = $this->structuredDataBuilder->findCourseProvider();
+      if ($provider !== NULL) {
+        $cacheability->addCacheableDependency($provider);
+      }
     }
     // The body is rendered through its text format.
     if ($node->hasField('body') && !$node->get('body')->isEmpty()) {
@@ -407,40 +447,15 @@ final class DetailPagePreprocessHooks {
    *   The location, or NULL when the node has no location.
    */
   private function buildLocation(NodeInterface $node): ?array {
-    if (!$node->hasField('field_location')) {
+    $term = $this->detailFieldResolver->getLocationTerm($node);
+    if ($term === NULL) {
       return NULL;
-    }
-    $term = $node->get('field_location')->entity;
-    if (!$term instanceof TermInterface) {
-      return NULL;
-    }
-
-    $address = '';
-    if ($term->hasField('field_address') && !$term->get('field_address')->isEmpty()) {
-      $address = trim($term->get('field_address')->getString());
-    }
-
-    $map_url = '';
-    if ($term->hasField('field_map_link') && !$term->get('field_map_link')->isEmpty()) {
-      $uri = $term->get('field_map_link')->first()?->get('uri')->getString() ?? '';
-      if ($uri !== '') {
-        try {
-          $map_url = Url::fromUri($uri)->toString();
-        }
-        catch (\InvalidArgumentException) {
-          // Fall back to the address search below.
-        }
-      }
-    }
-    if ($map_url === '' && $address !== '') {
-      $query = preg_replace('/\s*\R\s*/u', ', ', $address) ?? $address;
-      $map_url = 'https://www.openstreetmap.org/search?query=' . rawurlencode($query);
     }
 
     return [
       'name' => (string) $term->label(),
-      'address' => $address,
-      'map_url' => $map_url,
+      'address' => $this->detailFieldResolver->getAddress($term),
+      'map_url' => $this->detailFieldResolver->getMapUrl($term)?->toString() ?? '',
     ];
   }
 
@@ -454,29 +469,15 @@ final class DetailPagePreprocessHooks {
    *   The link, or NULL when the node has no link.
    */
   private function buildLink(NodeInterface $node): ?array {
-    if (!$node->hasField('field_link') || $node->get('field_link')->isEmpty()) {
+    $link = $this->detailFieldResolver->getLink($node);
+    if ($link === NULL) {
       return NULL;
     }
-    $item = $node->get('field_link')->first();
-    if ($item === NULL) {
-      return NULL;
-    }
-
-    $uri = $item->get('uri')->getString();
-    if ($uri === '') {
-      return NULL;
-    }
-    try {
-      $href = Url::fromUri($uri)->toString();
-    }
-    catch (\InvalidArgumentException) {
-      return NULL;
-    }
-
-    $title = trim($item->get('title')->getString());
     return [
-      'label' => $title === '' ? (string) $this->t('Weitere Informationen') : $title,
-      'href' => $href,
+      'label' => $link['title'] === ''
+        ? (string) $this->t('Weitere Informationen')
+        : $link['title'],
+      'href' => $link['url']->toString(),
     ];
   }
 

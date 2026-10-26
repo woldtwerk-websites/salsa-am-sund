@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\workspace_events;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\TermInterface;
@@ -19,36 +20,33 @@ final class StructuredDataBuilder {
   private const string CONTEXT = 'https://schema.org';
 
   /**
+   * The course provider term, or NULL when it has not been loaded or missing.
+   */
+  private ?TermInterface $courseProvider = NULL;
+
+  /**
+   * Whether the course provider has already been looked up.
+   */
+  private bool $courseProviderLoaded = FALSE;
+
+  /**
    * Constructs a StructuredDataBuilder.
    *
    * @param \Drupal\workspace_events\EventDescriptionFormatter $descriptionFormatter
    *   The event description formatter.
+   * @param \Drupal\workspace_events\DetailFieldResolver $detailFieldResolver
+   *   The reader of the location and link fields.
+   * @param \Drupal\workspace_events\OrganizerResolver $organizerResolver
+   *   The resolver of the fixed organizer terms.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
    */
   public function __construct(
     private readonly EventDescriptionFormatter $descriptionFormatter,
+    private readonly DetailFieldResolver $detailFieldResolver,
+    private readonly OrganizerResolver $organizerResolver,
+    private readonly EntityTypeManagerInterface $entityTypeManager,
   ) {}
-
-  /**
-   * Builds the structured data of a course or event detail page.
-   *
-   * @param \Drupal\node\NodeInterface $node
-   *   The course or event node.
-   * @param \Drupal\workspace_events\EventOccurrence[] $occurrences
-   *   The upcoming occurrences shown on the detail page.
-   *
-   * @return array<string, mixed>
-   *   The JSON-LD data, or an empty array when the page has no structured
-   *   data.
-   */
-  public function build(NodeInterface $node, array $occurrences): array {
-    if ($node->bundle() === 'event') {
-      return $this->buildEvent($node, $occurrences);
-    }
-    if ($node->bundle() === 'course') {
-      return $this->buildCourse($node, $occurrences);
-    }
-    return [];
-  }
 
   /**
    * Builds the structured data of an event page.
@@ -64,18 +62,22 @@ final class StructuredDataBuilder {
    *   The upcoming occurrences.
    *
    * @return array<string, mixed>
-   *   The JSON-LD data, or an empty array when there are no occurrences.
+   *   The JSON-LD data, or an empty array when there are no occurrences or the
+   *   node has not been saved yet.
    */
-  private function buildEvent(NodeInterface $node, array $occurrences): array {
-    if ($occurrences === []) {
+  public function buildEvent(NodeInterface $node, array $occurrences): array {
+    if ($node->isNew() || $occurrences === []) {
       return [];
     }
 
     $url = $this->getCanonicalUrl($node);
     $description = $this->descriptionFormatter->toPlainText($node);
-    $same_as = $this->getExternalLink($node);
+    $link = $this->detailFieldResolver->getLink($node);
+    $same_as = $link === NULL ? NULL : $link['url']->setAbsolute()->toString();
     $place = $this->buildPlace($node);
+    $front_url = $this->getFrontUrl();
 
+    $organizers = [];
     $events = [];
     foreach ($occurrences as $occurrence) {
       $event = [
@@ -100,7 +102,12 @@ final class StructuredDataBuilder {
       if ($place !== NULL) {
         $event['location'] = $place;
       }
-      $organizer = $this->buildOrganizer($occurrence->organizer);
+      $organizer = NULL;
+      if ($occurrence->organizer !== NULL) {
+        $tid = (int) $occurrence->organizer->id();
+        $organizers[$tid] ??= $this->buildOrganizer($occurrence->organizer, $front_url);
+        $organizer = $organizers[$tid];
+      }
       if ($organizer !== NULL) {
         $event['organizer'] = $organizer;
       }
@@ -125,9 +132,13 @@ final class StructuredDataBuilder {
    *   The upcoming occurrences.
    *
    * @return array<string, mixed>
-   *   The JSON-LD data.
+   *   The JSON-LD data, or an empty array when the node has not been saved yet.
    */
-  private function buildCourse(NodeInterface $node, array $occurrences): array {
+  public function buildCourse(NodeInterface $node, array $occurrences): array {
+    if ($node->isNew()) {
+      return [];
+    }
+
     $url = $this->getCanonicalUrl($node);
     $description = $this->descriptionFormatter->toPlainText($node);
     $place = $this->buildPlace($node);
@@ -137,8 +148,11 @@ final class StructuredDataBuilder {
       '@id' => $url . '#course',
       'name' => (string) $node->label(),
       'url' => $url,
-      'provider' => $this->buildCourseProvider(),
     ];
+    $provider = $this->buildCourseProvider();
+    if ($provider !== NULL) {
+      $course['provider'] = $provider;
+    }
     if ($description !== '') {
       $course['description'] = $description;
     }
@@ -180,31 +194,6 @@ final class StructuredDataBuilder {
    */
   private function getCanonicalUrl(NodeInterface $node): string {
     return $node->toUrl('canonical', ['absolute' => TRUE])->toString();
-  }
-
-  /**
-   * Returns the external link of a course or event.
-   *
-   * @param \Drupal\node\NodeInterface $node
-   *   The course or event node.
-   *
-   * @return string|null
-   *   The absolute external URL, or NULL when the node has no link.
-   */
-  private function getExternalLink(NodeInterface $node): ?string {
-    if (!$node->hasField('field_link') || $node->get('field_link')->isEmpty()) {
-      return NULL;
-    }
-    $uri = $node->get('field_link')->first()?->get('uri')->getString() ?? '';
-    if ($uri === '') {
-      return NULL;
-    }
-    try {
-      return Url::fromUri($uri, ['absolute' => TRUE])->toString();
-    }
-    catch (\InvalidArgumentException) {
-      return NULL;
-    }
   }
 
   /**
@@ -250,11 +239,8 @@ final class StructuredDataBuilder {
    *   The schema.org Place, or NULL when the node has no location.
    */
   private function buildPlace(NodeInterface $node): ?array {
-    if (!$node->hasField('field_location')) {
-      return NULL;
-    }
-    $term = $node->get('field_location')->entity;
-    if (!$term instanceof TermInterface) {
+    $term = $this->detailFieldResolver->getLocationTerm($node);
+    if ($term === NULL) {
       return NULL;
     }
 
@@ -263,58 +249,17 @@ final class StructuredDataBuilder {
       'name' => (string) $term->label(),
     ];
 
-    $address = $this->getLocationAddress($term);
+    $address = $this->detailFieldResolver->getAddress($term);
     if ($address !== '') {
       $place['address'] = $this->buildPostalAddress($address);
     }
 
-    $map_url = $this->getLocationMapUrl($term);
+    $map_url = $this->detailFieldResolver->getMapUrl($term);
     if ($map_url !== NULL) {
-      $place['hasMap'] = $map_url;
+      $place['hasMap'] = $map_url->setAbsolute()->toString();
     }
 
     return $place;
-  }
-
-  /**
-   * Returns the address of a location term.
-   *
-   * @param \Drupal\taxonomy\TermInterface $term
-   *   The location term.
-   *
-   * @return string
-   *   The address, or an empty string when the term has none.
-   */
-  private function getLocationAddress(TermInterface $term): string {
-    if (!$term->hasField('field_address') || $term->get('field_address')->isEmpty()) {
-      return '';
-    }
-    return trim($term->get('field_address')->getString());
-  }
-
-  /**
-   * Returns the map URL of a location term.
-   *
-   * @param \Drupal\taxonomy\TermInterface $term
-   *   The location term.
-   *
-   * @return string|null
-   *   The absolute map URL, or NULL when the term has none.
-   */
-  private function getLocationMapUrl(TermInterface $term): ?string {
-    if (!$term->hasField('field_map_link') || $term->get('field_map_link')->isEmpty()) {
-      return NULL;
-    }
-    $uri = $term->get('field_map_link')->first()?->get('uri')->getString() ?? '';
-    if ($uri === '') {
-      return NULL;
-    }
-    try {
-      return Url::fromUri($uri, ['absolute' => TRUE])->toString();
-    }
-    catch (\InvalidArgumentException) {
-      return NULL;
-    }
   }
 
   /**
@@ -367,11 +312,13 @@ final class StructuredDataBuilder {
    *
    * @param \Drupal\taxonomy\TermInterface|null $organizer
    *   The organizer term, if any.
+   * @param string $frontUrl
+   *   The absolute URL of the front page.
    *
    * @return array<string, string>|null
    *   The schema.org Organization, or NULL when the event has no organizer.
    */
-  private function buildOrganizer(?TermInterface $organizer): ?array {
+  private function buildOrganizer(?TermInterface $organizer, string $frontUrl): ?array {
     if ($organizer === NULL) {
       return NULL;
     }
@@ -381,21 +328,51 @@ final class StructuredDataBuilder {
       'name' => (string) $organizer->label(),
     ];
     if ((string) $organizer->uuid() === OrganizerResolver::SALSA_AM_SUND_UUID) {
-      $data['url'] = $this->getFrontUrl();
+      $data['url'] = $frontUrl;
     }
     return $data;
   }
 
   /**
+   * Returns the provider term of a course.
+   *
+   * The term is looked up at most once per request, so rendering several
+   * courses does not query it again.
+   *
+   * @return \Drupal\taxonomy\TermInterface|null
+   *   The "Salsa am Sund" organizer term, or NULL when it does not exist.
+   */
+  public function findCourseProvider(): ?TermInterface {
+    if ($this->courseProviderLoaded) {
+      return $this->courseProvider;
+    }
+    $this->courseProviderLoaded = TRUE;
+
+    $tid = $this->organizerResolver->id(OrganizerResolver::SALSA_AM_SUND_UUID);
+    if ($tid === NULL) {
+      return NULL;
+    }
+    $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
+    if ($term instanceof TermInterface) {
+      $this->courseProvider = $term;
+    }
+    return $this->courseProvider;
+  }
+
+  /**
    * Builds the provider of a course.
    *
-   * @return array<string, string>
-   *   The schema.org Organization.
+   * @return array<string, string>|null
+   *   The schema.org Organization, or NULL when the provider term is missing.
    */
-  private function buildCourseProvider(): array {
+  private function buildCourseProvider(): ?array {
+    $provider = $this->findCourseProvider();
+    if ($provider === NULL) {
+      return NULL;
+    }
     return [
       '@type' => 'Organization',
-      'name' => 'Salsa am Sund',
+      'name' => (string) $provider->label(),
       'url' => $this->getFrontUrl(),
     ];
   }

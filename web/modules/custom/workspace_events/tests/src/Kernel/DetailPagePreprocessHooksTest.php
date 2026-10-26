@@ -5,10 +5,17 @@ declare(strict_types=1);
 namespace Drupal\Tests\workspace_events\Kernel;
 
 use Drupal\Core\Datetime\DateFormatterInterface;
+use Drupal\Core\Routing\RouteObjectInterface;
+use Drupal\node\NodeInterface;
 use Drupal\workspace_events\Hook\DetailPagePreprocessHooks;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\Routing\Route;
 
 /**
  * Tests the data of the course and event detail pages.
@@ -67,6 +74,8 @@ final class DetailPagePreprocessHooksTest extends EventKernelTestBase {
       ],
       'field_when' => $deltas,
     ]);
+
+    $this->setRoute('entity.node.canonical', $course);
 
     $variables = [
       'node' => $course,
@@ -131,8 +140,11 @@ final class DetailPagePreprocessHooksTest extends EventKernelTestBase {
     \assert(is_array($cache));
     self::assertContains('node:' . $course->id(), $cache['tags']);
     self::assertContains('taxonomy_term:' . $location->id(), $cache['tags']);
+    // The provider of the course is the "Salsa am Sund" organizer term.
+    self::assertContains('taxonomy_term:' . $this->salsaAmSund, $cache['tags']);
     self::assertContains('config:filter.format.plain_text', $cache['tags']);
     self::assertContains('url.site', $cache['contexts']);
+    self::assertContains('route', $cache['contexts']);
 
     // The page may be cached until the next date has ended.
     $request_time = $this->container->get('datetime.time')->getRequestTime();
@@ -179,6 +191,8 @@ final class DetailPagePreprocessHooksTest extends EventKernelTestBase {
       ],
       'field_when' => $deltas,
     ]);
+
+    $this->setRoute('entity.node.canonical', $event);
 
     $variables = [
       'node' => $event,
@@ -253,6 +267,7 @@ final class DetailPagePreprocessHooksTest extends EventKernelTestBase {
     self::assertContains('taxonomy_term:' . $this->externalOrganizer, $cache['tags']);
     self::assertContains('config:filter.format.plain_text', $cache['tags']);
     self::assertContains('url.site', $cache['contexts']);
+    self::assertContains('route', $cache['contexts']);
 
     // The page may be cached until the next date has ended.
     $request_time = $this->container->get('datetime.time')->getRequestTime();
@@ -326,6 +341,61 @@ final class DetailPagePreprocessHooksTest extends EventKernelTestBase {
     ];
     $this->hooks->preprocessNode($variables);
     self::assertArrayNotHasKey('course_next_dates', $variables);
+  }
+
+  /**
+   * Tests that the JSON-LD is only attached on the node's canonical page.
+   */
+  public function testNonCanonicalRouteHasNoStructuredData(): void {
+    $start = $this->date('next wednesday', '21:00');
+    $end = $start->modify('+2 hours');
+    $event = $this->createEvent([
+      'title' => 'Salsa Night',
+      'field_when' => [$this->dateDelta($start, $end)],
+    ]);
+    $other = $this->createEvent([
+      'title' => 'Andere Party',
+      'field_when' => [$this->dateDelta($start, $end)],
+    ]);
+
+    $routes = [
+      'entity.node.preview' => $event,
+      'entity.node.canonical' => $other,
+    ];
+    foreach ($routes as $route_name => $route_node) {
+      $this->setRoute($route_name, $route_node);
+      $variables = [
+        'node' => $event,
+        'view_mode' => 'full',
+      ];
+      $this->hooks->preprocessNode($variables);
+
+      $attached = $variables['#attached'] ?? [];
+      \assert(is_array($attached));
+      self::assertArrayNotHasKey('html_head', $attached);
+    }
+  }
+
+  /**
+   * Pushes a request that makes the node the current route.
+   *
+   * @param string $routeName
+   *   The route name.
+   * @param \Drupal\node\NodeInterface $node
+   *   The node passed as the route's node parameter.
+   */
+  private function setRoute(string $routeName, NodeInterface $node): void {
+    $route = new Route('/node/{node}');
+    $request = Request::create('/node/' . $node->id());
+    $request->attributes->set(RouteObjectInterface::ROUTE_NAME, $routeName);
+    $request->attributes->set(RouteObjectInterface::ROUTE_OBJECT, $route);
+    $request->attributes->set('node', $node);
+    // KernelTestBase::tearDown() clears the session of the current request.
+    $request->setSession(new Session(new MockArraySessionStorage()));
+
+    $request_stack = $this->container->get('request_stack');
+    \assert($request_stack instanceof RequestStack);
+    $request_stack->push($request);
   }
 
   /**
