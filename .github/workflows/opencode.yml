@@ -73,7 +73,7 @@ jobs:
 
           echo "CI_DB_DUMP=$dump" >> "$GITHUB_ENV"
 
-      - uses: anomalyco/opencode/github@latest
+      - uses: anomalyco/opencode/github@77fc88c8ade8e5a620ebbe1197f3a572d29ae91a # latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           # Nobody can answer permission prompts in CI; a pending "ask" hangs the
