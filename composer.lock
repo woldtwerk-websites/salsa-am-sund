@@ -3233,17 +3233,17 @@
         },
         {
             "name": "drupal/drupal_cms_helper",
-            "version": "2.2.6",
+            "version": "2.2.7",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/drupal_cms_helper.git",
-                "reference": "2.2.6"
+                "reference": "2.2.7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/drupal_cms_helper-2.2.6.zip",
-                "reference": "2.2.6",
-                "shasum": "4b4f0922bf90bed88e240d058733ff3f330addb7"
+                "url": "https://ftp.drupal.org/files/projects/drupal_cms_helper-2.2.7.zip",
+                "reference": "2.2.7",
+                "shasum": "93f95a5e89e856c10f79273c6051f7c3774ebd67"
             },
             "require": {
                 "davereid/drupal-environment": "^1.2",
@@ -3252,8 +3252,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "2.2.6",
-                    "datestamp": "1792430429",
+                    "version": "2.2.7",
+                    "datestamp": "1792774602",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -3283,16 +3283,16 @@
         },
         {
             "name": "drupal/drupal_cms_installer",
-            "version": "2.2.6",
+            "version": "2.2.7",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/drupal_cms_installer.git",
-                "reference": "3891ee40bb52669c47721dbfcd97033c4ad42bab"
+                "reference": "70118ffddfe593d81b6b2e3a52847d03f19c01cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://git.drupalcode.org/api/v4/projects/project%2Fdrupal_cms_installer/repository/archive.zip?sha=3891ee40bb52669c47721dbfcd97033c4ad42bab",
-                "reference": "3891ee40bb52669c47721dbfcd97033c4ad42bab",
+                "url": "https://git.drupalcode.org/api/v4/projects/project%2Fdrupal_cms_installer/repository/archive.zip?sha=70118ffddfe593d81b6b2e3a52847d03f19c01cd",
+                "reference": "70118ffddfe593d81b6b2e3a52847d03f19c01cd",
                 "shasum": ""
             },
             "require": {
@@ -3307,9 +3307,9 @@
             ],
             "description": "Provides install-time tweaks for Drupal CMS. Not to be used in production.",
             "support": {
-                "source": "https://git.drupalcode.org/project/drupal_cms_installer/-/tree/2.2.6"
+                "source": "https://git.drupalcode.org/project/drupal_cms_installer/-/tree/2.2.7"
             },
-            "time": "2026-10-19T13:05:26+00:00"
+            "time": "2026-10-23T12:39:09+00:00"
         },
         {
             "name": "drupal/drupical",
@@ -3889,26 +3889,29 @@
         },
         {
             "name": "drupal/gin_login",
-            "version": "2.1.4",
+            "version": "2.1.5",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/gin_login.git",
-                "reference": "2.1.4"
+                "reference": "2.1.5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/gin_login-2.1.4.zip",
-                "reference": "2.1.4",
-                "shasum": "100b95682fa34c907acff7be527881d357bb9895"
+                "url": "https://ftp.drupal.org/files/projects/gin_login-2.1.5.zip",
+                "reference": "2.1.5",
+                "shasum": "90224c012a248953737893c6e984ac632386901d"
             },
             "require": {
-                "drupal/core": "^10.2 || ^11"
+                "drupal/core": "^10.2 || ^11 || ^12"
+            },
+            "require-dev": {
+                "drupal/gin": "^3 || ^4 || ^5"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "2.1.4",
-                    "datestamp": "1768922523",
+                    "version": "2.1.5",
+                    "datestamp": "1793033026",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -4925,17 +4928,17 @@
         },
         {
             "name": "drupal/metatag",
-            "version": "2.2.0",
+            "version": "2.2.3",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/metatag.git",
-                "reference": "2.2.0"
+                "reference": "2.2.3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/metatag-2.2.0.zip",
-                "reference": "2.2.0",
-                "shasum": "b6ae4b665a49771d5139644c71cb3d5a68cb4828"
+                "url": "https://ftp.drupal.org/files/projects/metatag-2.2.3.zip",
+                "reference": "2.2.3",
+                "shasum": "e9dae2295557c07ed688b0025e208b3e908f8b8e"
             },
             "require": {
                 "drupal/core": "^10.3 || ^11",
@@ -4943,7 +4946,9 @@
                 "php": ">=8.0"
             },
             "require-dev": {
-                "drupal/forum": "1.x-dev",
+                "drupal/diff": "*",
+                "drupal/forum": "^1.0",
+                "drupal/graphql": "^3",
                 "drupal/hal": "^1 || ^2 || ^9",
                 "drupal/metatag_dc": "*",
                 "drupal/metatag_open_graph": "*",
@@ -4955,8 +4960,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "2.2.0",
-                    "datestamp": "1758622371",
+                    "version": "2.2.3",
+                    "datestamp": "1793108775",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -6244,17 +6249,17 @@
         },
         {
             "name": "drupal/token_or",
-            "version": "2.3.2",
+            "version": "2.3.4",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/token_or.git",
-                "reference": "2.3.2"
+                "reference": "2.3.4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/token_or-2.3.2.zip",
-                "reference": "2.3.2",
-                "shasum": "a2ed893d2a538b7721a1ac12a23b7a9baeec44ad"
+                "url": "https://ftp.drupal.org/files/projects/token_or-2.3.4.zip",
+                "reference": "2.3.4",
+                "shasum": "5fe02b635d6935522a237e75523fe4d93bb1fc64"
             },
             "require": {
                 "drupal/core": "^9.2 || ^10 || ^11",
@@ -6266,8 +6271,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "2.3.2",
-                    "datestamp": "1748360075",
+                    "version": "2.3.4",
+                    "datestamp": "1793105851",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -6300,17 +6305,17 @@
         },
         {
             "name": "drupal/trash",
-            "version": "3.1.1",
+            "version": "3.1.2",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/trash.git",
-                "reference": "3.1.1"
+                "reference": "3.1.2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/trash-3.1.1.zip",
-                "reference": "3.1.1",
-                "shasum": "d7b28419ca204732df10d2a166fdfcb0f17faa1a"
+                "url": "https://ftp.drupal.org/files/projects/trash-3.1.2.zip",
+                "reference": "3.1.2",
+                "shasum": "c25cf14a3b041bc7ed987c6069d5e06623081675"
             },
             "require": {
                 "drupal/core": "^11.3.3 | ^12"
@@ -6332,8 +6337,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "3.1.1",
-                    "datestamp": "1791893108",
+                    "version": "3.1.2",
+                    "datestamp": "1792828492",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -12862,7 +12867,7 @@
             "dist": {
                 "type": "path",
                 "url": "misc/scaffold",
-                "reference": "4c37169026da6da1199b7d795c4d4755e770f5e4"
+                "reference": "96890cd836ad20c3d1cab5a9c8c5ef5ce0cfe91c"
             },
             "type": "library",
             "extra": {
@@ -12980,6 +12985,10 @@
                             "path": "assets/.vscode/tasks.json",
                             "overwrite": false
                         },
+                        "[project-root]/drush/Commands/CiSnapshotCommands.php": {
+                            "path": "assets/drush/Commands/CiSnapshotCommands.php",
+                            "overwrite": true
+                        },
                         "[project-root]/drush/drush.yml": {
                             "path": "assets/drush/drush.yml",
                             "overwrite": true
@@ -12990,6 +12999,18 @@
                         },
                         "[project-root]/jsconfig.json": {
                             "path": "assets/jsconfig.json",
+                            "overwrite": true
+                        },
+                        "[project-root]/misc/snapshot/ci-snapshot-dispatch.sh": {
+                            "path": "assets/misc/snapshot/ci-snapshot-dispatch.sh",
+                            "overwrite": true
+                        },
+                        "[project-root]/misc/snapshot/ci-snapshot.sh": {
+                            "path": "assets/misc/snapshot/ci-snapshot.sh",
+                            "overwrite": true
+                        },
+                        "[project-root]/misc/snapshot/sanitize.sql": {
+                            "path": "assets/misc/snapshot/sanitize.sql",
                             "overwrite": true
                         },
                         "[project-root]/package.json": {
