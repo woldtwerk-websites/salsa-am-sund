@@ -9,11 +9,12 @@ on:
 permissions:
   contents: read
 
-# Not cancel-in-progress: a cancelled promote could leave production a commit
-# behind main without anyone noticing.
+# A newer push to main supersedes a running promote: it fast-forwards production
+# to a commit that contains the older one. Grouped by ref, so a manual run from
+# another branch (which never promotes) cannot cancel the one from main.
 concurrency:
-  group: promote-production
-  cancel-in-progress: false
+  group: promote-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   ci:
