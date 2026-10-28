@@ -12862,7 +12862,7 @@
             "dist": {
                 "type": "path",
                 "url": "misc/scaffold",
-                "reference": "4c37169026da6da1199b7d795c4d4755e770f5e4"
+                "reference": "96890cd836ad20c3d1cab5a9c8c5ef5ce0cfe91c"
             },
             "type": "library",
             "extra": {
@@ -12980,6 +12980,10 @@
                             "path": "assets/.vscode/tasks.json",
                             "overwrite": false
                         },
+                        "[project-root]/drush/Commands/CiSnapshotCommands.php": {
+                            "path": "assets/drush/Commands/CiSnapshotCommands.php",
+                            "overwrite": true
+                        },
                         "[project-root]/drush/drush.yml": {
                             "path": "assets/drush/drush.yml",
                             "overwrite": true
@@ -12990,6 +12994,18 @@
                         },
                         "[project-root]/jsconfig.json": {
                             "path": "assets/jsconfig.json",
+                            "overwrite": true
+                        },
+                        "[project-root]/misc/snapshot/ci-snapshot-dispatch.sh": {
+                            "path": "assets/misc/snapshot/ci-snapshot-dispatch.sh",
+                            "overwrite": true
+                        },
+                        "[project-root]/misc/snapshot/ci-snapshot.sh": {
+                            "path": "assets/misc/snapshot/ci-snapshot.sh",
+                            "overwrite": true
+                        },
+                        "[project-root]/misc/snapshot/sanitize.sql": {
+                            "path": "assets/misc/snapshot/sanitize.sql",
                             "overwrite": true
                         },
                         "[project-root]/package.json": {
@@ -14141,11 +14157,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.3.1",
+            "version": "2.3.3",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/6155239b488e95d26d1ebd95c6b4bb294d7f09db",
-                "reference": "6155239b488e95d26d1ebd95c6b4bb294d7f09db",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/4b57dc8ca7456b635d1661845f44bc060b02c6b0",
+                "reference": "4b57dc8ca7456b635d1661845f44bc060b02c6b0",
                 "shasum": ""
             },
             "require": {
@@ -14201,7 +14217,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-08T21:09:11+00:00"
+            "time": "2026-10-27T14:06:26+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
