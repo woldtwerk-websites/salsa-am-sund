@@ -19,3 +19,5 @@ jobs:
       db-ssh-known-hosts: ${{ vars.DB_SNAPSHOT_KNOWN_HOSTS }}
     secrets:
       db-snapshot-key: ${{ secrets.DB_SNAPSHOT_KEY }}
+      # Lets CI push config changed by update hooks to Renovate PRs.
+      config-push-token: ${{ secrets.CONFIG_PUSH_TOKEN }}
