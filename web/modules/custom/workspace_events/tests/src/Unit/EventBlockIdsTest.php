@@ -4,13 +4,20 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\workspace_events\Unit;
 
+use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Tests\UnitTestCase;
 use Drupal\text\TextSummary;
+use Drupal\workspace_events\DetailFieldResolver;
 use Drupal\workspace_events\EventDescriptionFormatter;
 use Drupal\workspace_events\EventOccurrenceRepository;
+use Drupal\workspace_events\LessonCourseResolver;
 use Drupal\workspace_events\Plugin\Block\EventBlockBase;
+use Drupal\workspace_events\SiteTimeZone;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -108,13 +115,19 @@ final class EventBlockIdsTest extends UnitTestCase {
    */
   private function block(array $configuration): EventBlockBase {
     $entity_type_manager = $this->createMock(EntityTypeManagerInterface::class);
-    $repository = new EventOccurrenceRepository($entity_type_manager);
+    $repository = new EventOccurrenceRepository(
+      $entity_type_manager,
+      $this->siteTimeZone(),
+      new LessonCourseResolver($entity_type_manager),
+      $this->createMock(Connection::class),
+      $this->createMock(TimeInterface::class),
+    );
     $formatter = new EventDescriptionFormatter(
       $this->createMock(RendererInterface::class),
       new TextSummary($entity_type_manager),
     );
 
-    return new class($configuration, 'test', ['provider' => 'workspace_events'], $repository, $entity_type_manager, $formatter) extends EventBlockBase {
+    return new class($configuration, 'test', ['provider' => 'workspace_events'], $repository, $entity_type_manager, $formatter, new DetailFieldResolver()) extends EventBlockBase {
 
       /**
        * {@inheritdoc}
@@ -150,6 +163,20 @@ final class EventBlockIdsTest extends UnitTestCase {
       }
 
     };
+  }
+
+  /**
+   * Builds the site timezone service for the test.
+   *
+   * @return \Drupal\workspace_events\SiteTimeZone
+   *   The timezone service.
+   */
+  private function siteTimeZone(): SiteTimeZone {
+    $config = $this->createMock(ImmutableConfig::class);
+    $config->method('get')->with('timezone.default')->willReturn('UTC');
+    $config_factory = $this->createMock(ConfigFactoryInterface::class);
+    $config_factory->method('get')->with('system.date')->willReturn($config);
+    return new SiteTimeZone($config_factory, $this->createMock(TimeInterface::class));
   }
 
 }

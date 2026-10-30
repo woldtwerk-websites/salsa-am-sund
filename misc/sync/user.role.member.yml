@@ -1,0 +1,17 @@
+uuid: 807e9e50-d6ac-4429-94ef-b147b7f9360b
+langcode: de
+status: true
+dependencies:
+  module:
+    - flag
+    - workspace_events
+id: member
+label: Mitglied
+weight: 2
+is_admin: false
+permissions:
+  - 'flag learned'
+  - 'flag like'
+  - 'unflag learned'
+  - 'unflag like'
+  - 'view dance figures'

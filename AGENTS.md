@@ -45,6 +45,10 @@ DDEV project config lives in `.ddev/config.yaml`. Use `.ddev/config.local.yaml` 
 
 ## Common Drupal workflows
 
+- Start every feature that changes data or config with a database snapshot, e.g.
+  `ddev snapshot --name <feature>`, so you can roll back with `ddev snapshot restore <feature>`.
+  A `post-restore-snapshot` hook in `.ddev/config.yaml` starts FrankenPHP again after a restore. If the
+  site still answers 502 Bad Gateway, run `ddev exec supervisorctl start webextradaemons:frankenphp`.
 - Add a module with `ddev composer require drupal/<project>`, then `ddev drush pm:enable --yes <module_machine_name>`, then `ddev drush cache:rebuild`.
 - Apply database updates after code changes with `ddev drush updatedb --yes`.
 - Import repository configuration into the site with `ddev drush config:import --yes`.
@@ -70,10 +74,35 @@ or data structure and propose a better solution.
 
 ## Testing
 
-Only test what matters: the custom logic in this repo.
+Only test what matters: the custom logic in this repo. Write few tests.
+
+- Before adding a test, name the bug it would catch that no existing test catches. If you can't,
+  don't write it.
+- Prefer one test that covers a scenario end to end over several small ones. A feature usually
+  needs a handful of test methods, not dozens.
+- Don't add a test per edge case by default; cover an edge case only where your code branches on it
+  and getting it wrong would hurt (privacy, data loss, wrong dates).
+- When you touch existing tests, delete the ones that no longer catch anything.
 
 - Don't test Drupal core, contributed modules or other third-party code.
 - Don't write UI tests (no browser, rendering or markup tests).
+- Test risks, not config. Worth a test: date and schedule calculation, data migrations, access and
+  privacy rules, parsing/matching logic, output of public interfaces (iCal, JSON, structured data).
+  Not worth a test: that shipped config exists or has certain values (fields, displays, labels,
+  permissions in role YAML), behaviour of Drupal or contrib (Flag storing a flagging per user, a
+  permission check of core), or that a service is wired in the container.
+- Installers and update hooks: one test for the risky part (e.g. UUIDs from the sync storage are
+  kept, data is migrated correctly), not one per config item.
+- During development, run only the tests you created or changed. Run the whole suite
+  (`ddev composer test`) once, when the feature is done.
+- Run single test files with `--file` (`--class` fails here, because test discovery trips over a contrib test):
+  `ddev exec -d /var/www/html/web php core/scripts/run-tests.sh --sqlite /tmp/rt.sqlite --dburl mysql://db:db@db/db --url http://localhost --suppress-deprecations --non-html --concurrency 4 --file modules/custom/<module>/tests/src/Kernel/FooTest.php,modules/custom/<module>/tests/src/Unit/BarTest.php`
+  Pass all changed test files comma-separated in one call with `--concurrency 4`, not one call per file.
+- Keep kernel tests cheap, because each test method installs its modules again:
+  - Pure logic (date calculation, parsing, matching, formatting) goes into unit tests.
+  - Kernel tests extend the lightest base class that covers them and install only the modules and
+    config they need. The full base with Canvas is only for tests of Canvas components.
+  - Group the assertions for one scenario into one test method instead of one method per assertion.
 
 ## Writing Drupal code: checklist
 
@@ -88,6 +117,9 @@ Before you write code:
   build it custom anyway, say why in the PR body. Don't add a dependency without asking.
 - Don't hardcode content that lives in the database (term or node labels, the site name). Load the
   entity (e.g. by the UUID constants in `OrganizerResolver`) and add it as a cache dependency.
+- Write code in English: identifiers, comments, docblocks, exception and log messages, and the
+  source strings of `t()`/`$this->t()`/`|t`. German UI text belongs in the translations
+  (`translations/de.po`), not in the code.
 
 Every render-time code path must handle:
 
@@ -106,8 +138,8 @@ Efficiency:
   Memoize lookups per request in the service.
 - Don't branch on the same condition in both caller and callee; call the specific method directly.
 
-Tests: cover each edge case above that applies to your change (unsaved entity, other route, missing
-referenced entity), not only the happy path.
+Tests: cover an edge case above (unsaved entity, other route, missing referenced entity) only where
+your code branches on it, following the "Write few tests" rules under Testing.
 
 Before you open the PR, re-read your whole diff as a reviewer and fix what this checklist finds. In the
 PR body, list the edge cases you handled and the design decisions you made (e.g. contrib vs. custom).

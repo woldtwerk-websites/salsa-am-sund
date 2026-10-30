@@ -1,0 +1,15 @@
+uuid: 6cbe4122-5f1c-4824-9523-b0993d90bb26
+langcode: de
+status: true
+dependencies:
+  config:
+    - flag.flag.learned
+  module:
+    - flag
+id: flag_action.learned_flag
+label: 'Als gelernt markieren'
+type: taxonomy_term
+plugin: 'flag_action:learned_flag'
+configuration:
+  flag_id: learned
+  flag_action: flag

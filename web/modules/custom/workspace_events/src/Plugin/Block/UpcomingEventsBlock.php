@@ -51,6 +51,7 @@ final class UpcomingEventsBlock extends EventBlockBase {
   public function blockForm($form, FormStateInterface $form_state): array {
     $form['organizers'] = [
       '#type' => 'checkboxes',
+      '#value_callback' => [static::class, 'checkboxesValue'],
       '#title' => $this->t('Organizers'),
       '#description' => $this->t('Leave empty to show all organizers.'),
       '#options' => $this->getOrganizerOptions(),

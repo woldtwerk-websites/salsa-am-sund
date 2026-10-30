@@ -8,13 +8,11 @@
 declare(strict_types=1);
 
 use Drupal\user\Entity\Role;
-use Drupal\workflows\Entity\Workflow;
 
 /**
  * Implements hook_install().
  */
 function workspace_gallery_install(bool $is_syncing = FALSE): void {
-  workspace_gallery_add_gallery_to_workflow();
   workspace_gallery_grant_editor_permissions();
 }
 
@@ -22,52 +20,7 @@ function workspace_gallery_install(bool $is_syncing = FALSE): void {
  * Implements hook_uninstall().
  */
 function workspace_gallery_uninstall(): void {
-  workspace_gallery_remove_gallery_from_workflow();
   workspace_gallery_revoke_editor_permissions();
-}
-
-/**
- * Adds the gallery bundle to the basic editorial workflow.
- */
-function workspace_gallery_add_gallery_to_workflow(): void {
-  $workflow = Workflow::load('basic_editorial');
-  if ($workflow === NULL) {
-    return;
-  }
-  $plugin = $workflow->getTypePlugin();
-  $configuration = $plugin->getConfiguration();
-  $entity_types = (array) ($configuration['entity_types'] ?? []);
-  $bundles = isset($entity_types['node']) && is_array($entity_types['node']) ? $entity_types['node'] : [];
-  if (in_array('gallery', $bundles, TRUE)) {
-    return;
-  }
-  $bundles[] = 'gallery';
-  $entity_types['node'] = array_values($bundles);
-  $configuration['entity_types'] = $entity_types;
-  $plugin->setConfiguration($configuration);
-  $workflow->save();
-}
-
-/**
- * Removes the gallery bundle from the basic editorial workflow.
- */
-function workspace_gallery_remove_gallery_from_workflow(): void {
-  $workflow = Workflow::load('basic_editorial');
-  if ($workflow === NULL) {
-    return;
-  }
-  $plugin = $workflow->getTypePlugin();
-  $configuration = $plugin->getConfiguration();
-  $entity_types = (array) ($configuration['entity_types'] ?? []);
-  $bundles = isset($entity_types['node']) && is_array($entity_types['node']) ? $entity_types['node'] : [];
-  if (!in_array('gallery', $bundles, TRUE)) {
-    return;
-  }
-  $bundles = array_values(array_filter($bundles, static fn (mixed $bundle): bool => $bundle !== 'gallery'));
-  $entity_types['node'] = $bundles;
-  $configuration['entity_types'] = $entity_types;
-  $plugin->setConfiguration($configuration);
-  $workflow->save();
 }
 
 /**

@@ -7,21 +7,28 @@
 
 declare(strict_types=1);
 
+use Drupal\Core\Field\DeletedFieldsRepositoryInterface;
+use Drupal\Core\Field\FieldPurger;
+use Drupal\Core\Utility\UpdateException;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\node\NodeAccessRebuild;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\user\Entity\Role;
-use Drupal\workflows\Entity\Workflow;
+use Drupal\workspace_events\AttendanceRecognition;
+use Drupal\workspace_events\CourseDifficultyMigrator;
+use Drupal\workspace_events\DanceFigureFlag;
+use Drupal\workspace_events\Hook\DanceFigureAccessHooks;
+use Drupal\workspace_events\LessonGenerator;
+use Drupal\workspace_events\LessonInstaller;
 use Drupal\workspace_events\OrganizerResolver;
+use Drupal\workspace_events\ScheduleMigrator;
 
 /**
  * Implements hook_install().
  */
 function workspace_events_install(bool $is_syncing = FALSE): void {
-  foreach (workspace_events_node_bundles() as $bundle) {
-    workspace_events_set_bundle_in_workflow($bundle, TRUE);
-  }
   workspace_events_ensure_organizer_vocabulary();
   if (!$is_syncing) {
     // While modules are being installed from configuration (site install,
@@ -36,10 +43,8 @@ function workspace_events_install(bool $is_syncing = FALSE): void {
  * Implements hook_uninstall().
  */
 function workspace_events_uninstall(): void {
-  foreach (workspace_events_node_bundles() as $bundle) {
-    workspace_events_set_bundle_in_workflow($bundle, FALSE);
-  }
   workspace_events_revoke_editor_permissions();
+  workspace_events_revoke_flag_permissions();
 }
 
 /**
@@ -75,6 +80,240 @@ function workspace_events_update_10002(): void {
  */
 function workspace_events_update_10003(): void {
   workspace_events_rename_external_organizer();
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Replaces the free-text course level with the shared difficulty scale and
+ * migrates the existing course values.
+ */
+function workspace_events_update_10004(): void {
+  $migrator = \Drupal::service(CourseDifficultyMigrator::class);
+  \assert($migrator instanceof CourseDifficultyMigrator);
+  $migrator->migrate();
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Adds the lesson bundle, the course and event date fields and the lesson
+ * fields, migrates the existing Smart Date series and generates the lessons.
+ *
+ * Courses keep their lessons. Events keep the whole Smart Date series: every
+ * delta of the legacy field is copied to the new recurring event date field
+ * and the recurrence rules of the events are pointed at it.
+ */
+function workspace_events_update_10007(): ?string {
+  $modules = array_values(array_filter(
+    ['datetime_range', 'smart_date', 'smart_date_recur'],
+    static fn (string $module): bool => !\Drupal::moduleHandler()->moduleExists($module),
+  ));
+  if ($modules !== []) {
+    \Drupal::service('module_installer')->install($modules);
+  }
+
+  $installer = \Drupal::service(LessonInstaller::class);
+  \assert($installer instanceof LessonInstaller);
+  $installer->install();
+
+  // The site's ECA model adds every new content type to the editorial
+  // workflow. Lessons are not moderated, so remove the new bundle again
+  // before the lessons are generated.
+  workspace_events_set_bundle_in_workflow('lesson', FALSE);
+
+  $migrator = \Drupal::service(ScheduleMigrator::class);
+  \assert($migrator instanceof ScheduleMigrator);
+  $message = $migrator->migrate();
+
+  // Lessons redirect to their course and must not have a URL alias. The
+  // generator already skips Pathauto, but the old pattern may have created
+  // aliases before this update, so remove them in batches as well.
+  workspace_events_delete_lesson_aliases();
+
+  // The module now implements node grants, so every node needs its grant
+  // records: the lessons get theirs, all other bundles get the default grant.
+  \Drupal::service(NodeAccessRebuild::class)->rebuild();
+
+  return $message === '' ? NULL : $message;
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Removes the legacy Smart Date field from courses and events.
+ *
+ * The schedule migration of update 10007 runs first because update hooks run
+ * in number order. It copied the event series to the recurring event date
+ * field and the course schedule to the lesson fields, so only the legacy field
+ * and the course rules that belonged to it can go. The Smart Date modules and
+ * the recurrence rules of the events stay installed.
+ */
+function workspace_events_update_10010(): void {
+  foreach (['node.course.field_when', 'node.event.field_when'] as $name) {
+    $field = FieldConfig::load($name);
+    if ($field !== NULL) {
+      $field->delete();
+    }
+  }
+
+  $storage = FieldStorageConfig::loadByName('node', 'field_when');
+  if ($storage !== NULL) {
+    $storage->delete();
+  }
+
+  // The field data is deleted in batches, so a large site does not run out of
+  // memory.
+  workspace_events_purge_deleted_fields();
+
+  // The course rules belonged to the removed legacy field. Deleting a rule also
+  // deletes its overrides. The event rules now belong to the recurring event
+  // date field and are kept.
+  workspace_events_delete_course_date_rules();
+}
+
+/**
+ * Deletes the Smart Date rules that belonged to the legacy course field.
+ */
+function workspace_events_delete_course_date_rules(): void {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  if (!$entity_type_manager->hasDefinition('smart_date_rule')) {
+    return;
+  }
+  $storage = $entity_type_manager->getStorage('smart_date_rule');
+  $ids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('entity_type', 'node')
+    ->condition('bundle', 'course')
+    ->condition('field_name', ScheduleMigrator::LEGACY_FIELD_NAME)
+    ->execute();
+  if ($ids === []) {
+    return;
+  }
+  $storage->delete($storage->loadMultiple($ids));
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Removes content moderation from the site.
+ *
+ * The editorial workflow only moderated the page content type and none of the
+ * pages has an unpublished draft, so no draft revision is lost. The ECA model
+ * that added new content types to the workflow, the moderation state entities
+ * and the workflow itself have to go before the modules can be uninstalled.
+ */
+function workspace_events_update_10013(): void {
+  $entity_type_manager = \Drupal::entityTypeManager();
+
+  if ($entity_type_manager->hasDefinition('eca')) {
+    $model = $entity_type_manager->getStorage('eca')->load('auto_enable_moderation');
+    if ($model !== NULL) {
+      $model->delete();
+    }
+  }
+
+  // Content moderation cannot be uninstalled while moderation state entities
+  // exist.
+  workspace_events_delete_entities('content_moderation_state');
+
+  if ($entity_type_manager->hasDefinition('workflow')) {
+    $workflow = $entity_type_manager->getStorage('workflow')->load('basic_editorial');
+    if ($workflow !== NULL) {
+      $workflow->delete();
+    }
+  }
+
+  $installed = array_values(array_filter(
+    ['scheduler_content_moderation_integration', 'content_moderation', 'workflows'],
+    static fn (string $module): bool => \Drupal::moduleHandler()->moduleExists($module),
+  ));
+  if ($installed !== []) {
+    $uninstalled = \Drupal::service('module_installer')->uninstall($installed);
+    if ($uninstalled === FALSE) {
+      throw new UpdateException(sprintf('The modules %s could not be uninstalled.', implode(', ', $installed)));
+    }
+  }
+}
+
+/**
+ * Deletes and purges all removed field definitions.
+ *
+ * The field data is deleted in batches, so a large site does not run out of
+ * memory. field_purge_batch() is deprecated in Drupal 11.4; the purger is the
+ * same operation without the deprecation.
+ */
+function workspace_events_purge_deleted_fields(): void {
+  $purger = \Drupal::service(FieldPurger::class);
+  \assert($purger instanceof FieldPurger);
+  $repository = \Drupal::service('entity_field.deleted_fields_repository');
+  \assert($repository instanceof DeletedFieldsRepositoryInterface);
+  for ($i = 0; $i < 100; $i++) {
+    if ($repository->getFieldDefinitions() === [] && $repository->getFieldStorageDefinitions() === []) {
+      break;
+    }
+    $purger->purgeBatch(50);
+  }
+}
+
+/**
+ * Deletes the URL aliases of all lesson nodes in batches.
+ *
+ * Lessons redirect to their course, so a /node/{nid} alias must not exist.
+ * The alias paths are matched in chunks, which avoids one query per lesson.
+ */
+function workspace_events_delete_lesson_aliases(): void {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  if (!$entity_type_manager->hasDefinition('path_alias')) {
+    return;
+  }
+
+  $lesson_ids = $entity_type_manager->getStorage('node')->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', LessonGenerator::LESSON_BUNDLE)
+    ->execute();
+  if ($lesson_ids === []) {
+    return;
+  }
+
+  $alias_storage = $entity_type_manager->getStorage('path_alias');
+  foreach (array_chunk(array_map(static fn (mixed $id): int => (int) $id, array_values($lesson_ids)), 100) as $chunk) {
+    $paths = array_map(static fn (int $id): string => '/node/' . $id, $chunk);
+    $alias_ids = $alias_storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('path', $paths, 'IN')
+      ->execute();
+    if ($alias_ids !== []) {
+      $alias_storage->delete($alias_storage->loadMultiple($alias_ids));
+    }
+  }
+}
+
+/**
+ * Deletes all content entities of an entity type in chunks.
+ *
+ * Used by the update hooks to remove entities before the module that provides
+ * them is uninstalled.
+ *
+ * @param string $entity_type_id
+ *   The entity type ID, for example "content_moderation_state".
+ */
+function workspace_events_delete_entities(string $entity_type_id): void {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  if (!$entity_type_manager->hasDefinition($entity_type_id)) {
+    return;
+  }
+  $storage = $entity_type_manager->getStorage($entity_type_id);
+  do {
+    $ids = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->range(0, 50)
+      ->execute();
+    if ($ids === []) {
+      break;
+    }
+    $storage->delete($storage->loadMultiple($ids));
+  } while (TRUE);
 }
 
 /**
@@ -191,20 +430,11 @@ function workspace_events_ensure_organizer_field(): void {
 }
 
 /**
- * Returns the node bundles managed by this module.
- *
- * @return string[]
- *   The node bundle machine names.
- */
-function workspace_events_node_bundles(): array {
-  return ['event', 'course'];
-}
-
-/**
  * Adds or removes a node bundle from the basic editorial workflow.
  *
- * Idempotent: nothing is saved when the workflow is missing or already has the
- * requested state.
+ * Does nothing when the Workflows module has been uninstalled. Idempotent:
+ * nothing is saved when the workflow is missing or already has the requested
+ * state.
  *
  * @param string $bundle
  *   The node bundle machine name.
@@ -212,7 +442,14 @@ function workspace_events_node_bundles(): array {
  *   TRUE to add the bundle to the workflow, FALSE to remove it.
  */
 function workspace_events_set_bundle_in_workflow(string $bundle, bool $include): void {
-  $workflow = Workflow::load('basic_editorial');
+  if (!\Drupal::moduleHandler()->moduleExists('workflows')) {
+    return;
+  }
+  $entity_type_manager = \Drupal::entityTypeManager();
+  if (!$entity_type_manager->hasDefinition('workflow')) {
+    return;
+  }
+  $workflow = $entity_type_manager->getStorage('workflow')->load('basic_editorial');
   if ($workflow === NULL) {
     return;
   }
@@ -252,8 +489,15 @@ function workspace_events_editor_permissions(): array {
     'create terms in organizer',
     'edit terms in organizer',
     'delete terms in organizer',
+    'create terms in dance_figure',
+    'edit terms in dance_figure',
+    'delete terms in dance_figure',
     'access taxonomy overview',
+    'edit any lesson content',
+    'delete any lesson content',
     'make smart dates recur',
+    DanceFigureAccessHooks::VIEW_PERMISSION,
+    AttendanceRecognition::PERMISSION,
   ];
 }
 
@@ -281,6 +525,22 @@ function workspace_events_revoke_editor_permissions(): void {
   }
   foreach (workspace_events_editor_permissions() as $permission) {
     $role->revokePermission($permission);
+  }
+  $role->save();
+}
+
+/**
+ * Revokes the dance figure flag permissions from the member role.
+ */
+function workspace_events_revoke_flag_permissions(): void {
+  $role = Role::load('member');
+  if ($role === NULL) {
+    return;
+  }
+  foreach (DanceFigureFlag::cases() as $flag) {
+    foreach ($flag->permissions() as $permission) {
+      $role->revokePermission($permission);
+    }
   }
   $role->save();
 }

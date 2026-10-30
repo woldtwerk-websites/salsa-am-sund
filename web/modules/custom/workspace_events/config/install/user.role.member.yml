@@ -1,0 +1,16 @@
+langcode: de
+status: true
+dependencies:
+  module:
+    - flag
+    - workspace_events
+id: member
+label: Mitglied
+weight: 2
+is_admin: false
+permissions:
+  - 'flag learned'
+  - 'flag like'
+  - 'unflag learned'
+  - 'unflag like'
+  - 'view dance figures'

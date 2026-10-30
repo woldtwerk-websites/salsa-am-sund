@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\workspace_events\Unit;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Cache\Context\CacheContextsManager;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Database\Query\SelectInterface;
+use Drupal\Core\Database\StatementInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
@@ -12,7 +18,9 @@ use Drupal\Tests\UnitTestCase;
 use Drupal\workspace_events\Controller\EventsJsonController;
 use Drupal\workspace_events\EventFilterFactory;
 use Drupal\workspace_events\EventOccurrenceRepository;
+use Drupal\workspace_events\LessonCourseResolver;
 use Drupal\workspace_events\OrganizerLookupInterface;
+use Drupal\workspace_events\SiteTimeZone;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -83,6 +91,7 @@ final class EventsJsonControllerTest extends UnitTestCase {
     $query = $this->createMock(QueryInterface::class);
     $query->method('accessCheck')->willReturnSelf();
     $query->method('condition')->willReturnSelf();
+    $query->method('sort')->willReturnSelf();
     $query->method('execute')->willReturn([]);
 
     $storage = $this->createMock(EntityStorageInterface::class);
@@ -91,10 +100,42 @@ final class EventsJsonControllerTest extends UnitTestCase {
     $entity_type_manager = $this->createMock(EntityTypeManagerInterface::class);
     $entity_type_manager->method('getStorage')->with('node')->willReturn($storage);
 
+    $statement = $this->createMock(StatementInterface::class);
+    $statement->method('fetchAll')->willReturn([]);
+    $select = $this->createMock(SelectInterface::class);
+    $select->method('join')->willReturnSelf();
+    $select->method('addField')->willReturnSelf();
+    $select->method('condition')->willReturnSelf();
+    $select->method('orderBy')->willReturnSelf();
+    $select->method('range')->willReturnSelf();
+    $select->method('execute')->willReturn($statement);
+    $connection = $this->createMock(Connection::class);
+    $connection->method('select')->willReturn($select);
+
     return new EventsJsonController(
-      new EventOccurrenceRepository($entity_type_manager),
+      new EventOccurrenceRepository(
+        $entity_type_manager,
+        $this->siteTimeZone(),
+        new LessonCourseResolver($entity_type_manager),
+        $connection,
+        $this->createMock(TimeInterface::class),
+      ),
       new EventFilterFactory($this->createMock(OrganizerLookupInterface::class)),
     );
+  }
+
+  /**
+   * Builds the site timezone service for the test.
+   *
+   * @return \Drupal\workspace_events\SiteTimeZone
+   *   The timezone service.
+   */
+  private function siteTimeZone(): SiteTimeZone {
+    $config = $this->createMock(ImmutableConfig::class);
+    $config->method('get')->with('timezone.default')->willReturn('UTC');
+    $config_factory = $this->createMock(ConfigFactoryInterface::class);
+    $config_factory->method('get')->with('system.date')->willReturn($config);
+    return new SiteTimeZone($config_factory, $this->createMock(TimeInterface::class));
   }
 
   /**

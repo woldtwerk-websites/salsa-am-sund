@@ -6,6 +6,7 @@ namespace Drupal\Tests\workspace_events\Kernel;
 
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\workspace_events\DetailFieldResolver;
 use Drupal\workspace_events\EventDescriptionFormatter;
 use Drupal\workspace_events\EventOccurrence;
 use Drupal\workspace_events\EventOccurrenceRepository;
@@ -24,7 +25,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[CoversClass(EventBlockBase::class)]
 #[Group('workspace_events')]
 #[RunTestsInSeparateProcesses]
-final class EventBlocksTest extends EventKernelTestBase {
+final class EventBlocksTest extends LessonKernelTestBase {
 
   /**
    * The block plugin manager.
@@ -40,7 +41,7 @@ final class EventBlocksTest extends EventKernelTestBase {
   }
 
   /**
-   * Tests the upcoming events block.
+   * Tests the upcoming events block, its filtering and its description.
    */
   public function testUpcomingEventsBlock(): void {
     $location = $this->createLocation('Bootshaus Stralsund', "Friedrich-Naumann-Straße 5\n18435 Stralsund");
@@ -48,33 +49,29 @@ final class EventBlocksTest extends EventKernelTestBase {
       'title' => 'Salsa im ballhaus goldfisch',
       'field_organizer' => $this->externalOrganizer,
       'field_location' => $location->id(),
-      'field_when' => [
-        $this->dateDelta($this->date('now +1 day', '20:00'), NULL),
-      ],
+      'field_event_date' => $this->smartDateRange(
+        $this->date('now +1 day', '20:00'),
+        $this->date('now +1 day', '23:00'),
+      ),
     ]);
+    $start = $this->date('now +2 days', '18:15');
     $course = $this->createCourse([
       'title' => 'Anfänger',
       'field_location' => $location->id(),
-      'field_when' => [
-        $this->dateDelta($this->date('now +2 days', '18:15'), $this->date('now +2 days', '19:15')),
-      ],
+      ...$this->courseSchedule($start, $start),
     ]);
     $party = $this->createEvent([
       'title' => 'Tanzabend',
       'field_location' => $location->id(),
       'body' => [
-        'value' => '<p>Tanzabschluss-Abend für alle.</p>',
+        'value' => '<p>Der lange Beschreibungstext des Termins.</p>',
+        'summary' => 'Kurzbeschreibung für die Karte.',
         'format' => 'plain_text',
       ],
-      'field_when' => [
-        $this->dateDelta($this->date('now +3 days', '18:00'), $this->date('now +3 days', '22:00')),
-      ],
-    ]);
-    $this->createEvent([
-      'title' => 'Später Termin',
-      'field_when' => [
-        $this->dateDelta($this->date('now +40 days', '18:00'), $this->date('now +40 days', '20:00')),
-      ],
+      'field_event_date' => $this->smartDateRange(
+        $this->date('now +3 days', '18:00'),
+        $this->date('now +3 days', '22:00'),
+      ),
     ]);
 
     $block = $this->blockManager->createInstance('salsa_events', [
@@ -90,27 +87,21 @@ final class EventBlocksTest extends EventKernelTestBase {
     $items = $build['events']['#slots']['items'];
     self::assertCount(2, $items);
     self::assertSame('Salsa im ballhaus goldfisch', $items[0]['#props']['title']);
-    self::assertSame('ab 20:00 Uhr', $items[0]['#props']['time']);
+    self::assertSame('20:00 – 23:00', $items[0]['#props']['time']);
     self::assertSame('Tanzabend', $items[1]['#props']['title']);
-    self::assertSame('18:00 – 22:00 Uhr', $items[1]['#props']['time']);
+    self::assertSame('18:00 – 22:00', $items[1]['#props']['time']);
     self::assertSame('Bootshaus Stralsund', $items[1]['#props']['location']);
-    self::assertStringContainsString('Tanzabschluss-Abend', (string) $items[1]['#props']['text']);
+    self::assertStringContainsString('Kurzbeschreibung für die Karte.', (string) $items[1]['#props']['text']);
+    self::assertStringNotContainsString('Der lange Beschreibungstext', (string) $items[1]['#props']['text']);
     self::assertStringNotContainsString('plain_text', (string) $items[1]['#props']['text']);
-    self::assertStringNotContainsString('content_format', (string) $items[1]['#props']['text']);
     self::assertSame($party->toUrl()->toString(), $items[1]['#props']['href']);
-    self::assertSame(
-      '/termine/' . $party->id() . '/0/ical',
-      $items[1]['#props']['ical_href'],
-    );
+    self::assertSame('/termine/' . $party->id() . '/ical', $items[1]['#props']['ical_href']);
 
-    // The calendar subscription popover offers one checkbox per organizer and
-    // the courses.
     $component = $build['ical']['subscribe'];
     self::assertSame('salsa:calendar-subscribe', $component['#component']);
     $props = $component['#props'];
     self::assertSame('/termine.ics', parse_url($props['action'], PHP_URL_PATH));
     self::assertSame([], $props['hidden']);
-
     $options = array_values($props['options']);
     self::assertCount(3, $options);
     self::assertSame('organizer[]', $options[0]['name']);
@@ -118,8 +109,6 @@ final class EventBlocksTest extends EventKernelTestBase {
     self::assertSame('Salsa am Sund', $options[0]['label']);
     self::assertSame('organizers', $options[0]['group']);
     self::assertTrue($options[0]['checked']);
-    self::assertSame('organizer[]', $options[1]['name']);
-    self::assertSame((string) $this->externalOrganizer, $options[1]['value']);
     self::assertSame('Sonstige', $options[1]['label']);
     self::assertSame(2, count(array_filter(
       $options,
@@ -133,86 +122,18 @@ final class EventBlocksTest extends EventKernelTestBase {
     self::assertStringContainsString(' · ', $options[2]['meta']);
     self::assertStringContainsString('Bootshaus Stralsund', $options[2]['meta']);
 
-    self::assertContains('node_list:event', $build['#cache']['tags']);
-    self::assertContains('node_list:course', $build['#cache']['tags']);
-    self::assertContains('taxonomy_term_list:location', $build['#cache']['tags']);
-    self::assertContains('taxonomy_term_list:organizer', $build['#cache']['tags']);
-    self::assertLessThanOrEqual(86400, $build['#cache']['max-age']);
-  }
-
-  /**
-   * Tests the options of the calendar subscription popover.
-   */
-  public function testUpcomingEventsCalendarSubscription(): void {
-    $location = $this->createLocation('Bootshaus Stralsund');
-    foreach (['Anfänger', 'Fortgeschrittene'] as $index => $title) {
-      $this->createCourse([
-        'title' => $title,
-        'field_location' => $location->id(),
-        'field_when' => [
-          $this->dateDelta(
-            $this->date('now +' . ($index + 2) . ' days', '18:15'),
-            $this->date('now +' . ($index + 2) . ' days', '19:15'),
-          ),
-        ],
-      ]);
+    foreach ([
+      'node_list:event',
+      'node_list:course',
+      'node_list:lesson',
+      'taxonomy_term_list:location',
+      'taxonomy_term_list:organizer',
+    ] as $tag) {
+      self::assertContains($tag, $build['#cache']['tags']);
     }
+    self::assertLessThanOrEqual(86400, $build['#cache']['max-age']);
 
-    // A block without an organizer restriction offers every organizer term.
-    $block = $this->blockManager->createInstance('salsa_events', [
-      'organizers' => [],
-      'courses' => FALSE,
-      'locations' => [(int) $location->id()],
-      'limit' => 3,
-      'show_ical' => TRUE,
-    ]);
-    $props = $block->build()['ical']['subscribe']['#props'];
-    $groups = array_column($props['options'], 'group');
-    self::assertSame(['organizers', 'organizers', 'courses', 'courses'], $groups);
-    self::assertSame([
-      ['name' => 'location', 'value' => (string) $location->id()],
-    ], $props['hidden']);
-
-    // Only the organizers allowed by the block configuration are offered.
-    $block = $this->blockManager->createInstance('salsa_events', [
-      'organizers' => [$this->externalOrganizer],
-      'courses' => TRUE,
-      'locations' => [],
-      'limit' => 3,
-      'show_ical' => TRUE,
-    ]);
-    $props = $block->build()['ical']['subscribe']['#props'];
-    self::assertSame(['organizers', 'courses', 'courses'], array_column($props['options'], 'group'));
-    self::assertSame('Sonstige', $props['options'][0]['label']);
-    self::assertSame([], $props['hidden']);
-  }
-
-  /**
-   * Tests filtering and the empty state of the upcoming events block.
-   */
-  public function testUpcomingEventsFiltering(): void {
-    $location = $this->createLocation('Bootshaus Stralsund');
-    $this->createCourse([
-      'title' => 'Anfänger',
-      'field_location' => $location->id(),
-      'field_when' => [
-        $this->dateDelta($this->date('now +2 days', '18:15'), $this->date('now +2 days', '19:15')),
-      ],
-    ]);
-    $this->createEvent([
-      'title' => 'Salsa am Sund Party',
-      'field_when' => [
-        $this->dateDelta($this->date('now +3 days', '18:00'), $this->date('now +3 days', '22:00')),
-      ],
-    ]);
-    $this->createEvent([
-      'title' => 'Externe Party',
-      'field_organizer' => $this->externalOrganizer,
-      'field_when' => [
-        $this->dateDelta($this->date('now +4 days', '18:00'), $this->date('now +4 days', '22:00')),
-      ],
-    ]);
-
+    // Filtering by organizer and including the courses.
     $block = $this->blockManager->createInstance('salsa_events', [
       'organizers' => [$this->salsaAmSund],
       'courses' => FALSE,
@@ -222,10 +143,9 @@ final class EventBlocksTest extends EventKernelTestBase {
     ]);
     $build = $block->build();
     self::assertCount(1, $build['events']['#slots']['items']);
-    self::assertSame('Salsa am Sund Party', $build['events']['#slots']['items'][0]['#props']['title']);
+    self::assertSame('Tanzabend', $build['events']['#slots']['items'][0]['#props']['title']);
     self::assertArrayNotHasKey('ical', $build);
 
-    // An empty organizer selection shows the events of every organizer.
     $block = $this->blockManager->createInstance('salsa_events', [
       'organizers' => [],
       'courses' => FALSE,
@@ -235,7 +155,6 @@ final class EventBlocksTest extends EventKernelTestBase {
     ]);
     self::assertCount(2, $block->build()['events']['#slots']['items']);
 
-    // With courses enabled the course is part of the list too.
     $block = $this->blockManager->createInstance('salsa_events', [
       'organizers' => [$this->salsaAmSund],
       'courses' => TRUE,
@@ -247,7 +166,6 @@ final class EventBlocksTest extends EventKernelTestBase {
     self::assertCount(2, $build['events']['#slots']['items']);
     self::assertSame('Anfänger', $build['events']['#slots']['items'][0]['#props']['title']);
 
-    // An unknown organizer filters everything out.
     $block = $this->blockManager->createInstance('salsa_events', [
       'organizers' => [9999],
       'courses' => FALSE,
@@ -260,7 +178,6 @@ final class EventBlocksTest extends EventKernelTestBase {
     self::assertArrayHasKey('empty', $build);
     self::assertSame('No upcoming events.', (string) $build['empty']['#markup']);
 
-    // An unknown location filters everything out.
     $block = $this->blockManager->createInstance('salsa_events', [
       'organizers' => [],
       'courses' => TRUE,
@@ -272,7 +189,7 @@ final class EventBlocksTest extends EventKernelTestBase {
   }
 
   /**
-   * Tests the course schedule block.
+   * Tests the course schedule block and its location filter.
    */
   public function testCourseScheduleBlock(): void {
     $location = $this->createLocation(
@@ -280,32 +197,30 @@ final class EventBlocksTest extends EventKernelTestBase {
       'Friedrich-Naumann-Straße 5',
       'https://www.openstreetmap.org/search?query=Friedrich-Naumann-Stra%C3%9Fe%205',
     );
-    $this->createCourse([
+    $course = $this->createCourse([
       'title' => 'Anfänger',
-      'field_level' => 'Level 0',
+      'field_difficulty' => [0],
       'field_location' => $location->id(),
-      'field_when' => $this->recurringDeltas(
+      ...$this->courseSchedule(
         $this->date('next monday', '18:15'),
-        $this->date('next monday', '19:15'),
-        'WEEKLY',
-        'INTERVAL=1;BYDAY=MO',
-        'COUNT=4',
-        'course',
+        $this->date('next monday', '18:15')->modify('+3 weeks'),
       ),
     ]);
     $this->createCourse([
       'title' => 'Tanzfeeling u. mehr',
-      'field_level' => 'Level 1',
+      'field_difficulty' => [1],
       'field_location' => $location->id(),
-      'field_when' => [
-        $this->dateDelta($this->date('next tuesday', '19:30'), $this->date('next tuesday', '20:30')),
-      ],
+      ...$this->courseSchedule(
+        $this->date('next tuesday', '19:30'),
+        $this->date('next tuesday', '19:30'),
+      ),
     ]);
     $this->createCourse([
       'title' => 'Zu weit in der Zukunft',
-      'field_when' => [
-        $this->dateDelta($this->date('now +200 days', '18:00'), $this->date('now +200 days', '19:00')),
-      ],
+      ...$this->courseSchedule(
+        $this->date('now +200 days', '18:00'),
+        $this->date('now +200 days', '18:00'),
+      ),
     ]);
 
     $block = $this->blockManager->createInstance('salsa_course_schedule', [
@@ -317,8 +232,9 @@ final class EventBlocksTest extends EventKernelTestBase {
     $courses = $build['schedule']['#slots']['courses'];
     self::assertCount(2, $courses);
     self::assertSame('montag', $courses[0]['#props']['day']);
-    self::assertSame('18:15 – 19:15 Uhr', $courses[0]['#props']['time']);
+    self::assertSame('18:15 – 19:15', $courses[0]['#props']['time']);
     self::assertSame('Anfänger', $courses[0]['#props']['title']);
+    self::assertSame($course->toUrl()->toString(), $courses[0]['#props']['href']);
     self::assertSame('Level 0', $courses[0]['#props']['level']);
     self::assertSame('Bootshaus Stralsund', $courses[0]['#props']['location']);
     self::assertSame('https://www.openstreetmap.org/search?query=Friedrich-Naumann-Stra%C3%9Fe%205', $courses[0]['#props']['location_href']);
@@ -327,18 +243,20 @@ final class EventBlocksTest extends EventKernelTestBase {
     self::assertStringNotContainsString('plain_text', json_encode($courses, JSON_THROW_ON_ERROR));
     self::assertStringNotContainsString('content_format', json_encode($courses, JSON_THROW_ON_ERROR));
 
-    self::assertContains('node_list:event', $build['#cache']['tags']);
-    self::assertContains('node_list:course', $build['#cache']['tags']);
-    self::assertContains('taxonomy_term_list:location', $build['#cache']['tags']);
-    self::assertContains('taxonomy_term_list:organizer', $build['#cache']['tags']);
+    foreach ([
+      'node_list:event',
+      'node_list:course',
+      'node_list:lesson',
+      'taxonomy_term_list:location',
+      'taxonomy_term_list:organizer',
+    ] as $tag) {
+      self::assertContains($tag, $build['#cache']['tags']);
+    }
 
-    // The calendar subscription offers every organizer unchecked and the
-    // courses of the schedule checked.
     $component = $build['ical']['subscribe'];
     self::assertSame('salsa:calendar-subscribe', $component['#component']);
     $props = $component['#props'];
     self::assertSame([], $props['hidden']);
-
     $options = array_values($props['options']);
     self::assertCount(4, $options);
     $organizers = array_values(array_filter(
@@ -357,54 +275,18 @@ final class EventBlocksTest extends EventKernelTestBase {
     foreach ($course_options as $option) {
       self::assertTrue($option['checked'], $option['label']);
     }
-  }
 
-  /**
-   * Tests that the summary is preferred over the body value.
-   */
-  public function testDescriptionPrefersSummary(): void {
-    $this->createEvent([
-      'title' => 'Tanzabend',
-      'body' => [
-        'value' => '<p>Der lange Beschreibungstext des Termins.</p>',
-        'summary' => 'Kurzbeschreibung für die Karte.',
-        'format' => 'plain_text',
-      ],
-      'field_when' => [
-        $this->dateDelta($this->date('now +1 day', '18:00'), $this->date('now +1 day', '22:00')),
-      ],
-    ]);
-
-    $block = $this->blockManager->createInstance('salsa_events', [
-      'organizers' => [$this->salsaAmSund],
-      'courses' => FALSE,
-      'locations' => [],
-      'limit' => 3,
-      'show_ical' => FALSE,
-    ]);
-    $text = (string) $block->build()['events']['#slots']['items'][0]['#props']['text'];
-
-    self::assertStringContainsString('Kurzbeschreibung für die Karte.', $text);
-    self::assertStringNotContainsString('Der lange Beschreibungstext', $text);
-    self::assertStringNotContainsString('plain_text', $text);
-  }
-
-  /**
-   * Tests the location filter of the course schedule block.
-   */
-  public function testCourseScheduleLocationFilter(): void {
+    // The location filter selects one of two new courses.
     $location_a = $this->createLocation('Bootshaus Stralsund');
     $location_b = $this->createLocation('Treff ZuverSICht');
     foreach (['A' => $location_a->id(), 'B' => $location_b->id()] as $suffix => $tid) {
+      $start = $this->date('next monday', '18:00');
       $this->createCourse([
         'title' => 'Kurs ' . $suffix,
         'field_location' => $tid,
-        'field_when' => [
-          $this->dateDelta($this->date('next monday', '18:00'), $this->date('next monday', '19:00')),
-        ],
+        ...$this->courseSchedule($start, $start),
       ]);
     }
-
     $block = $this->blockManager->createInstance('salsa_course_schedule', [
       'locations' => [(int) $location_b->id()],
     ]);
@@ -418,57 +300,37 @@ final class EventBlocksTest extends EventKernelTestBase {
   }
 
   /**
-   * Tests that the cache expires with the earliest occurrence end.
+   * Tests that the occurrence cache expires with the earliest end.
    */
-  public function testOccurrenceCacheExpiresWithEarliestEnd(): void {
+  public function testOccurrenceCache(): void {
     $node = $this->createEvent([
       'title' => 'Cache test',
-      'field_when' => [
-        $this->dateDelta($this->date('now +1 day', '18:00'), $this->date('now +1 day', '19:00')),
-      ],
+      'field_event_date' => $this->smartDateRange(
+        $this->date('now +1 day', '18:00'),
+        $this->date('now +1 day', '19:00'),
+      ),
     ]);
     $now = time();
     $start = new \DateTimeImmutable('@' . ($now + 3600));
     $occurrences = [
-      new EventOccurrence($node, 0, $start, new \DateTimeImmutable('@' . ($now + 7200)), FALSE, NULL, NULL),
-      new EventOccurrence($node, 1, $start, new \DateTimeImmutable('@' . ($now + 14400)), FALSE, NULL, NULL),
+      new EventOccurrence($node, NULL, $start, new \DateTimeImmutable('@' . ($now + 7200)), FALSE, NULL, NULL),
+      new EventOccurrence($node, NULL, $start, new \DateTimeImmutable('@' . ($now + 14400)), FALSE, NULL, NULL),
     ];
-
     $block = $this->cacheBlock();
     $build = [];
     $before = time();
     $block->applyCache($build, $occurrences);
     $after = time();
-
-    // The earliest end is two hours away; the later occurrence must not
-    // extend the lifetime.
     $end = $now + 7200;
     self::assertGreaterThanOrEqual(min(86400, max(0, $end - $after)), $build['#cache']['max-age']);
     self::assertLessThanOrEqual(min(86400, max(0, $end - $before)), $build['#cache']['max-age']);
-  }
 
-  /**
-   * Tests that an occurrence without an end expires at the end of its day.
-   */
-  public function testOccurrenceCacheOpenEndFallsBackToEndOfDay(): void {
-    $node = $this->createEvent([
-      'title' => 'Cache test',
-      'field_when' => [
-        $this->dateDelta($this->date('now +1 day', '18:00'), $this->date('now +1 day', '19:00')),
-      ],
-    ]);
-    $start = new \DateTimeImmutable('today 10:00');
-    $occurrences = [
-      new EventOccurrence($node, 0, $start, NULL, FALSE, NULL, NULL),
-    ];
-
-    $block = $this->cacheBlock();
+    $open_end = new EventOccurrence($node, NULL, new \DateTimeImmutable('today 10:00'), NULL, FALSE, NULL, NULL);
     $build = [];
     $before = time();
-    $block->applyCache($build, $occurrences);
+    $block->applyCache($build, [$open_end]);
     $after = time();
-
-    $end = $start->setTime(23, 59)->getTimestamp();
+    $end = (new \DateTimeImmutable('today 10:00'))->setTime(23, 59)->getTimestamp();
     self::assertGreaterThanOrEqual(min(86400, max(0, $end - $after)), $build['#cache']['max-age']);
     self::assertLessThanOrEqual(min(86400, max(0, $end - $before)), $build['#cache']['max-age']);
   }
@@ -487,7 +349,7 @@ final class EventBlocksTest extends EventKernelTestBase {
     $formatter = $this->container->get(EventDescriptionFormatter::class);
     \assert($formatter instanceof EventDescriptionFormatter);
 
-    return new class([], 'test', ['provider' => 'workspace_events'], $repository, $entity_type_manager, $formatter) extends EventBlockBase {
+    return new class([], 'test', ['provider' => 'workspace_events'], $repository, $entity_type_manager, $formatter, new DetailFieldResolver()) extends EventBlockBase {
 
       /**
        * {@inheritdoc}

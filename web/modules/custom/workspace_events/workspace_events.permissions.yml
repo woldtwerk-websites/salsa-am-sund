@@ -1,0 +1,8 @@
+view dance figures:
+  title: 'View dance figures'
+  description: 'Allows viewing dance figures.'
+
+use attendance recognition:
+  title: 'Use attendance recognition'
+  description: 'Allows recognizing participants on an attendance photo.'
+  restrict access: true

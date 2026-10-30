@@ -15,14 +15,14 @@ dependencies:
     - node.type.course
     - node.type.event
     - node.type.gallery
+    - node.type.lesson
     - node.type.page
+    - taxonomy.vocabulary.dance_figure
     - taxonomy.vocabulary.location
     - taxonomy.vocabulary.organizer
-    - workflows.workflow.basic_editorial
   module:
     - canvas
     - comment
-    - content_moderation
     - dashboard
     - filter
     - media
@@ -31,10 +31,10 @@ dependencies:
     - path
     - redirect
     - scheduler
-    - smart_date_recur
     - system
     - taxonomy
     - trash
+    - workspace_events
 _core:
   default_config_hash: g-zSnaBXJnH7VoimReFb6KcLjIgHCU-hisiShtZ9hjQ
 id: content_editor
@@ -48,6 +48,7 @@ permissions:
   - 'access media overview'
   - 'access taxonomy overview'
   - 'access trash'
+  - 'access user profiles'
   - 'administer comments'
   - 'administer menu'
   - 'administer redirects'
@@ -61,6 +62,7 @@ permissions:
   - 'create page content'
   - 'create remote_video media'
   - 'create svg_image media'
+  - 'create terms in dance_figure'
   - 'create terms in location'
   - 'create terms in organizer'
   - 'create url aliases'
@@ -70,12 +72,14 @@ permissions:
   - 'delete any event content'
   - 'delete any gallery content'
   - 'delete any image media'
+  - 'delete any lesson content'
   - 'delete any page content'
   - 'delete any remote_video media'
   - 'delete any svg_image media'
   - 'delete any video media'
   - 'delete canvas_page'
   - 'delete page revisions'
+  - 'delete terms in dance_figure'
   - 'delete terms in location'
   - 'delete terms in organizer'
   - 'edit any course content'
@@ -83,11 +87,13 @@ permissions:
   - 'edit any event content'
   - 'edit any gallery content'
   - 'edit any image media'
+  - 'edit any lesson content'
   - 'edit any page content'
   - 'edit any remote_video media'
   - 'edit any svg_image media'
   - 'edit any video media'
   - 'edit canvas_page'
+  - 'edit terms in dance_figure'
   - 'edit terms in location'
   - 'edit terms in organizer'
   - 'make smart dates recur'
@@ -96,9 +102,7 @@ permissions:
   - 'revert all revisions'
   - 'schedule publishing of nodes'
   - 'skip comment approval'
-  - 'use basic_editorial transition create_new_draft'
-  - 'use basic_editorial transition publish'
-  - 'use basic_editorial transition unpublish'
+  - 'use attendance recognition'
   - 'use media document bulk upload form'
   - 'use media image bulk upload form'
   - 'use media remote_video bulk upload form'
@@ -108,7 +112,7 @@ permissions:
   - 'use text format canvas_html_inline'
   - 'use text format content_format'
   - 'view all revisions'
-  - 'view any unpublished content'
+  - 'view dance figures'
   - 'view own unpublished content'
   - 'view own unpublished media'
   - 'view scheduled content'

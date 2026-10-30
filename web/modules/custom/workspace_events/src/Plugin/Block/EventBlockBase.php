@@ -6,12 +6,16 @@ namespace Drupal\workspace_events\Plugin\Block;
 
 use Drupal\Component\Render\MarkupInterface;
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Render\Element\Checkboxes;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
+use Drupal\workspace_events\DetailFieldResolver;
 use Drupal\workspace_events\EventDescriptionFormatter;
 use Drupal\workspace_events\EventFilter;
 use Drupal\workspace_events\EventOccurrence;
@@ -53,6 +57,8 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
    *   The entity type manager.
    * @param \Drupal\workspace_events\EventDescriptionFormatter $descriptionFormatter
    *   The event description formatter.
+   * @param \Drupal\workspace_events\DetailFieldResolver $detailFieldResolver
+   *   The reader of the location, link and difficulty fields.
    */
   public function __construct(
     array $configuration,
@@ -61,6 +67,7 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
     protected readonly EventOccurrenceRepository $repository,
     protected readonly EntityTypeManagerInterface $entityTypeManager,
     protected readonly EventDescriptionFormatter $descriptionFormatter,
+    protected readonly DetailFieldResolver $detailFieldResolver,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
@@ -84,6 +91,8 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
     \assert($entity_type_manager instanceof EntityTypeManagerInterface);
     $description_formatter = $container->get(EventDescriptionFormatter::class);
     \assert($description_formatter instanceof EventDescriptionFormatter);
+    $detail_field_resolver = $container->get(DetailFieldResolver::class);
+    \assert($detail_field_resolver instanceof DetailFieldResolver);
 
     // @phpstan-ignore-next-line
     return new static(
@@ -93,6 +102,7 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
       $repository,
       $entity_type_manager,
       $description_formatter,
+      $detail_field_resolver,
     );
   }
 
@@ -167,6 +177,56 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
   }
 
   /**
+   * Value callback of the term checkboxes in the block configuration form.
+   *
+   * Core's callback combines the submitted values into keys. The Canvas
+   * editor submits unchecked boxes as 0, FALSE or 'false' and checked ones as
+   * TRUE or 'true', so the keys become 0, 1, 'true' or 'false', which are no
+   * options, and Canvas stores a "value … is not allowed" violation that
+   * blocks every later save of the page. Unchecked values are dropped and
+   * checked ones take the term ID from their key first.
+   * Canvas may also send the stored list of term IDs back; Canvas then reads
+   * each box from the user input by term ID, so the list is written back to
+   * the user input keyed by term ID.
+   *
+   * @param array<mixed> $element
+   *   The checkboxes element.
+   * @param mixed $input
+   *   The submitted input, or FALSE when there is none.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return array<mixed>
+   *   The checked term IDs, keyed by term ID.
+   */
+  public static function checkboxesValue(array &$element, mixed $input, FormStateInterface $form_state): array {
+    if (is_array($input)) {
+      $is_list = array_is_list($input);
+      $normalized = [];
+      foreach ($input as $key => $value) {
+        if (empty($value) || $value === 'false') {
+          continue;
+        }
+        $id = !$is_list && ($value === TRUE || $value === 'true') ? $key : $value;
+        if (is_int($id) || is_string($id)) {
+          $normalized[$id] = $id;
+        }
+      }
+      $input = $normalized;
+      if ($is_list) {
+        $user_input = $form_state->getUserInput();
+        $parents = $element['#parents'] ?? [];
+        if (is_array($user_input) && is_array($parents) && $parents !== []) {
+          NestedArray::setValue($user_input, $parents, $input);
+          $form_state->setUserInput($user_input);
+        }
+      }
+    }
+    $value = Checkboxes::valueCallback($element, $input, $form_state);
+    return is_array($value) ? $value : [];
+  }
+
+  /**
    * Builds the location filter element for the block configuration form.
    *
    * @return array<string, mixed>
@@ -175,6 +235,7 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
   protected function buildLocationsElement(): array {
     return [
       '#type' => 'checkboxes',
+      '#value_callback' => [static::class, 'checkboxesValue'],
       '#title' => $this->t('Locations'),
       '#description' => $this->t('Leave empty to show all locations.'),
       '#options' => $this->getLocationOptions(),
@@ -195,8 +256,10 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
   /**
    * Extracts the checked term IDs from a checkboxes form value.
    *
-   * Checkbox values are keyed by term ID and hold the term ID when checked
-   * and 0 when unchecked.
+   * Checkbox values are keyed by term ID. A browser submission holds the term
+   * ID when checked and 0 when unchecked; the Canvas editor submits TRUE or
+   * 'true' and FALSE or 'false' instead, so a checked value takes the term ID
+   * from its key.
    *
    * @param mixed $value
    *   The submitted form value.
@@ -209,7 +272,13 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
       return [];
     }
     $ids = [];
-    foreach (array_filter($value) as $id) {
+    foreach (array_filter($value) as $key => $id) {
+      if ($id === 'false') {
+        continue;
+      }
+      if ($id === TRUE || $id === 'true') {
+        $id = $key;
+      }
       if (is_scalar($id) && is_numeric($id)) {
         $ids[] = (int) $id;
       }
@@ -293,9 +362,9 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
     }
     $start = $occurrence->start->format('H:i');
     if ($occurrence->end === NULL) {
-      return (string) $this->t('ab @start Uhr', ['@start' => $start]);
+      return (string) $this->t('from @start', ['@start' => $start]);
     }
-    return (string) $this->t('@start – @end Uhr', [
+    return (string) $this->t('@start – @end', [
       '@start' => $start,
       '@end' => $occurrence->end->format('H:i'),
     ]);
@@ -304,9 +373,9 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
   /**
    * Returns the next occurrence of every course.
    *
-   * One entity query finds the candidate courses and their date deltas; the
-   * first upcoming occurrence per course is kept and the result is sorted by
-   * weekday and time, like the course schedule.
+   * The repository finds the lessons in the lookahead window; the first
+   * upcoming lesson per course is kept and the result is sorted by weekday and
+   * time, like the course schedule.
    *
    * @param int[] $locations
    *   The location term IDs to restrict to. Empty for all locations.
@@ -546,12 +615,18 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
    *   The render array.
    * @param \Drupal\workspace_events\EventOccurrence[] $occurrences
    *   The rendered occurrences.
+   * @param \Drupal\Core\Cache\CacheableMetadata|null $extraCacheability
+   *   Additional cacheability of the block output, e.g. of generated URLs.
    */
-  protected function applyOccurrenceCache(array &$build, array $occurrences): void {
+  protected function applyOccurrenceCache(array &$build, array $occurrences, ?CacheableMetadata $extraCacheability = NULL): void {
     $cacheability = new CacheableMetadata();
+    if ($extraCacheability !== NULL) {
+      $cacheability->addCacheableDependency($extraCacheability);
+    }
     $cacheability->addCacheTags([
       'node_list:event',
       'node_list:course',
+      'node_list:lesson',
       'taxonomy_term_list:location',
       'taxonomy_term_list:organizer',
     ]);
@@ -559,6 +634,7 @@ abstract class EventBlockBase extends BlockBase implements ContainerFactoryPlugi
     $now = time();
     $max_age = 86400;
     foreach ($occurrences as $occurrence) {
+      $cacheability->addCacheableDependency($occurrence->sourceNode());
       $cacheability->addCacheableDependency($occurrence->node);
       if ($occurrence->organizer !== NULL) {
         $cacheability->addCacheableDependency($occurrence->organizer);

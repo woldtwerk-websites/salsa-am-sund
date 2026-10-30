@@ -1,0 +1,34 @@
+uuid: fae2f5e8-bd31-4725-8b69-7a36451c15aa
+langcode: de
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_event_date
+    - node.type.event
+  module:
+    - smart_date
+    - smart_date_recur
+third_party_settings:
+  smart_date_recur:
+    allow_recurring: true
+    month_limit: 12
+id: node.event.field_event_date
+field_name: field_event_date
+entity_type: node
+bundle: event
+label: 'Datum & Uhrzeit'
+description: ''
+required: true
+translatable: true
+default_value:
+  -
+    default_duration: 60
+    default_duration_increments: |-
+      0|kein Ende
+      60|1 Stunde
+      120|2 Stunden
+      240|4 Stunden
+      custom
+default_value_callback: ''
+settings: {  }
+field_type: smartdate

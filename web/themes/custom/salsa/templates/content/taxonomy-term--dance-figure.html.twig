@@ -1,0 +1,57 @@
+{#
+/**
+ * @file
+ * Dance figure detail page.
+ *
+ * The page title block prints the figure name, so this template only renders
+ * the figure's own content: the difficulty, the video, the description, the
+ * personal flags and the link back to the overview.
+ *
+ * Available variables:
+ * - term: The dance figure term.
+ * - content: The rendered term fields.
+ * - attributes: Attributes for the article wrapper.
+ * - dance_figure_levels: One formatted difficulty label per field value.
+ * - dance_figure_has_video: Whether the term has a video.
+ * - dance_figure_has_description: Whether the term has a description.
+ */
+#}
+{% set levels = dance_figure_levels|default([]) %}
+{% set description = content.description is defined ? content.description|render : '' %}
+{% set video = content.field_video is defined ? content.field_video|render : '' %}
+{% set flags = [] %}
+{% if content.flag_learned is defined %}
+  {% set flags = flags|merge([content.flag_learned]) %}
+{% endif %}
+{% if content.flag_like is defined %}
+  {% set flags = flags|merge([content.flag_like]) %}
+{% endif %}
+
+<article{{ attributes.addClass('min-w-0') }}>
+  {% include '@salsa/includes/dance-figure-levels.html.twig' with {levels: levels} only %}
+
+  {% if dance_figure_has_video and video|trim is not empty %}
+    <div class="relative mt-8 aspect-video w-full overflow-hidden rounded-2xl border border-line bg-ink-2 [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:h-full [&_iframe]:w-full [&_video]:absolute [&_video]:inset-0 [&_video]:h-full [&_video]:w-full [&_video]:object-contain">
+      {{ video }}
+    </div>
+  {% endif %}
+
+  <div class="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-16">
+    <div class="min-w-0">
+      {% if dance_figure_has_description and description|striptags|trim is not empty %}
+        <div class="prose max-w-none">{{ description }}</div>
+      {% endif %}
+
+      {% include '@salsa/includes/dance-figure-flags.html.twig' with {flags: flags} only %}
+    </div>
+
+    <aside class="min-w-0 self-start">
+      <div class="rounded-2xl border border-line bg-ink-2 p-5 md:p-6">
+        <a href="{{ path('view.dance_figures.page_1') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-mist no-underline hover:text-flame-gold">
+          {{ icon('salsa', 'chevron-left', {size: 16}) }}
+          {{ 'Back to dance figures'|t }}
+        </a>
+      </div>
+    </aside>
+  </div>
+</article>

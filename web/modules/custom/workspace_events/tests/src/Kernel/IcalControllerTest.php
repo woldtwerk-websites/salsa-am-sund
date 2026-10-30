@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\workspace_events\Kernel;
 
-use Drupal\node\NodeInterface;
-use Drupal\Core\Cache\CacheableResponse;
 use Drupal\Component\Transliteration\TransliterationInterface;
+use Drupal\Core\Cache\CacheableResponse;
+use Drupal\node\NodeInterface;
 use Drupal\workspace_events\Controller\IcalController;
+use Drupal\workspace_events\DetailFieldResolver;
 use Drupal\workspace_events\EventDescriptionFormatter;
 use Drupal\workspace_events\EventFilterFactory;
 use Drupal\workspace_events\EventOccurrenceRepository;
@@ -24,7 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(IcalController::class)]
 #[Group('workspace_events')]
 #[RunTestsInSeparateProcesses]
-final class IcalControllerTest extends EventKernelTestBase {
+final class IcalControllerTest extends LessonKernelTestBase {
 
   /**
    * The iCal controller.
@@ -32,9 +33,16 @@ final class IcalControllerTest extends EventKernelTestBase {
   private IcalController $controller;
 
   /**
-   * The course node ID.
+   * The course node.
    */
-  private int $courseId;
+  private NodeInterface $course;
+
+  /**
+   * The lessons of the course.
+   *
+   * @var \Drupal\node\NodeInterface[]
+   */
+  private array $lessons;
 
   /**
    * The all-day node ID.
@@ -57,9 +65,9 @@ final class IcalControllerTest extends EventKernelTestBase {
   private \DateTimeImmutable $multiDayLastDay;
 
   /**
-   * The open end node ID.
+   * The external event node ID.
    */
-  private int $openEndId;
+  private int $externalId;
 
   /**
    * The past node ID.
@@ -77,11 +85,6 @@ final class IcalControllerTest extends EventKernelTestBase {
   private int $locationA;
 
   /**
-   * The location B term ID.
-   */
-  private int $locationB;
-
-  /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
@@ -89,17 +92,20 @@ final class IcalControllerTest extends EventKernelTestBase {
 
     $repository = $this->container->get(EventOccurrenceRepository::class);
     \assert($repository instanceof EventOccurrenceRepository);
-    $description_formatter = $this->container->get(EventDescriptionFormatter::class);
-    \assert($description_formatter instanceof EventDescriptionFormatter);
-    $filter_factory = $this->container->get(EventFilterFactory::class);
-    \assert($filter_factory instanceof EventFilterFactory);
+    $formatter = $this->container->get(EventDescriptionFormatter::class);
+    \assert($formatter instanceof EventDescriptionFormatter);
+    $factory = $this->container->get(EventFilterFactory::class);
+    \assert($factory instanceof EventFilterFactory);
+    $resolver = $this->container->get(DetailFieldResolver::class);
+    \assert($resolver instanceof DetailFieldResolver);
     $transliteration = $this->container->get('transliteration');
     \assert($transliteration instanceof TransliterationInterface);
     $this->controller = new IcalController(
       $repository,
       $this->container->get('entity_type.manager'),
-      $description_formatter,
-      $filter_factory,
+      $formatter,
+      $factory,
+      $resolver,
       $transliteration,
     );
 
@@ -110,35 +116,24 @@ final class IcalControllerTest extends EventKernelTestBase {
     );
     $location_b = $this->createLocation('Südamerikanische Vertretung');
     $this->locationA = (int) $location_a->id();
-    $this->locationB = (int) $location_b->id();
 
     $start = $this->date('now +5 days', '18:15');
-    $weekdays = [1 => 'MO', 2 => 'TU', 3 => 'WE', 4 => 'TH', 5 => 'FR', 6 => 'SA', 7 => 'SU'];
-    $course = $this->createCourse([
+    $this->course = $this->createCourse([
       'title' => 'Anfänger',
-      'field_level' => 'Level 0',
+      'field_difficulty' => [0],
       'field_location' => $this->locationA,
       'body' => [
         'value' => '<p>Ein Kurs für <strong>Einsteiger</strong>.</p>',
         'format' => 'plain_text',
       ],
-      'field_when' => $this->recurringDeltas(
-        $start,
-        $start->setTime(19, 15),
-        'WEEKLY',
-        'INTERVAL=1;BYDAY=' . $weekdays[(int) $start->format('N')],
-        'COUNT=4',
-        'course',
-      ),
+      ...$this->courseSchedule($start, $start->modify('+3 weeks')),
     ]);
-    $this->courseId = (int) $course->id();
+    $this->lessons = $this->loadCourseLessons($this->course);
 
     $all_day = $this->createEvent([
       'title' => 'Salsa-Party',
-      'field_location' => $this->locationB,
-      'field_when' => [
-        $this->allDayDelta($this->date('now +20 days')),
-      ],
+      'field_location' => $location_b->id(),
+      'field_event_date' => $this->allDaySmartDateRange($this->date('now +20 days')),
     ]);
     $this->allDayId = (int) $all_day->id();
 
@@ -146,30 +141,30 @@ final class IcalControllerTest extends EventKernelTestBase {
     $this->multiDayLastDay = $this->date('now +32 days');
     $multi_day = $this->createEvent([
       'title' => 'Festival',
-      'field_location' => $this->locationB,
-      'field_when' => [
-        $this->allDayDelta($this->multiDayStart, $this->multiDayLastDay),
-      ],
+      'field_location' => $location_b->id(),
+      'field_event_date' => $this->allDaySmartDateRange($this->multiDayStart, $this->multiDayLastDay),
     ]);
     $this->multiDayId = (int) $multi_day->id();
 
-    $open_end = $this->createEvent([
+    $external = $this->createEvent([
       'title' => 'Salsa im ballhaus goldfisch',
       'field_organizer' => $this->externalOrganizer,
       'field_location' => $this->locationA,
       'field_link' => ['uri' => 'https://www.ballhaus-goldfisch.de/', 'title' => 'ballhaus goldfisch'],
-      'field_when' => [
-        $this->dateDelta($this->date('now +10 days', '20:00'), NULL),
-      ],
+      'field_event_date' => $this->smartDateRange(
+        $this->date('now +10 days', '20:00'),
+        $this->date('now +10 days', '23:00'),
+      ),
     ]);
-    $this->openEndId = (int) $open_end->id();
+    $this->externalId = (int) $external->id();
 
     $past = $this->createEvent([
       'title' => 'Vergangener Tanzabend',
       'field_location' => $this->locationA,
-      'field_when' => [
-        $this->dateDelta($this->date('now -5 days', '18:00'), $this->date('now -5 days', '22:00')),
-      ],
+      'field_event_date' => $this->smartDateRange(
+        $this->date('now -5 days', '18:00'),
+        $this->date('now -5 days', '22:00'),
+      ),
     ]);
     $this->pastId = (int) $past->id();
 
@@ -177,17 +172,18 @@ final class IcalControllerTest extends EventKernelTestBase {
       'title' => 'Entwurf',
       'status' => NodeInterface::NOT_PUBLISHED,
       'field_location' => $this->locationA,
-      'field_when' => [
-        $this->dateDelta($this->date('now +2 days', '18:00'), $this->date('now +2 days', '22:00')),
-      ],
+      'field_event_date' => $this->smartDateRange(
+        $this->date('now +2 days', '18:00'),
+        $this->date('now +2 days', '22:00'),
+      ),
     ]);
     $this->unpublishedId = (int) $unpublished->id();
   }
 
   /**
-   * Tests the unfiltered feed.
+   * Tests the feed content, the event properties and the cancelled status.
    */
-  public function testFeed(): void {
+  public function testFeedContent(): void {
     $calendar = $this->readCalendar('/termine.ics');
 
     self::assertSame('2.0', $calendar->VERSION?->getValue());
@@ -198,78 +194,28 @@ final class IcalControllerTest extends EventKernelTestBase {
     self::assertSame('Europe/Berlin', $calendar->VTIMEZONE->TZID?->getValue());
 
     $events = $calendar->select('VEVENT');
-    // Four weekly course instances, the all-day party, the multi-day festival,
-    // the open end party and the past party.
     self::assertCount(8, $events);
-    $node_ids = [];
+    $uids = [];
     foreach ($events as $event) {
       $uid = (string) $event->UID->getValue();
       self::assertStringContainsString('@salsa-am-sund.localhost', $uid);
-      preg_match('/^event-(\d+)-\d+@/', $uid, $matches);
-      $node_ids[] = (int) $matches[1];
+      $uids[] = $uid;
     }
-    self::assertNotContains($this->unpublishedId, $node_ids);
-    self::assertContains($this->courseId, $node_ids);
-    self::assertContains($this->allDayId, $node_ids);
-    self::assertContains($this->multiDayId, $node_ids);
-    self::assertContains($this->openEndId, $node_ids);
-    self::assertContains($this->pastId, $node_ids);
-
+    self::assertNotContains('event-' . $this->unpublishedId . '@salsa-am-sund.localhost', $uids);
+    self::assertContains('event-' . $this->allDayId . '@salsa-am-sund.localhost', $uids);
+    self::assertContains('event-' . $this->multiDayId . '@salsa-am-sund.localhost', $uids);
+    self::assertContains('event-' . $this->externalId . '@salsa-am-sund.localhost', $uids);
+    self::assertContains('event-' . $this->pastId . '@salsa-am-sund.localhost', $uids);
+    foreach ($this->lessons as $lesson) {
+      self::assertContains('event-' . $lesson->id() . '@salsa-am-sund.localhost', $uids);
+    }
     $this->assertNoValidationErrors($calendar);
-  }
 
-  /**
-   * Tests the calendar name of filtered feeds.
-   */
-  public function testFiltering(): void {
-    $calendar = $this->readCalendar('/termine.ics?type=course');
-    self::assertSame('Salsa am Sund – Termine – Kurs', $calendar->{'X-WR-CALNAME'}?->getValue());
-
-    $calendar = $this->readCalendar('/termine.ics?type=party,external_party');
-    self::assertSame('Salsa am Sund – Termine – Salsa am Sund, Sonstige', $calendar->{'X-WR-CALNAME'}?->getValue());
-
-    $calendar = $this->readCalendar('/termine.ics?organizer=' . $this->salsaAmSund);
-    self::assertSame('Salsa am Sund – Termine – Salsa am Sund', $calendar->{'X-WR-CALNAME'}?->getValue());
-
-    $calendar = $this->readCalendar('/termine.ics?organizer=' . $this->externalOrganizer);
-    self::assertSame('Salsa am Sund – Termine – Sonstige', $calendar->{'X-WR-CALNAME'}?->getValue());
-
-    $calendar = $this->readCalendar('/termine.ics?location=' . $this->locationA);
-    self::assertStringContainsString('Bootshaus Stralsund', $calendar->{'X-WR-CALNAME'}?->getValue() ?? '');
-  }
-
-  /**
-   * Tests selecting individual courses.
-   */
-  public function testCourseSelection(): void {
-    $calendar = $this->readCalendar('/termine.ics?course=' . $this->courseId);
-    $events = $calendar->select('VEVENT');
-    self::assertCount(4, $events);
+    $by_uid = [];
     foreach ($events as $event) {
-      self::assertStringContainsString('event-' . $this->courseId . '-', (string) $event->UID->getValue());
+      $by_uid[(string) $event->UID->getValue()] = $event;
     }
-    self::assertSame('Salsa am Sund – Termine – Anfänger', $calendar->{'X-WR-CALNAME'}?->getValue());
-
-    // Organizers plus one selected course.
-    $calendar = $this->readCalendar('/termine.ics?organizer=' . $this->salsaAmSund . ',' . $this->externalOrganizer . '&course=' . $this->courseId);
-    self::assertSame('Salsa am Sund – Termine – Salsa am Sund, Sonstige, Anfänger', $calendar->{'X-WR-CALNAME'}?->getValue());
-
-    // An empty course list keeps the previous behaviour and name.
-    $calendar = $this->readCalendar('/termine.ics?type=course');
-    self::assertSame('Salsa am Sund – Termine – Kurs', $calendar->{'X-WR-CALNAME'}?->getValue());
-  }
-
-  /**
-   * Tests the event properties.
-   */
-  public function testEventProperties(): void {
-    $calendar = $this->readCalendar('/termine.ics');
-    $events = [];
-    foreach ($calendar->select('VEVENT') as $event) {
-      $events[(string) preg_replace('/^event-(\d+)-\d+@.*$/', '$1', (string) $event->UID->getValue())] = $event;
-    }
-
-    $course = $events[$this->courseId];
+    $course = $by_uid['event-' . $this->lessons[0]->id() . '@salsa-am-sund.localhost'];
     self::assertSame('Anfänger (Level 0)', $course->SUMMARY?->getValue());
     self::assertSame('Kurs', $course->CATEGORIES?->getValue());
     self::assertSame('Europe/Berlin', $course->DTSTART['TZID']?->getValue());
@@ -281,91 +227,110 @@ final class IcalControllerTest extends EventKernelTestBase {
     self::assertSame('Bootshaus Stralsund, Clubgaststätte „Zum Bootshaus“, Friedrich-Naumann-Straße 5, 18435 Stralsund', $course->LOCATION?->getValue());
     self::assertSame('CONFIRMED', $course->STATUS?->getValue());
 
-    $all_day = $events[$this->allDayId];
+    $all_day = $by_uid['event-' . $this->allDayId . '@salsa-am-sund.localhost'];
     self::assertSame('DATE', $all_day->DTSTART['VALUE']?->getValue());
     self::assertSame('DATE', $all_day->DTEND['VALUE']?->getValue());
-    self::assertSame(
-      $all_day->DTSTART->getDateTime()->modify('+1 day')->format('Ymd'),
-      $all_day->DTEND->getValue(),
-    );
-
-    $open_end = $events[$this->openEndId];
-    self::assertNull($open_end->DTEND);
-    self::assertSame('https://www.ballhaus-goldfisch.de/', $open_end->URL?->getValue());
-    self::assertSame('Sonstige', $open_end->CATEGORIES?->getValue());
+    self::assertSame($all_day->DTSTART->getDateTime()->modify('+1 day')->format('Ymd'), $all_day->DTEND->getValue());
     self::assertSame('Salsa am Sund', $all_day->CATEGORIES?->getValue());
-  }
 
-  /**
-   * Tests the exclusive end date of all-day occurrences.
-   *
-   * The format needs the day after the last day for whole-day events, so a
-   * multi-day event must not be reduced to its first day.
-   */
-  public function testAllDayEnd(): void {
-    $calendar = $this->readCalendar('/termine.ics');
-    $events = $this->eventsByNodeId($calendar);
-
-    $multi_day = $events[$this->multiDayId];
+    $multi_day = $by_uid['event-' . $this->multiDayId . '@salsa-am-sund.localhost'];
     self::assertSame('DATE', $multi_day->DTSTART['VALUE']?->getValue());
     self::assertSame('DATE', $multi_day->DTEND['VALUE']?->getValue());
     self::assertSame($this->multiDayStart->format('Ymd'), $multi_day->DTSTART->getValue());
-    self::assertSame(
-      $this->multiDayLastDay->modify('+1 day')->format('Ymd'),
-      $multi_day->DTEND->getValue(),
-    );
+    self::assertSame($this->multiDayLastDay->modify('+1 day')->format('Ymd'), $multi_day->DTEND->getValue());
 
-    // A single day still ends on the following day.
-    $single_day = $events[$this->allDayId];
-    self::assertSame('DATE', $single_day->DTEND['VALUE']?->getValue());
-    self::assertSame(
-      $single_day->DTSTART->getDateTime()->modify('+1 day')->format('Ymd'),
-      $single_day->DTEND->getValue(),
-    );
+    $external = $by_uid['event-' . $this->externalId . '@salsa-am-sund.localhost'];
+    self::assertSame('https://www.ballhaus-goldfisch.de/', $external->URL?->getValue());
+    self::assertSame('Sonstige', $external->CATEGORIES?->getValue());
+
+    $this->lessons[0]->set('field_cancelled', TRUE);
+    $this->lessons[0]->save();
+    $calendar = $this->readCalendar('/termine.ics?course=' . $this->course->id());
+    $events = $calendar->select('VEVENT');
+    self::assertCount(4, $events);
+    self::assertSame('CANCELLED', $events[0]->STATUS?->getValue());
+    self::assertSame('CONFIRMED', $events[1]->STATUS?->getValue());
   }
 
   /**
-   * Tests the response cache metadata.
+   * Tests filtering, course selection, the past window and cache metadata.
    */
-  public function testCacheMetadata(): void {
+  public function testFilteringAndCacheMetadata(): void {
+    $calendar = $this->readCalendar('/termine.ics?type=course');
+    self::assertSame('Salsa am Sund – Termine – Kurs', $calendar->{'X-WR-CALNAME'}?->getValue());
+    $calendar = $this->readCalendar('/termine.ics?type=party,external_party');
+    self::assertSame('Salsa am Sund – Termine – Salsa am Sund, Sonstige', $calendar->{'X-WR-CALNAME'}?->getValue());
+    $calendar = $this->readCalendar('/termine.ics?organizer=' . $this->salsaAmSund);
+    self::assertSame('Salsa am Sund – Termine – Salsa am Sund', $calendar->{'X-WR-CALNAME'}?->getValue());
+    $calendar = $this->readCalendar('/termine.ics?organizer=' . $this->externalOrganizer);
+    self::assertSame('Salsa am Sund – Termine – Sonstige', $calendar->{'X-WR-CALNAME'}?->getValue());
+    $calendar = $this->readCalendar('/termine.ics?location=' . $this->locationA);
+    self::assertStringContainsString('Bootshaus Stralsund', $calendar->{'X-WR-CALNAME'}?->getValue() ?? '');
+
+    $calendar = $this->readCalendar('/termine.ics?course=' . $this->course->id());
+    $events = $calendar->select('VEVENT');
+    self::assertCount(4, $events);
+    $lesson_uids = array_map(static fn (NodeInterface $lesson): string => 'event-' . $lesson->id() . '@', $this->lessons);
+    foreach ($events as $event) {
+      $uid = (string) $event->UID->getValue();
+      self::assertNotSame(
+        [],
+        array_filter($lesson_uids, static fn (string $prefix): bool => str_starts_with($uid, $prefix)),
+        $uid,
+      );
+    }
+    self::assertSame('Salsa am Sund – Termine – Anfänger', $calendar->{'X-WR-CALNAME'}?->getValue());
+
+    $calendar = $this->readCalendar('/termine.ics?organizer=' . $this->salsaAmSund . ',' . $this->externalOrganizer . '&course=' . $this->course->id());
+    self::assertSame('Salsa am Sund – Termine – Salsa am Sund, Sonstige, Anfänger', $calendar->{'X-WR-CALNAME'}?->getValue());
+    $calendar = $this->readCalendar('/termine.ics?type=course');
+    self::assertSame('Salsa am Sund – Termine – Kurs', $calendar->{'X-WR-CALNAME'}?->getValue());
+
+    $calendar = $this->readCalendar('/termine.ics?past=0');
+    self::assertFalse($this->containsNode($calendar, $this->pastId));
+    $calendar = $this->readCalendar('/termine.ics?past=10');
+    self::assertTrue($this->containsNode($calendar, $this->pastId));
+
     $response = $this->request('/termine.ics?type=party&past=14');
     self::assertSame('text/calendar; charset=utf-8', $response->headers->get('Content-Type'));
     self::assertSame('inline; filename="salsa-am-sund.ics"', $response->headers->get('Content-Disposition'));
-
     $cacheability = $response->getCacheableMetadata();
-    self::assertContains('node_list:event', $cacheability->getCacheTags());
-    self::assertContains('node_list:course', $cacheability->getCacheTags());
-    self::assertContains('taxonomy_term_list:location', $cacheability->getCacheTags());
-    self::assertContains('taxonomy_term_list:organizer', $cacheability->getCacheTags());
-    self::assertContains('url.query_args:type', $cacheability->getCacheContexts());
-    self::assertContains('url.query_args:organizer', $cacheability->getCacheContexts());
-    self::assertContains('url.query_args:location', $cacheability->getCacheContexts());
-    self::assertContains('url.query_args:course', $cacheability->getCacheContexts());
-    self::assertContains('url.query_args:past', $cacheability->getCacheContexts());
+    foreach ([
+      'node_list:event',
+      'node_list:course',
+      'node_list:lesson',
+      'taxonomy_term_list:location',
+      'taxonomy_term_list:organizer',
+    ] as $tag) {
+      self::assertContains($tag, $cacheability->getCacheTags());
+    }
+    foreach ([
+      'url.query_args:type',
+      'url.query_args:organizer',
+      'url.query_args:location',
+      'url.query_args:course',
+      'url.query_args:past',
+    ] as $context) {
+      self::assertContains($context, $cacheability->getCacheContexts());
+    }
     self::assertSame(3600, $cacheability->getCacheMaxAge());
   }
 
   /**
-   * Tests the past window boundaries.
+   * Returns whether the calendar contains an event of a node.
+   *
+   * @param \Sabre\VObject\Component\VCalendar $calendar
+   *   The calendar.
+   * @param int $node_id
+   *   The node ID.
    */
-  public function testPastWindow(): void {
-    $calendar = $this->readCalendar('/termine.ics?past=0');
-    $past_found = FALSE;
+  private function containsNode(VCalendar $calendar, int $node_id): bool {
     foreach ($calendar->select('VEVENT') as $event) {
-      if (str_contains((string) $event->UID->getValue(), 'event-' . $this->pastId . '-')) {
-        $past_found = TRUE;
+      if (str_contains((string) $event->UID->getValue(), 'event-' . $node_id . '@')) {
+        return TRUE;
       }
     }
-    self::assertFalse($past_found);
-
-    $calendar = $this->readCalendar('/termine.ics?past=10');
-    $past_found = FALSE;
-    foreach ($calendar->select('VEVENT') as $event) {
-      if (str_contains((string) $event->UID->getValue(), 'event-' . $this->pastId . '-')) {
-        $past_found = TRUE;
-      }
-    }
-    self::assertTrue($past_found);
+    return FALSE;
   }
 
   /**
@@ -397,23 +362,6 @@ final class IcalControllerTest extends EventKernelTestBase {
    */
   private function request(string $uri): CacheableResponse {
     return $this->controller->__invoke(Request::create('https://salsa-am-sund.localhost' . $uri));
-  }
-
-  /**
-   * Indexes the calendar events by their node ID.
-   *
-   * @param \Sabre\VObject\Component\VCalendar $calendar
-   *   The calendar.
-   *
-   * @return \Sabre\VObject\Component\VEvent[]
-   *   The events, keyed by node ID.
-   */
-  private function eventsByNodeId(VCalendar $calendar): array {
-    $events = [];
-    foreach ($calendar->select('VEVENT') as $event) {
-      $events[(int) preg_replace('/^event-(\d+)-\d+@.*$/', '$1', (string) $event->UID->getValue())] = $event;
-    }
-    return $events;
   }
 
   /**

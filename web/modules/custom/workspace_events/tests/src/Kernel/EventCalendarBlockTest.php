@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[CoversClass(EventCalendarBlock::class)]
 #[Group('workspace_events')]
 #[RunTestsInSeparateProcesses]
-final class EventCalendarBlockTest extends EventKernelTestBase {
+final class EventCalendarBlockTest extends LessonKernelTestBase {
 
   /**
    * The block plugin manager.
@@ -36,34 +36,34 @@ final class EventCalendarBlockTest extends EventKernelTestBase {
    */
   public function testBuild(): void {
     $location = $this->createLocation('Bootshaus Stralsund');
-    $this->createCourse([
+    $start = $this->date('now +2 days', '18:15');
+    $course = $this->createCourse([
       'title' => 'Anfänger',
       'field_location' => $location->id(),
-      'field_when' => [
-        $this->dateDelta($this->date('now +2 days', '18:15'), $this->date('now +2 days', '19:15')),
-      ],
+      ...$this->courseSchedule($start, $start),
     ]);
     // One event before and one after the course, so the card order is testable.
     $guest = $this->createEvent([
       'title' => 'Gastparty',
       'field_organizer' => $this->externalOrganizer,
-      'field_when' => [
-        $this->dateDelta($this->date('now +1 day', '21:00'), $this->date('now +1 day', '23:00')),
-      ],
+      'field_event_date' => $this->smartDateRange(
+        $this->date('now +1 day', '21:00'),
+        $this->date('now +1 day', '23:00'),
+      ),
     ]);
     $this->createEvent([
       'title' => 'Salsa-Nacht',
       'field_location' => $location->id(),
-      'field_when' => [
-        $this->dateDelta($this->date('now +3 days', '20:00'), $this->date('now +3 days', '23:00')),
-      ],
+      'field_event_date' => $this->smartDateRange(
+        $this->date('now +3 days', '20:00'),
+        $this->date('now +3 days', '23:00'),
+      ),
     ]);
     // Outside the 28-day card window, so it must not become a card.
+    $late = $this->date('now +200 days', '18:15');
     $this->createCourse([
       'title' => 'Später Kurs',
-      'field_when' => [
-        $this->dateDelta($this->date('now +200 days', '18:15'), $this->date('now +200 days', '19:15')),
-      ],
+      ...$this->courseSchedule($late, $late),
     ]);
 
     $block = $this->blockManager->createInstance('salsa_event_calendar', []);
@@ -118,8 +118,15 @@ final class EventCalendarBlockTest extends EventKernelTestBase {
     ));
     self::assertSame('salsa:event', $items[0]['card']['#component']);
     self::assertSame(
-      '/termine/' . $guest->id() . '/0/ical',
+      '/termine/' . $guest->id() . '/ical',
       $items[0]['card']['#props']['ical_href'],
+    );
+
+    $lessons = $this->loadCourseLessons($course);
+    self::assertCount(1, $lessons);
+    self::assertSame(
+      '/termine/' . $lessons[0]->id() . '/ical',
+      $items[1]['card']['#props']['ical_href'],
     );
 
     // The block output does not depend on the request.
@@ -130,6 +137,7 @@ final class EventCalendarBlockTest extends EventKernelTestBase {
       'taxonomy_term_list:organizer',
       'node_list:event',
       'node_list:course',
+      'node_list:lesson',
       'taxonomy_term:' . $this->salsaAmSund,
       'taxonomy_term:' . $this->externalOrganizer,
     ] as $tag) {

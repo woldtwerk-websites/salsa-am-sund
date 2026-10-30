@@ -3,14 +3,12 @@ status: true
 dependencies:
   config:
     - field.field.node.course.body
-    - field.field.node.course.field_level
-    - field.field.node.course.field_link
+    - field.field.node.course.field_difficulty
+    - field.field.node.course.field_lessons
     - field.field.node.course.field_location
-    - field.field.node.course.field_when
     - node.type.course
   module:
-    - link
-    - smart_date
+    - options
     - text
     - user
 id: node.course.default
@@ -25,31 +23,20 @@ content:
     third_party_settings: {  }
     weight: 5
     region: content
-  content_moderation_control:
-    settings: {  }
-    third_party_settings: {  }
-    weight: -20
-    region: content
-  field_level:
-    type: string
+  field_difficulty:
+    type: list_default
     label: inline
-    settings:
-      link_to_entity: false
-      link_rel: canonical
+    settings: {  }
     third_party_settings: {  }
     weight: 3
     region: content
-  field_link:
-    type: link
+  field_lessons:
+    type: entity_reference_label
     label: inline
     settings:
-      trim_length: 80
-      url_only: false
-      url_plain: false
-      rel: ''
-      target: ''
+      link: true
     third_party_settings: {  }
-    weight: 4
+    weight: 6
     region: content
   field_location:
     type: entity_reference_label
@@ -59,32 +46,13 @@ content:
     third_party_settings: {  }
     weight: 2
     region: content
-  field_when:
-    type: smartdate_default
-    label: inline
-    settings:
-      timezone_override: ''
-      format_type: medium
-      format: default
-      force_chronological: false
-      add_classes: false
-      time_wrapper: true
-      localize: false
-      parts:
-        - start
-        - end
-      duration:
-        separator: ' | '
-        unit: ''
-        decimals: 2
-        suffix: h
-    third_party_settings: {  }
-    weight: 0
-    region: content
   links:
     settings: {  }
     third_party_settings: {  }
     weight: 100
     region: content
 hidden:
+  field_course_first: true
+  field_course_interval: true
+  field_course_last: true
   langcode: true

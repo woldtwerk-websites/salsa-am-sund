@@ -5,6 +5,41 @@ services:
     autowire: true
   Drupal\workspace_events\DetailFieldResolver:
     autowire: true
+  Drupal\workspace_events\ConfigRecordLoader:
+    arguments:
+      - '@config.storage.sync'
+      - '@extension.path.resolver'
+  Drupal\workspace_events\SiteTimeZone:
+    autowire: true
+  Drupal\workspace_events\LessonCourseResolver:
+    autowire: true
+  Drupal\workspace_events\LessonGenerator:
+    autowire: true
+  Drupal\workspace_events\LearnedFigureFlagger:
+    arguments:
+      - '@entity_type.manager'
+      - '@?flag'
+  Drupal\workspace_events\MemberProgress:
+    autowire: true
+  Drupal\workspace_events\ScheduleMigrator:
+    autowire: true
+  Drupal\workspace_events\LessonInstaller:
+    autowire: true
+  Drupal\workspace_events\CourseDifficultyMigrator:
+    arguments:
+      - '@entity_type.manager'
+      - '@Drupal\workspace_events\ConfigRecordLoader'
+  Drupal\workspace_events\EventSubscriber\HtmxFlagResponseSubscriber:
+    autowire: true
+    tags:
+      - { name: event_subscriber }
+  Drupal\workspace_events\EventSubscriber\MyCoursesRouteSubscriber:
+    tags:
+      - { name: event_subscriber }
+  Drupal\workspace_events\EventSubscriber\LessonRedirectSubscriber:
+    autowire: true
+    tags:
+      - { name: event_subscriber }
   Drupal\workspace_events\StructuredDataBuilder:
     autowire: true
   Drupal\workspace_events\OrganizerResolver:
@@ -12,3 +47,21 @@ services:
   Drupal\workspace_events\EventFilterFactory:
     arguments:
       - '@Drupal\workspace_events\OrganizerResolver'
+  Drupal\workspace_events\Attendance\AttendancePhotoTextParser:
+    autowire: true
+  Drupal\workspace_events\Attendance\MemberNameLoader:
+    autowire: true
+  Drupal\workspace_events\Attendance\MemberNameLoaderInterface:
+    alias: Drupal\workspace_events\Attendance\MemberNameLoader
+  Drupal\workspace_events\Attendance\MemberMatcher:
+    autowire: true
+  Drupal\workspace_events\Attendance\PreviousAttendance:
+    autowire: true
+  Drupal\workspace_events\Attendance\OcrBackendResolver:
+    arguments:
+      - '@config.factory'
+      - '@?ai.provider'
+  Drupal\workspace_events\Attendance\OcrBackendResolverInterface:
+    alias: Drupal\workspace_events\Attendance\OcrBackendResolver
+  Drupal\workspace_events\Attendance\AttendanceRecognizer:
+    autowire: true

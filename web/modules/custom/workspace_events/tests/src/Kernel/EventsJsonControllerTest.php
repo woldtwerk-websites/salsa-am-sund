@@ -10,6 +10,8 @@ use Drupal\node\NodeInterface;
 use Drupal\workspace_events\Controller\EventsJsonController;
 use Drupal\workspace_events\EventFilterFactory;
 use Drupal\workspace_events\EventOccurrenceRepository;
+use Drupal\workspace_events\LessonCourseResolver;
+use Drupal\workspace_events\SiteTimeZone;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -22,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(EventsJsonController::class)]
 #[Group('workspace_events')]
 #[RunTestsInSeparateProcesses]
-final class EventsJsonControllerTest extends EventKernelTestBase {
+final class EventsJsonControllerTest extends LessonKernelTestBase {
 
   /**
    * The JSON controller.
@@ -30,9 +32,16 @@ final class EventsJsonControllerTest extends EventKernelTestBase {
   private EventsJsonController $controller;
 
   /**
-   * The course node ID.
+   * The course node.
    */
-  private int $courseId;
+  private NodeInterface $course;
+
+  /**
+   * The lessons of the course.
+   *
+   * @var \Drupal\node\NodeInterface[]
+   */
+  private array $lessons;
 
   /**
    * The location A term ID.
@@ -62,68 +71,57 @@ final class EventsJsonControllerTest extends EventKernelTestBase {
     $this->locationB = (int) $location_b->id();
 
     $start = $this->date('now +2 days', '18:15');
-    $weekdays = [1 => 'MO', 2 => 'TU', 3 => 'WE', 4 => 'TH', 5 => 'FR', 6 => 'SA', 7 => 'SU'];
-    $course = $this->createCourse([
+    $this->course = $this->createCourse([
       'title' => 'Anfänger',
       'field_location' => $this->locationA,
-      'field_when' => $this->recurringDeltas(
-        $start,
-        $start->setTime(19, 15),
-        'WEEKLY',
-        'INTERVAL=1;BYDAY=' . $weekdays[(int) $start->format('N')],
-        'COUNT=4',
-        'course',
-      ),
+      ...$this->courseSchedule($start, $start->modify('+3 weeks')),
     ]);
-    $this->courseId = (int) $course->id();
+    $this->lessons = $this->loadCourseLessons($this->course);
 
     $this->createEvent([
       'title' => 'Salsa-Nacht am Sund',
       'field_location' => $this->locationA,
       'field_link' => ['uri' => 'https://www.ballhaus-goldfisch.de/', 'title' => 'ballhaus goldfisch'],
-      'field_when' => [
-        $this->dateDelta($this->date('now +3 days', '18:00'), $this->date('now +3 days', '22:00')),
-      ],
+      'field_event_date' => $this->smartDateRange(
+        $this->date('now +3 days', '18:00'),
+        $this->date('now +3 days', '22:00'),
+      ),
     ]);
-
     $this->createEvent([
       'title' => 'Tanzabend im Freien',
       'field_location' => $this->locationB,
-      'field_when' => [
-        $this->allDayDelta($this->date('now +10 days')),
-      ],
+      'field_event_date' => $this->allDaySmartDateRange($this->date('now +10 days')),
     ]);
-
     $this->createEvent([
       'title' => 'Externe Party',
       'field_organizer' => $this->externalOrganizer,
       'field_location' => $this->locationA,
-      'field_when' => [
-        $this->dateDelta($this->date('now +5 days', '20:00'), NULL),
-      ],
+      'field_event_date' => $this->smartDateRange(
+        $this->date('now +5 days', '20:00'),
+        $this->date('now +5 days', '23:00'),
+      ),
     ]);
-
-    // Unpublished nodes are not part of the calendar.
     $this->createEvent([
       'title' => 'Entwurf',
       'status' => NodeInterface::NOT_PUBLISHED,
-      'field_when' => [
-        $this->dateDelta($this->date('now +4 days', '18:00'), $this->date('now +4 days', '22:00')),
-      ],
+      'field_event_date' => $this->smartDateRange(
+        $this->date('now +4 days', '18:00'),
+        $this->date('now +4 days', '22:00'),
+      ),
     ]);
   }
 
   /**
-   * Tests the event items of a range.
+   * Tests events, all-day events, course lessons and a cancellation.
    */
-  public function testEvents(): void {
+  public function testContent(): void {
     $items = $this->items($this->range());
     self::assertCount(7, $items);
 
     $event = $this->findByTitle($items, 'Salsa-Nacht am Sund');
     $start = $this->date('now +3 days', '18:00');
     self::assertSame('Salsa-Nacht am Sund', $event['title']);
-    self::assertMatchesRegularExpression('/^\d+-\d+-\d+$/', $event['id']);
+    self::assertMatchesRegularExpression('/^\d+-\d+$/', $event['id']);
     self::assertSame($start->format(\DateTimeInterface::ATOM), $event['start']);
     self::assertSame($start->setTime(22, 0)->format(\DateTimeInterface::ATOM), $event['end']);
     self::assertFalse($event['allDay']);
@@ -132,69 +130,69 @@ final class EventsJsonControllerTest extends EventKernelTestBase {
     self::assertSame('Bootshaus Stralsund', $event['extendedProps']['location']);
     self::assertSame('Salsa am Sund', $event['extendedProps']['organizer']);
     self::assertFalse($event['extendedProps']['course']);
+    self::assertFalse($event['extendedProps']['cancelled']);
+    self::assertSame('Sonstige', $this->findByTitle($items, 'Externe Party')['extendedProps']['organizer']);
 
-    $open_end = $this->findByTitle($items, 'Externe Party');
-    self::assertNull($open_end['end']);
-    self::assertSame('Sonstige', $open_end['extendedProps']['organizer']);
-  }
-
-  /**
-   * Tests the all-day date format.
-   */
-  public function testAllDayEvent(): void {
-    $items = $this->items($this->range());
     $all_day = $this->findByTitle($items, 'Tanzabend im Freien');
     $day = $this->date('now +10 days');
-
     self::assertTrue($all_day['allDay']);
     self::assertSame($day->format('Y-m-d'), $all_day['start']);
-    // FullCalendar expects an exclusive end date for whole-day events.
     self::assertSame($day->modify('+1 day')->format('Y-m-d'), $all_day['end']);
     self::assertSame('Treff ZuverSICht', $all_day['extendedProps']['location']);
-  }
 
-  /**
-   * Tests that a recurring course yields one item per occurrence.
-   */
-  public function testRecurringCourse(): void {
     $items = $this->items($this->range() + ['type' => 'course']);
     self::assertCount(4, $items);
-
     $starts = [];
-    foreach ($items as $item) {
+    foreach ($items as $index => $item) {
       self::assertSame('Anfänger', $item['title']);
       self::assertSame(['is-course'], $item['classNames']);
       self::assertTrue($item['extendedProps']['course']);
+      self::assertFalse($item['extendedProps']['cancelled']);
       self::assertNull($item['extendedProps']['organizer']);
       self::assertSame('Bootshaus Stralsund', $item['extendedProps']['location']);
+      self::assertStringStartsWith($this->lessons[$index]->id() . '-', $item['id']);
       $starts[] = $item['start'];
     }
     self::assertCount(4, array_unique($starts));
+
+    $this->lessons[1]->set('field_cancelled', TRUE);
+    $this->lessons[1]->save();
+    // The repository memoizes its results, so a fresh request is needed to see
+    // the changed lesson.
+    $repository = new EventOccurrenceRepository(
+      $this->container->get('entity_type.manager'),
+      $this->container->get(SiteTimeZone::class),
+      $this->container->get(LessonCourseResolver::class),
+      $this->container->get('database'),
+      $this->container->get('datetime.time'),
+    );
+    $this->controller = new EventsJsonController(
+      $repository,
+      $this->container->get(EventFilterFactory::class),
+    );
+    $items = $this->items($this->range() + ['type' => 'course']);
+    self::assertCount(4, $items);
+    self::assertFalse($items[0]['extendedProps']['cancelled']);
+    self::assertTrue($items[1]['extendedProps']['cancelled']);
+    self::assertContains('is-cancelled', $items[1]['classNames']);
+    self::assertNotContains('is-cancelled', $items[0]['classNames']);
   }
 
   /**
-   * Tests that an organizer and a course selection are combined with OR.
+   * Tests the OR filter and the response cache metadata.
    */
-  public function testOrFilter(): void {
+  public function testOrFilterAndCacheMetadata(): void {
     $items = $this->items($this->range() + [
       'organizer' => (string) $this->externalOrganizer,
-      'course' => (string) $this->courseId,
+      'course' => (string) $this->course->id(),
     ]);
-
-    // The organizer's event and the selected course are both returned.
     self::assertSame(
       ['Anfänger', 'Externe Party', 'Anfänger', 'Anfänger', 'Anfänger'],
       array_column($items, 'title'),
     );
-  }
 
-  /**
-   * Tests the response cache metadata.
-   */
-  public function testCacheMetadata(): void {
     $response = $this->request($this->range());
     self::assertInstanceOf(CacheableJsonResponse::class, $response);
-
     $cacheability = $response->getCacheableMetadata();
     foreach ([
       'url.query_args:start',
@@ -209,6 +207,7 @@ final class EventsJsonControllerTest extends EventKernelTestBase {
     foreach ([
       'node_list:event',
       'node_list:course',
+      'node_list:lesson',
       'taxonomy_term_list:location',
       'taxonomy_term_list:organizer',
       'taxonomy_term:' . $this->locationA,
@@ -216,8 +215,6 @@ final class EventsJsonControllerTest extends EventKernelTestBase {
     ] as $tag) {
       self::assertContains($tag, $cacheability->getCacheTags());
     }
-
-    // The requested window is absolute, so the response does not expire.
     self::assertSame(Cache::PERMANENT, $cacheability->getCacheMaxAge());
   }
 

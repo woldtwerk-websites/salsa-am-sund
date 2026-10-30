@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_difficulty
+    - node.type.course
+  module:
+    - options
+id: node.course.field_difficulty
+field_name: field_difficulty
+entity_type: node
+bundle: course
+label: Level
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_integer

@@ -6,14 +6,25 @@ core_version_requirement: ^11.3
 'interface translation project': workspace_events
 'interface translation server pattern': modules/custom/workspace_events/translations/%language.po
 dependencies:
-  - drupal:content_moderation
+  - drupal:datetime_range
+  - drupal:image
   - drupal:link
+  - drupal:media
+  - drupal:media_library
   - drupal:node
   - drupal:options
   - drupal:path
   - drupal:taxonomy
   - drupal:text
+  - drupal:user
+  - drupal:views
+  - ai:ai
+  - ai_provider_opencode:ai_provider_opencode
   - canvas:canvas
+  - field_widget_actions:field_widget_actions
+  - flag:flag
+  - key:key
   - pathauto:pathauto
+  - scheduler:scheduler
   - smart_date:smart_date
   - smart_date:smart_date_recur

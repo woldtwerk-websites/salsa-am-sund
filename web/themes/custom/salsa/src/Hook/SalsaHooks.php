@@ -6,11 +6,11 @@ namespace Drupal\salsa\Hook;
 
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Component\Render\MarkupInterface;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Language\LanguageManagerInterface;
@@ -21,10 +21,11 @@ use Drupal\Core\Template\Attribute;
 use Drupal\Core\Url;
 use Drupal\canvas\Entity\ContentTemplate;
 use Drupal\canvas\Entity\Page;
-use Drupal\file\FileInterface;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
 use Drupal\workspace_gallery\GalleryImages;
+use Drupal\workspace_site\UserAvatar;
+use Drupal\workspace_site\UserMenuBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -37,6 +38,16 @@ final class SalsaHooks {
   /**
    * OpenID Connect client IDs mapped to their CoreUI brand icon ID.
    */
+  /**
+   * Node bundles whose full template renders its own full-width hero.
+   *
+   * Their pages are not wrapped in the route content container, so the hero
+   * spans the whole viewport like the hero of a Canvas page.
+   *
+   * @var string[]
+   */
+  private const FULL_BLEED_BUNDLES = ['course', 'event'];
+
   private const PROVIDER_ICONS = [
     'google' => 'google',
     'github' => 'github',
@@ -61,12 +72,12 @@ final class SalsaHooks {
    *   The language manager.
    * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter
    *   The date formatter.
-   * @param \Drupal\Core\File\FileUrlGeneratorInterface $fileUrlGenerator
-   *   The file URL generator.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory.
+   * @param \Drupal\workspace_site\UserAvatar $userAvatar
+   *   The avatar resolver.
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   The service container, used to load optional module services lazily.
    */
@@ -74,9 +85,9 @@ final class SalsaHooks {
     private readonly RouteMatchInterface $routeMatch,
     private readonly LanguageManagerInterface $languageManager,
     private readonly DateFormatterInterface $dateFormatter,
-    private readonly FileUrlGeneratorInterface $fileUrlGenerator,
     private readonly TimeInterface $time,
     private readonly ConfigFactoryInterface $configFactory,
+    private readonly UserAvatar $userAvatar,
     private readonly ContainerInterface $container,
   ) {}
 
@@ -126,7 +137,7 @@ final class SalsaHooks {
 
     $count = $node->hasField('field_gallery_images') ? $node->get('field_gallery_images')->count() : 0;
     $variables['gallery_image_count'] = $count;
-    $variables['gallery_image_count_label'] = $this->formatPlural($count, '@count Bild', '@count Bilder');
+    $variables['gallery_image_count_label'] = $this->formatPlural($count, '@count image', '@count images');
 
     $cache = CacheableMetadata::createFromRenderArray($variables);
     $cache->merge($result['cache']);
@@ -197,34 +208,9 @@ final class SalsaHooks {
       return;
     }
 
-    $name = (string) $user->getDisplayName();
-    $words = preg_split('/\s+/', trim($name)) ?: [];
-    $initials = '';
-    foreach ($words as $word) {
-      if ($word !== '') {
-        $initials .= mb_substr($word, 0, 1);
-      }
-    }
-    $variables['salsa_initials'] = mb_strtoupper(mb_substr($initials, 0, 2));
-
-    $picture = [];
-    if ($user->hasField('user_picture') && !$user->get('user_picture')->isEmpty()) {
-      $file = $user->get('user_picture')->entity;
-      if ($file instanceof FileInterface) {
-        $uri = $file->getFileUri();
-        $width = $file->get('width')->value ?? 0;
-        $height = $file->get('height')->value ?? 0;
-        if ($uri !== NULL) {
-          $picture = [
-            'src' => $this->fileUrlGenerator->generateString($uri),
-            'alt' => $name,
-            'width' => is_numeric($width) ? (int) $width : 0,
-            'height' => is_numeric($height) ? (int) $height : 0,
-          ];
-        }
-      }
-    }
-    $variables['salsa_profile_picture'] = $picture;
+    $avatar = $this->userAvatar->get($user);
+    $variables['salsa_initials'] = $avatar['initials'];
+    $variables['salsa_profile_picture'] = $avatar['picture'];
 
     $created = (int) $user->getCreatedTime();
     if ($created > 0) {
@@ -233,7 +219,7 @@ final class SalsaHooks {
         max(0, $this->time->getRequestTime() - $created),
         2,
       );
-      $variables['salsa_member_since'] = $this->t('Mitglied seit @date (vor @interval)', [
+      $variables['salsa_member_since'] = $this->t('Member since @date (@interval ago)', [
         '@date' => $date,
         '@interval' => $interval,
       ]);
@@ -245,7 +231,65 @@ final class SalsaHooks {
     // The "vor ..." interval changes over time even when the profile is cached.
     $cache = $variables['#cache'] ?? [];
     $cache = is_array($cache) ? $cache : [];
-    $cache['max-age'] = 3600;
+    $metadata = CacheableMetadata::createFromRenderArray($variables);
+    $metadata->merge($this->userAvatar->getCacheability($user));
+    $metadata->setCacheMaxAge(3600);
+    $cache['contexts'] = $metadata->getCacheContexts();
+    $cache['tags'] = $metadata->getCacheTags();
+    $cache['max-age'] = $metadata->getCacheMaxAge();
+    $variables['#cache'] = $cache;
+  }
+
+  /**
+   * Implements hook_preprocess_block().
+   *
+   * Renders the account menu block through a lazy builder so the header stays
+   * shared and BigPipe fills in the current user's avatar and links.
+   *
+   * @param array<mixed> $variables
+   *   The theme variables.
+   *
+   * @param-out array<mixed> $variables
+   */
+  #[Hook('preprocess_block')]
+  public function preprocessBlock(array &$variables): void {
+    if (($variables['plugin_id'] ?? NULL) !== 'system_menu_block:account') {
+      return;
+    }
+
+    $configuration = $variables['configuration'] ?? [];
+    $configuration = is_array($configuration) ? $configuration : [];
+    $level = $configuration['level'] ?? 1;
+    $level = is_numeric($level) ? (int) $level : 1;
+    $depth = $configuration['depth'] ?? 1;
+    $depth = is_numeric($depth) ? (int) $depth : 1;
+    $expand_all_items = !empty($configuration['expand_all_items']);
+
+    $variables['content'] = [
+      '#lazy_builder' => [
+        UserMenuBuilder::class . ':build',
+        [$level, $depth, $expand_all_items],
+      ],
+      '#create_placeholder' => TRUE,
+      '#cache' => [
+        'contexts' => ['user'],
+        'tags' => ['config:system.menu.account'],
+        'max-age' => Cache::PERMANENT,
+      ],
+    ];
+
+    // Only the placeholder varies per user. Keep user/session contexts off the
+    // outer block so the rest of the header stays shareable.
+    $cache = $variables['#cache'] ?? [];
+    $cache = is_array($cache) ? $cache : [];
+    $contexts = $cache['contexts'] ?? [];
+    $contexts = is_array($contexts) ? $contexts : [];
+    $cache['contexts'] = array_values(array_filter($contexts, static function (mixed $context): bool {
+      if (!is_string($context)) {
+        return TRUE;
+      }
+      return $context !== 'user' && $context !== 'session' && !str_starts_with($context, 'session.');
+    }));
     $variables['#cache'] = $cache;
   }
 
@@ -278,7 +322,7 @@ final class SalsaHooks {
     $this->addConfigCacheTag($variables);
     $this->injectComponentProp($content, 'salsa:site-header', 'front_url', $front_url);
 
-    if ($this->isCanvasRenderedRoute()) {
+    if ($this->isCanvasRenderedRoute() || $this->isFullBleedNodeRoute()) {
       return;
     }
 
@@ -375,36 +419,36 @@ final class SalsaHooks {
     switch ($form_id) {
       case 'user_login_form':
         $links = [
-          ['url' => Url::fromRoute('user.pass')->toString(), 'label' => $this->t('Passwort vergessen?')],
+          ['url' => Url::fromRoute('user.pass')->toString(), 'label' => $this->t('Forgot password?')],
         ];
         $register = $this->configFactory->get('user.settings')->get('register');
         if (in_array($register, [
           UserInterface::REGISTER_VISITORS,
           UserInterface::REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL,
         ], TRUE)) {
-          $links[] = ['url' => Url::fromRoute('user.register')->toString(), 'label' => $this->t('Konto erstellen')];
+          $links[] = ['url' => Url::fromRoute('user.register')->toString(), 'label' => $this->t('Create account')];
         }
         return [
-          'heading' => $this->t('Anmelden'),
-          'intro' => $this->t('Melde dich mit deinem Konto an.'),
+          'heading' => $this->t('Sign in'),
+          'intro' => $this->t('Sign in with your account.'),
           'links' => $links,
         ];
 
       case 'user_pass':
         return [
-          'heading' => $this->t('Passwort zurücksetzen'),
-          'intro' => $this->t('Gib deinen Benutzernamen oder deine E-Mail-Adresse ein.'),
+          'heading' => $this->t('Reset password'),
+          'intro' => $this->t('Enter your username or email address.', [], ['context' => 'salsa']),
           'links' => [
-            ['url' => Url::fromRoute('user.login')->toString(), 'label' => $this->t('Zur Anmeldung')],
+            ['url' => Url::fromRoute('user.login')->toString(), 'label' => $this->t('Go to sign in')],
           ],
         ];
 
       case 'user_register_form':
         return [
-          'heading' => $this->t('Konto erstellen'),
-          'intro' => $this->t('Erstelle ein Konto, um Kurse zu buchen und Termine im Blick zu behalten.'),
+          'heading' => $this->t('Create account'),
+          'intro' => $this->t('Create an account to book courses and keep track of events.'),
           'links' => [
-            ['url' => Url::fromRoute('user.login')->toString(), 'label' => $this->t('Zur Anmeldung')],
+            ['url' => Url::fromRoute('user.login')->toString(), 'label' => $this->t('Go to sign in')],
           ],
         ];
     }
@@ -552,7 +596,7 @@ final class SalsaHooks {
       unset($name['#description']);
       $attributes = $name['#attributes'] ?? [];
       $attributes = is_array($attributes) ? $attributes : [];
-      $attributes['placeholder'] = $this->t('Benutzername oder E-Mail eingeben');
+      $attributes['placeholder'] = $this->t('Enter username or email');
       $name['#attributes'] = $attributes;
       $form['name'] = $name;
     }
@@ -564,7 +608,7 @@ final class SalsaHooks {
       unset($pass['#description']);
       $attributes = $pass['#attributes'] ?? [];
       $attributes = is_array($attributes) ? $attributes : [];
-      $attributes['placeholder'] = $this->t('Passwort eingeben');
+      $attributes['placeholder'] = $this->t('Enter password');
       $pass['#attributes'] = $attributes;
       // Room for the view_password toggle inside the field.
       self::addClass($pass, 'pe-12');
@@ -780,6 +824,25 @@ final class SalsaHooks {
     $contexts[] = 'route';
     $cache['contexts'] = $contexts;
     $variables['#cache'] = $cache;
+  }
+
+  /**
+   * Checks whether the route renders a node with its own full-width hero.
+   *
+   * Covers the canonical, revision and preview routes, which all render the
+   * node's full template.
+   *
+   * @return bool
+   *   TRUE for course and event nodes.
+   */
+  private function isFullBleedNodeRoute(): bool {
+    foreach ($this->routeMatch->getParameters() as $parameter) {
+      if ($parameter instanceof NodeInterface && in_array($parameter->bundle(), self::FULL_BLEED_BUNDLES, TRUE)) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
   }
 
   /**

@@ -51,3 +51,4 @@ block.settings.salsa_course_schedule:
         constraints:
           Range:
             min: 1
+

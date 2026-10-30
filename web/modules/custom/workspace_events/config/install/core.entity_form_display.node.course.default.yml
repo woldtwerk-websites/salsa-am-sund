@@ -3,19 +3,20 @@ status: true
 dependencies:
   config:
     - field.field.node.course.body
-    - field.field.node.course.field_level
-    - field.field.node.course.field_link
+    - field.field.node.course.field_course_first
+    - field.field.node.course.field_course_last
+    - field.field.node.course.field_course_interval
+    - field.field.node.course.field_difficulty
+    - field.field.node.course.field_lessons
     - field.field.node.course.field_location
-    - field.field.node.course.field_when
     - node.type.course
-    - workflows.workflow.basic_editorial
   module:
-    - content_moderation
-    - link
+    - datetime
+    - datetime_range
+    - options
     - path
-    - smart_date
-    - smart_date_recur
     - text
+    - workspace_events
 id: node.course.default
 targetEntityType: node
 bundle: course
@@ -37,21 +38,35 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-  field_level:
-    type: string_textfield
+  field_course_first:
+    type: daterange_default
+    weight: -21
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_course_last:
+    type: datetime_default
+    weight: -20
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_course_interval:
+    type: options_select
+    weight: -19
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_difficulty:
+    type: options_buttons
     weight: -16
     region: content
-    settings:
-      size: 60
-      placeholder: ''
+    settings: {  }
     third_party_settings: {  }
-  field_link:
-    type: link_default
-    weight: -15
+  field_lessons:
+    type: workspace_events_lesson_table
+    weight: -12
     region: content
-    settings:
-      placeholder_url: ''
-      placeholder_title: ''
+    settings: {  }
     third_party_settings: {  }
   field_location:
     type: options_select
@@ -59,45 +74,12 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-  field_when:
-    type: smartdate_default
-    weight: -18
-    region: content
-    settings:
-      modal: false
-      default_duration: 60
-      default_duration_increments: |-
-        0|kein Ende
-        60|1 Stunde
-        120|2 Stunden
-        240|4 Stunden
-        custom
-      show_extra: false
-      hide_date: true
-      allday: true
-      remove_seconds: false
-      duration_overlay: true
-    third_party_settings:
-      smart_date_recur:
-        modal: false
-        show_single: false
-        allowed_recur_freq_values:
-          DAILY: DAILY
-          WEEKLY: WEEKLY
-          MONTHLY: MONTHLY
-          YEARLY: YEARLY
   langcode:
     type: language_select
     weight: 2
     region: content
     settings:
       include_locked: true
-    third_party_settings: {  }
-  moderation_state:
-    type: moderation_state_default
-    weight: 100
-    region: content
-    settings: {  }
     third_party_settings: {  }
   path:
     type: path
