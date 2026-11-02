@@ -7,6 +7,7 @@
  * - fields: The rendered view fields.
  * - row: The raw result row; its entity supplies the difficulty labels.
  * - dance_figure_levels: The formatted difficulty labels.
+ * - dance_figure_url: The canonical URL of the figure, if available.
  */
 #}
 {% set thumbnail = fields.thumbnail is defined ? fields.thumbnail.content|render : '' %}
@@ -22,6 +23,9 @@
 
 <article class="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-line bg-ink-2 transition duration-300 hover:border-flame-gold/50 hover:shadow-[0_24px_60px_-32px_rgb(224_38_27_/_0.8)]">
   <div class="relative aspect-video w-full overflow-hidden border-b border-line bg-ink">
+    {% if dance_figure_url is defined and dance_figure_url %}
+      <a href="{{ dance_figure_url }}" class="block h-full w-full" tabindex="-1" aria-hidden="true">
+    {% endif %}
     {% if thumbnail|trim is not empty %}
       <div class="h-full w-full [&_img]:h-full [&_img]:w-full [&_img]:object-cover">{{ thumbnail }}</div>
     {% else %}
@@ -34,6 +38,9 @@
           {{ icon('salsa', 'music', {size: 20}) }}
         </span>
       </div>
+    {% endif %}
+    {% if dance_figure_url is defined and dance_figure_url %}
+      </a>
     {% endif %}
   </div>
 

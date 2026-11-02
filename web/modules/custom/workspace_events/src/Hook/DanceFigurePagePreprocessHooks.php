@@ -57,7 +57,8 @@ final class DanceFigurePagePreprocessHooks {
    * Implements hook_preprocess_views_view_fields().
    *
    * The overview cards read the difficulty from the already loaded term, so
-   * the multiple-value labels do not depend on the view's field handler.
+   * the multiple-value labels do not depend on the view's field handler. The
+   * card image links to the canonical URL of the term.
    *
    * @param array<string, mixed> $variables
    *   The theme variables.
@@ -81,6 +82,13 @@ final class DanceFigurePagePreprocessHooks {
 
     $variables['dance_figure_levels'] = $this->detailFieldResolver->getDifficultyLabels($term);
     $this->addDifficultyCacheability($variables, $term);
+
+    // Terms in the view result are saved, but previews may render unsaved ones.
+    if (!$term->isNew()) {
+      $url = $term->toUrl()->toString(TRUE);
+      $variables['dance_figure_url'] = $url->getGeneratedUrl();
+      $url->applyTo($variables);
+    }
   }
 
   /**
