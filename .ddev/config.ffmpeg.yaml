@@ -1,0 +1,4 @@
+# ffmpeg extracts a frame of uploaded videos as the media thumbnail
+# (media_thumbnails_video).
+webimage_extra_packages:
+  - ffmpeg

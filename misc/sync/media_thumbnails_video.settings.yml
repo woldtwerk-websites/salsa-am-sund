@@ -1,0 +1,6 @@
+_core:
+  default_config_hash: e0Aqx8MCgsq0M289DbRCdv3F6bEvKF4RRMwoOO71vPA
+ffmpeg: null
+ffprobe: null
+timeout: '3600'
+threads: '12'

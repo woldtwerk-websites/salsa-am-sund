@@ -97,6 +97,8 @@
         "drupal/mailsystem": "^4",
         "drupal/media_file_delete": "^1",
         "drupal/media_library_bulk_upload": "^1",
+        "drupal/media_thumbnails": "^2.0",
+        "drupal/media_thumbnails_video": "2.1.x-dev#8df07a1e02ffa8ff48fd3503a699f2f0c209c36e",
         "drupal/menu_link_attributes": "^1.5",
         "drupal/mercury": "^1.0.5",
         "drupal/metatag": "^2",
