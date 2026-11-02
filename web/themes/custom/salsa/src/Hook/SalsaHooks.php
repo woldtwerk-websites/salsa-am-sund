@@ -21,6 +21,7 @@ use Drupal\Core\Template\Attribute;
 use Drupal\Core\Url;
 use Drupal\canvas\Entity\ContentTemplate;
 use Drupal\canvas\Entity\Page;
+use Drupal\flag\FlagInterface;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
 use Drupal\workspace_gallery\GalleryImages;
@@ -102,6 +103,41 @@ final class SalsaHooks {
     if (isset($variables['html_attributes']) && $variables['html_attributes'] instanceof Attribute) {
       $variables['html_attributes']->addClass('salsa-theme');
     }
+  }
+
+  /**
+   * Implements hook_preprocess_flag().
+   *
+   * The HTMX link swaps the re-rendered flag link into the page, so the
+   * response of the flag or unflag route is the only link that should animate:
+   * its route name tells whether the heart is being liked or unliked. The
+   * initial page render and the no-JavaScript routes never animate.
+   *
+   * @param array<string, mixed> $variables
+   *   The theme variables.
+   */
+  #[Hook('preprocess_flag')]
+  public function preprocessFlag(array &$variables): void {
+    $flag = $variables['flag'] ?? NULL;
+    if (!$flag instanceof FlagInterface || $flag->id() !== 'like') {
+      return;
+    }
+
+    $variables['heart_effect'] = match ($this->routeMatch->getRouteName()) {
+      'flag.action_link_flag' => 'flag',
+      'flag.action_link_unflag' => 'break',
+      default => NULL,
+    };
+
+    // The swapped-in link differs per route, so the render must be cached by
+    // route name as well.
+    $cache = $variables['#cache'] ?? [];
+    $cache = is_array($cache) ? $cache : [];
+    $contexts = $cache['contexts'] ?? [];
+    $contexts = is_array($contexts) ? $contexts : [];
+    $contexts[] = 'route.name';
+    $cache['contexts'] = $contexts;
+    $variables['#cache'] = $cache;
   }
 
   /**
