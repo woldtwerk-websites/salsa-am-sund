@@ -12,7 +12,7 @@ id: comment.page_comment.comment_body
 field_name: comment_body
 entity_type: comment
 bundle: page_comment
-label: Comment
+label: Kommentar
 description: ''
 required: true
 translatable: true
