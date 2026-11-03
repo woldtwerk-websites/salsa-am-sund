@@ -906,7 +906,7 @@ if (getenv('IS_DDEV_PROJECT') == 'true' && file_exists(__DIR__ . '/settings.ddev
  * Redirect URI to register with each provider:
  * https://<host>/openid-connect/<client>
  */
-foreach (['google' => 'GOOGLE', 'facebook' => 'FACEBOOK', 'github' => 'GITHUB'] as $oidc_client => $oidc_provider) {
+foreach (['google' => 'GOOGLE', 'github' => 'GITHUB'] as $oidc_client => $oidc_provider) {
   $oidc_client_id = getenv('OIDC_' . $oidc_provider . '_CLIENT_ID');
   $oidc_client_secret = getenv('OIDC_' . $oidc_provider . '_CLIENT_SECRET');
   if (is_string($oidc_client_id) && $oidc_client_id !== '' && is_string($oidc_client_secret) && $oidc_client_secret !== '') {

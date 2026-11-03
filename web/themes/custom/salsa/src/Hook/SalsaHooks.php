@@ -56,7 +56,6 @@ final class SalsaHooks {
   private const PROVIDER_ICONS = [
     'google' => 'google',
     'github' => 'github',
-    'facebook' => 'facebook',
   ];
 
   /**
@@ -65,7 +64,6 @@ final class SalsaHooks {
   private const PROVIDER_LABELS = [
     'google' => 'Google',
     'github' => 'GitHub',
-    'facebook' => 'Meta',
   ];
 
   /**

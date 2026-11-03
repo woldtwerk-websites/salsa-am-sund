@@ -46,14 +46,6 @@ final class OpenIdConnectNameResolverTest extends UnitTestCase {
         ],
         ['Maria', 'Pérez'],
       ],
-      'Facebook claims' => [
-        [
-          'first_name' => 'John',
-          'last_name' => 'Doe',
-          'name' => 'John Doe',
-        ],
-        ['John', 'Doe'],
-      ],
       'GitHub full name' => [
         ['name' => 'Maria José Pérez'],
         ['Maria José', 'Pérez'],

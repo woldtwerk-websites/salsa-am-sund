@@ -8,9 +8,9 @@ namespace Drupal\workspace_site;
  * Resolves the first and last name from OpenID Connect user information.
  *
  * The providers name the claims differently: Google sends given_name and
- * family_name, Facebook first_name and last_name, GitHub only a display name.
- * The user name is derived from the first and last name, so the fallbacks keep
- * the generated user name meaningful.
+ * family_name, GitHub only a display name. The user name is derived from the
+ * first and last name, so the fallbacks keep the generated user name
+ * meaningful.
  */
 final class OpenIdConnectNameResolver {
 
@@ -24,10 +24,8 @@ final class OpenIdConnectNameResolver {
    *   The first and last name, empty strings when the claims carry none.
    */
   public static function resolve(array $userinfo): array {
-    $first_name = self::stringValue($userinfo['given_name'] ?? NULL)
-      ?? self::stringValue($userinfo['first_name'] ?? NULL);
-    $last_name = self::stringValue($userinfo['family_name'] ?? NULL)
-      ?? self::stringValue($userinfo['last_name'] ?? NULL);
+    $first_name = self::stringValue($userinfo['given_name'] ?? NULL);
+    $last_name = self::stringValue($userinfo['family_name'] ?? NULL);
 
     if ($first_name !== NULL || $last_name !== NULL) {
       return [$first_name ?? '', $last_name ?? ''];
