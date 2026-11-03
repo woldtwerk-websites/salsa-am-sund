@@ -1,0 +1,68 @@
+{#
+/**
+ * @file
+ * Learned flag link rendered as a round check button.
+ *
+ * Based on Flag's flag.html.twig. The wrapper keeps Flag's classes because the
+ * HTMX link type targets `closest .flag` and Flag's AJAX fallback selects
+ * `.js-flag-*`. SalsaHooks sets `flag_effect` from the route of the request
+ * that renders this link: the HTMX response for a flag pops the check, the
+ * response for an unflag fades it in. A normal page render has no effect, so
+ * the check only shows its state.
+ *
+ * Available variables:
+ * - attributes: HTML attributes for the link element.
+ * - title: The flag link title.
+ * - action: 'flag' or 'unflag'.
+ * - flag: The flag object.
+ * - flaggable: The flaggable entity.
+ * - unflag_denied_text: The message shown when unflagging is denied.
+ * - flag_effect: 'flag' for a flag, 'fade' for an unflag, NULL otherwise.
+ */
+#}
+{{ attach_library('flag/flag.link') }}
+
+{% if action == 'unflag' %}
+  {% set action_class = 'action-unflag' %}
+{% else %}
+  {% set action_class = 'action-flag' %}
+{% endif %}
+
+{% set classes = [
+  'flag',
+  'flag-' ~ flag.id()|clean_class,
+  'js-flag-' ~ flag.id()|clean_class ~ '-' ~ flaggable.id(),
+  action_class,
+] %}
+
+{# Set nofollow to prevent search bots from crawling anonymous flag links. #}
+{% set attributes = attributes.setAttribute('rel', 'nofollow') %}
+{% if title %}
+  {# The tooltip repeats the screen reader title of the link. #}
+  {% set attributes = attributes.setAttribute('title', title) %}
+{% endif %}
+
+{% set flag_effect = flag_effect|default(null) %}
+{% set check_classes = ['salsa-check'] %}
+{% if action == 'unflag' %}
+  {% set check_classes = check_classes|merge(['salsa-check--on']) %}
+{% endif %}
+{% if flag_effect == 'flag' %}
+  {% set check_classes = check_classes|merge(['salsa-check--pop']) %}
+{% endif %}
+{% if flag_effect == 'fade' %}
+  {% set check_classes = check_classes|merge(['salsa-check--fade']) %}
+{% endif %}
+
+<div class="{{ classes|join(' ') }}">
+  {% if title %}
+  <a{{ attributes }}>
+    <span class="relative inline-flex items-center justify-center overflow-visible">
+      {{ icon('salsa', 'circle-check', {size: 20, class: check_classes|join(' ')}) }}
+    </span>
+    <span class="sr-only">{{ title }}</span>
+  </a>
+  {% else %}
+  <span>{{ unflag_denied_text }}</span>
+  {% endif %}
+</div>

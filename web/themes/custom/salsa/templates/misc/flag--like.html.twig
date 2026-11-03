@@ -5,7 +5,7 @@
  *
  * Based on Flag's flag.html.twig. The wrapper keeps Flag's classes because the
  * HTMX link type targets `closest .flag` and Flag's AJAX fallback selects
- * `.js-flag-*`. SalsaHooks sets `heart_effect` from the route of the request
+ * `.js-flag-*`. SalsaHooks sets `flag_effect` from the route of the request
  * that renders this link: the HTMX response for a like pops the heart and pours
  * little hearts, the response for an unlike breaks it. A normal page render has
  * no effect, so the heart only shows its state.
@@ -17,7 +17,7 @@
  * - flag: The flag object.
  * - flaggable: The flaggable entity.
  * - unflag_denied_text: The message shown when unflagging is denied.
- * - heart_effect: 'flag' for a like, 'break' for an unlike, NULL otherwise.
+ * - flag_effect: 'flag' for a like, 'break' for an unlike, NULL otherwise.
  */
 #}
 {{ attach_library('flag/flag.link') }}
@@ -38,12 +38,12 @@
 {# Set nofollow to prevent search bots from crawling anonymous flag links. #}
 {% set attributes = attributes.setAttribute('rel', 'nofollow') %}
 
-{% set heart_effect = heart_effect|default(null) %}
+{% set flag_effect = flag_effect|default(null) %}
 {% set heart_classes = ['salsa-heart'] %}
 {% if action == 'unflag' %}
   {% set heart_classes = heart_classes|merge(['salsa-heart--on']) %}
 {% endif %}
-{% if heart_effect == 'flag' %}
+{% if flag_effect == 'flag' %}
   {% set heart_classes = heart_classes|merge(['salsa-heart--pop']) %}
 {% endif %}
 
@@ -64,7 +64,7 @@
     <span class="relative inline-flex items-center justify-center overflow-visible">
       {{ icon('salsa', 'heart', {size: 20, class: heart_classes|join(' ')}) }}
 
-      {% if heart_effect == 'break' %}
+      {% if flag_effect == 'break' %}
         {# The heart breaks in two: each half is the same heart, clipped to one
            side, moving as one piece over the now empty outline. #}
         <span class="salsa-heart-half salsa-heart-half--left" aria-hidden="true">
@@ -80,7 +80,7 @@
         </svg>
       {% endif %}
 
-      {% if heart_effect == 'flag' %}
+      {% if flag_effect == 'flag' %}
         <span class="salsa-heart-pour" aria-hidden="true">
           {% for particle in pour_particles %}
             <span class="salsa-heart-particle" style="--drift: {{ particle.drift }}px; --rotate: {{ particle.rotate }}deg; --delay: {{ particle.delay }}ms">
