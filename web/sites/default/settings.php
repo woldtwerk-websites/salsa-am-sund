@@ -990,6 +990,20 @@ if (in_array($trusted_host_env, ['production', 'preview'], TRUE)) {
     }
   }
   $settings['trusted_host_patterns'] = array_merge($settings['trusted_host_patterns'] ?? [], $trusted_host_patterns);
+
+  // Production runs behind a TLS-terminating reverse proxy on the podman
+  // "proxy" network. Trust its X-Forwarded-* headers so Drupal generates
+  // https URLs (e.g. the OpenID Connect redirect_uri).
+  $settings['reverse_proxy'] = TRUE;
+  // The app container is only reachable through the proxy network, so the
+  // connecting address is always the proxy.
+  $settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'];
+  $settings['reverse_proxy_trusted_headers'] =
+    \Symfony\Component\HttpFoundation\Request::HEADER_X_FORWARDED_FOR |
+    \Symfony\Component\HttpFoundation\Request::HEADER_X_FORWARDED_HOST |
+    \Symfony\Component\HttpFoundation\Request::HEADER_X_FORWARDED_PORT |
+    \Symfony\Component\HttpFoundation\Request::HEADER_X_FORWARDED_PROTO;
+
 }
 unset($trusted_host_env, $trusted_host_apcu, $trusted_host_key, $trusted_host_patterns, $trusted_host_file, $trusted_host_yaml, $trusted_host_aliases, $trusted_host_alias, $trusted_host);
 
