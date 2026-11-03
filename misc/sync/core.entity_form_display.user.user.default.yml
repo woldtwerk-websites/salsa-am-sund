@@ -8,7 +8,6 @@ dependencies:
     - field.field.user.user.user_picture
     - image.style.thumbnail
   module:
-    - path
     - svg_image
     - user
 _core:
@@ -19,11 +18,13 @@ bundle: user
 mode: default
 content:
   account:
-    weight: -10
+    weight: 2
     region: content
+    settings: {  }
+    third_party_settings: {  }
   field_first_name:
     type: string_textfield
-    weight: -20
+    weight: 0
     region: content
     settings:
       size: 60
@@ -31,27 +32,15 @@ content:
     third_party_settings: {  }
   field_last_name:
     type: string_textfield
-    weight: -19
+    weight: 1
     region: content
     settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-  language:
-    weight: 0
-    region: content
-  path:
-    type: path
-    weight: 30
-    region: content
-    settings: {  }
-    third_party_settings: {  }
-  timezone:
-    weight: 6
-    region: content
   user_picture:
     type: image_image
-    weight: -1
+    weight: 3
     region: content
     settings:
       progress_indicator: throbber
@@ -60,3 +49,6 @@ content:
 hidden:
   contact: true
   langcode: true
+  language: true
+  path: true
+  timezone: true
