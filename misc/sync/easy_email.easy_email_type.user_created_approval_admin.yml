@@ -5,7 +5,7 @@ dependencies: {  }
 _core:
   default_config_hash: 5cKYb7lWoNO7gUjyhPKg1MQPkD8QB_VutMv1JncWDzY
 id: user_created_approval_admin
-label: 'User: Created - Awaiting Approval - Admin Notification'
+label: 'Benutzer: Registriert – wartet auf Freischaltung (Administration)'
 key: ''
 recipient:
   - '[site:mail]'
@@ -14,12 +14,12 @@ bcc: {  }
 fromName: ''
 fromAddress: ''
 replyToAddress: ''
-subject: 'Account details for [easy_email:field_related_user:0:entity:display-name] at [site:name] (pending admin approval)'
+subject: 'Neue Registrierung von [easy_email:field_related_user:0:entity:display-name] auf [site:name]'
 inboxPreview: ''
 bodyHtml:
-  value: '<p>[easy_email:field_related_user:0:entity:display-name] has applied for an account.</p><p><a class="button" href="[easy_email:field_related_user:0:entity:edit-url]">Edit user account</a></p>'
+  value: '<p>[easy_email:field_related_user:0:entity:display-name] hat sich registriert und wartet auf Freischaltung:</p><p><a class="button" href="[easy_email:field_related_user:0:entity:edit-url]">Account prüfen</a></p>'
   format: easy_email
-bodyPlain: "[easy_email:field_related_user:0:entity:display-name] has applied for an account.\r\n\r\n[easy_email:field_related_user:0:entity:edit-url]"
+bodyPlain: "[easy_email:field_related_user:0:entity:display-name] hat sich registriert und wartet auf Freischaltung:\r\n\r\n[easy_email:field_related_user:0:entity:edit-url]"
 generateBodyPlain: false
 attachment: {  }
 saveAttachment: false

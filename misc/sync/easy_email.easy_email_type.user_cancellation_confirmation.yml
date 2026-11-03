@@ -5,7 +5,7 @@ dependencies: {  }
 _core:
   default_config_hash: '---tmZd3cead7Mt_Wgnbs1QNC5SJPiB-FdcLZigl8zU'
 id: user_cancellation_confirmation
-label: 'User: Account Cancellation Confirmation'
+label: 'Benutzer: Bestätigung der Account-Löschung'
 key: ''
 recipient: {  }
 cc: {  }
@@ -13,12 +13,12 @@ bcc: {  }
 fromName: ''
 fromAddress: ''
 replyToAddress: ''
-subject: 'Account cancellation request for [easy_email:recipient_uid:0:entity:display-name] at [site:name]'
+subject: 'Löschung deines Accounts auf [site:name]'
 inboxPreview: ''
 bodyHtml:
-  value: '<p>[easy_email:recipient_uid:0:entity:display-name]</p><p>A request to cancel your account has been made at [site:name].</p><p>You may now cancel your account on <a href="[site:url]">[site:url-brief]</a> by clicking this link:</p><p><a class="button danger" href="[easy_email:recipient_uid:0:entity:cancel-url]">Cancel your account</a></p><p><strong>NOTE: The cancellation of your account is not reversible.</strong></p><p>This link expires in one day and nothing will happen if it is not used.</p><p>-- &nbsp;[site:name] team</p>'
+  value: '<p>Hallo [easy_email:recipient_uid:0:entity:display-name],</p><p>auf [site:name] wurde eine Anfrage zur Löschung deines Accounts gestellt.</p><p>Du kannst deinen Account auf <a href="[site:url]">[site:url-brief]</a> jetzt über diesen Link löschen:</p><p><a class="button danger" href="[easy_email:recipient_uid:0:entity:cancel-url]">Account löschen</a></p><p><strong>Achtung: Die Löschung deines Accounts kann nicht rückgängig gemacht werden.</strong></p><p>Der Link läuft nach einem Tag ab. Wenn du ihn nicht benutzt, passiert nichts.</p><p>Viele Grüße<br>Dein Team von [site:name]</p>'
   format: easy_email
-bodyPlain: "[easy_email:recipient_uid:0:entity:display-name]\r\n\r\nA request to cancel your account has been made at [site:name].\r\n\r\nYou may now cancel your account on [site:url-brief] by clicking this link or copying and pasting it into your browser:\r\n\r\n[easy_email:recipient_uid:0:entity:cancel-url]\r\n\r\nNOTE: The cancellation of your account is not reversible.\r\n\r\nThis link expires in one day and nothing will happen if it is not used.\r\n\r\n--  [site:name] team"
+bodyPlain: "Hallo [easy_email:recipient_uid:0:entity:display-name],\r\n\r\nauf [site:name] wurde eine Anfrage zur Löschung deines Accounts gestellt.\r\n\r\nDu kannst deinen Account auf [site:url-brief] jetzt über diesen Link löschen:\r\n\r\n[easy_email:recipient_uid:0:entity:cancel-url]\r\n\r\nAchtung: Die Löschung deines Accounts kann nicht rückgängig gemacht werden.\r\n\r\nDer Link läuft nach einem Tag ab. Wenn du ihn nicht benutzt, passiert nichts.\r\n\r\nViele Grüße\r\nDein Team von [site:name]"
 generateBodyPlain: false
 attachment: {  }
 saveAttachment: false

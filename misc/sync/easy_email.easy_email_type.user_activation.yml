@@ -5,7 +5,7 @@ dependencies: {  }
 _core:
   default_config_hash: IgeiNHsAfxUgOHSdgQ94BJwptt-eVx51_t9N0mqr7Jw
 id: user_activation
-label: 'User: Account Activation'
+label: 'Benutzer: Account freigeschaltet'
 key: ''
 recipient: {  }
 cc: {  }
@@ -13,12 +13,12 @@ bcc: {  }
 fromName: ''
 fromAddress: ''
 replyToAddress: ''
-subject: 'Account details for [easy_email:recipient_uid:0:entity:display-name] at [site:name] (approved)'
+subject: 'Dein Account auf [site:name] wurde freigeschaltet!'
 inboxPreview: ''
 bodyHtml:
-  value: '<p>[easy_email:recipient_uid:0:entity:display-name],</p><p>Your account at [site:name] has been activated.</p><p>You may now log in by clicking this link or copying and pasting it into your browser:</p><p><a class="button" href="[easy_email:recipient_uid:0:entity:one-time-login-url]">Log in and set your password</a></p><p>This link can only be used once to log in and will lead you to a page where you can set your password.</p><p>After setting your password, you will be able to log in at [site:login-url] in the future using:</p><p>username: [easy_email:recipient_uid:0:entity:account-name]<br>password: Your password</p><p>-- &nbsp;[site:name] team</p>'
+  value: '<p>Hallo [easy_email:recipient_uid:0:entity:display-name],</p><p>dein Account auf [site:name] ist freigeschaltet. Du kannst dich jetzt über diesen Link anmelden und dein Passwort festlegen:</p><p><a class="button" href="[easy_email:recipient_uid:0:entity:one-time-login-url]">Anmelden und Passwort festlegen</a></p><p>Der Link funktioniert nur einmal und führt dich direkt zur Seite, auf der du dein Passwort festlegst.</p><p>Danach kannst du dich auf [site:login-url] jederzeit anmelden mit:</p><p>Benutzername: [easy_email:recipient_uid:0:entity:account-name]<br>Passwort: dein Passwort</p><p>Hast du dich mit Google, GitHub oder Facebook registriert? Dann meldest du dich einfach weiter darüber an.</p><p>Viele Grüße<br>Dein Team von [site:name]</p>'
   format: easy_email
-bodyPlain: "[easy_email:recipient_uid:0:entity:display-name],\r\n\r\nYour account at [site:name] has been activated.\r\n\r\nYou may now log in by clicking this link or copying and pasting it into your browser:\r\n\r\n[easy_email:recipient_uid:0:entity:one-time-login-url]\r\n\r\nThis link can only be used once to log in and will lead you to a page where you can set your password.\r\n\r\nAfter setting your password, you will be able to log in at [site:login-url] in the future using:\r\n\r\nusername: [user:account-name]\r\npassword: Your password\r\n\r\n--  [site:name] team"
+bodyPlain: "Hallo [easy_email:recipient_uid:0:entity:display-name],\r\n\r\ndein Account auf [site:name] ist freigeschaltet. Du kannst dich jetzt über diesen Link anmelden und dein Passwort festlegen:\r\n\r\n[easy_email:recipient_uid:0:entity:one-time-login-url]\r\n\r\nDer Link funktioniert nur einmal und führt dich direkt zur Seite, auf der du dein Passwort festlegst.\r\n\r\nDanach kannst du dich auf [site:login-url] jederzeit anmelden mit:\r\n\r\nBenutzername: [user:account-name]\r\nPasswort: dein Passwort\r\n\r\nHast du dich mit Google, GitHub oder Facebook registriert? Dann meldest du dich einfach weiter darüber an.\r\n\r\nViele Grüße\r\nDein Team von [site:name]"
 generateBodyPlain: false
 attachment: {  }
 saveAttachment: false
