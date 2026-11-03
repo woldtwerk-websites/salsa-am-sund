@@ -312,3 +312,12 @@ msgstr "Benutzermenü"
 
 msgid "Unrecognized username or password. <a href=\":password\">Forgot your password?</a>"
 msgstr "Benutzername oder Passwort sind nicht korrekt. <a href=\":password\">Passwort vergessen?</a>"
+
+msgid "Drop your image here or click to choose"
+msgstr "Bild hier ablegen oder klicken zum Auswählen"
+
+msgid "Uploading…"
+msgstr "Bild wird hochgeladen…"
+
+msgid "More information"
+msgstr "Weitere Informationen"

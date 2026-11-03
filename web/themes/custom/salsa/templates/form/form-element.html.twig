@@ -1,0 +1,117 @@
+{#
+/**
+ * @file
+ * Theme override for a form element.
+ *
+ * Shows the description as a native popover tooltip next to a visible label.
+ * Elements without a visible label or without a description id keep the core
+ * inline description so screen reader-only and unlabelled fields still work.
+ *
+ * Available variables:
+ * - attributes: HTML attributes for the containing element.
+ * - errors: (optional) Any errors for this form element, may not be set.
+ * - prefix: (optional) The form element prefix, may not be set.
+ * - suffix: (optional) The form element suffix, may not be set.
+ * - required: The required marker, or empty if the associated form element is
+ *   not required.
+ * - type: The type of the element.
+ * - name: The name of the element.
+ * - label: A rendered label element.
+ * - label_display: Label display setting: before, after, invisible, attribute
+ *   or none.
+ * - description: (optional) A list of description properties containing:
+ *    - content: A description of the form element, may not be set.
+ *    - attributes: (optional) A list of HTML attributes to apply to the
+ *      description content wrapper. Will only be set when description is set.
+ * - description_display: Description display setting: before, after or
+ *   invisible.
+ * - disabled: True if the element is disabled.
+ * - title_display: Title display setting.
+ *
+ * @see \Drupal\Core\Form\FormPreprocess::preprocessFormElement()
+ * @see form-element.html.twig
+ */
+#}
+{%
+  set classes = [
+    'js-form-item',
+    'form-item',
+    'form-type-' ~ type|clean_class,
+    'js-form-type-' ~ type|clean_class,
+    'form-item-' ~ name|clean_class,
+    'js-form-item-' ~ name|clean_class,
+    title_display not in ['after', 'before'] ? 'form-no-label',
+    disabled == 'disabled' ? 'form-disabled',
+    errors ? 'form-item--error',
+  ]
+%}
+{%
+  set description_classes = [
+    'description',
+    description_display == 'invisible' ? 'visually-hidden',
+  ]
+%}
+{%
+  set tooltip_classes = [
+    'description',
+    'm-0 w-max max-w-[min(20rem,calc(100vw-2rem))]! rounded-lg border border-line bg-ink-2 px-3 py-2 text-xs! leading-relaxed text-sand! shadow-lg',
+  ]
+%}
+{% set description_id = description.attributes['id']|default('') %}
+{% set tooltip = description.content and description_id and label_display in ['before', 'after'] %}
+<div{{ attributes.addClass(classes) }}>
+  {% if label_display == 'before' %}
+    {% if tooltip %}
+      <div class="inline-flex items-center gap-1.5 [&>label]:mb-0!">
+        {{ label }}
+        <button type="button" commandfor="{{ description_id }}" command="toggle-popover" interestfor="{{ description_id }}" aria-label="{{ 'More information'|t }}" style="anchor-name: --desc-{{ description_id|clean_class }}" class="relative z-10 inline-flex size-5 items-center justify-center rounded-full text-mist hover:text-sand focus-visible:outline-2 focus-visible:outline-flame-gold">
+          {{ icon('salsa', 'info', {size: 16}) }}
+        </button>
+        <div{{ description.attributes.addClass(tooltip_classes).setAttribute('popover', 'auto').setAttribute('role', 'tooltip').setAttribute('style', 'position-anchor: --desc-' ~ description_id|clean_class) }}>
+          {{ description.content }}
+        </div>
+      </div>
+    {% else %}
+      {{ label }}
+    {% endif %}
+  {% elseif label_display == 'invisible' %}
+    {{ label }}
+  {% endif %}
+  {% if not tooltip and description_display == 'before' and description.content %}
+    <div{{ description.attributes.addClass(description_classes) }}>
+      {{ description.content }}
+    </div>
+  {% endif %}
+  {% if prefix is not empty %}
+    <span class="field-prefix">{{ prefix }}</span>
+  {% endif %}
+  {{ children }}
+  {% if suffix is not empty %}
+    <span class="field-suffix">{{ suffix }}</span>
+  {% endif %}
+  {% if label_display == 'after' %}
+    {% if tooltip %}
+      <div class="inline-flex items-center gap-1.5 [&>label]:mb-0!">
+        {{ label }}
+        <button type="button" commandfor="{{ description_id }}" command="toggle-popover" interestfor="{{ description_id }}" aria-label="{{ 'More information'|t }}" style="anchor-name: --desc-{{ description_id|clean_class }}" class="relative z-10 inline-flex size-5 items-center justify-center rounded-full text-mist hover:text-sand focus-visible:outline-2 focus-visible:outline-flame-gold">
+          {{ icon('salsa', 'info', {size: 16}) }}
+        </button>
+        <div{{ description.attributes.addClass(tooltip_classes).setAttribute('popover', 'auto').setAttribute('role', 'tooltip').setAttribute('style', 'position-anchor: --desc-' ~ description_id|clean_class) }}>
+          {{ description.content }}
+        </div>
+      </div>
+    {% else %}
+      {{ label }}
+    {% endif %}
+  {% endif %}
+  {% if errors %}
+    <div class="form-item--error-message">
+      {{ errors }}
+    </div>
+  {% endif %}
+  {% if not tooltip and description_display in ['after', 'invisible'] and description.content %}
+    <div{{ description.attributes.addClass(description_classes) }}>
+      {{ description.content }}
+    </div>
+  {% endif %}
+</div>
