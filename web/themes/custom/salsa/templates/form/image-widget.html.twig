@@ -1,0 +1,77 @@
+{#
+/**
+ * @file
+ * Image widget with a dropzone and an upload status row.
+ *
+ * Core renders the preview, the file input, the upload and remove buttons, the
+ * fids field, the optional alt/title fields and errors as children of `data`.
+ * The template keeps all of them in the DOM and only replaces the empty
+ * preview with a dropzone. The uploading row is a template that the behavior
+ * clones while Drupal's AJAX upload runs.
+ *
+ * Available variables:
+ * - attributes: HTML attributes for the widget wrapper.
+ * - data: The image widget children.
+ * - salsa_file: Name and formatted size of the uploaded file, or NULL.
+ * - salsa_file_child: Render key of the uploaded file row, or NULL.
+ *
+ * @see \Drupal\image\Hook\ImageThemeHooks::preprocessImageWidget()
+ * @see \Drupal\salsa\Hook\SalsaHooks::preprocessImageWidget()
+ */
+#}
+{{ attach_library('salsa/image-upload') }}
+{% set data = data|default({}) %}
+{% set salsa_file = salsa_file|default(NULL) %}
+{% set salsa_file_child = salsa_file_child|default(NULL) %}
+<div{{ attributes.addClass('space-y-3 [&_.ajax-progress]:hidden') }} data-salsa-image-upload>
+  {% if salsa_file is empty %}
+    <label
+      data-salsa-dropzone
+      class="flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-line p-6 text-center transition-colors hover:bg-ink-2/60 data-[dragging=true]:border-flame-gold data-[dragging=true]:bg-ink-2/60 focus-within:outline-2 focus-within:outline-flame-gold"
+    >
+      {{ data.upload }}
+      <span class="text-mist" aria-hidden="true">{{ icon('salsa', 'upload', {size: 20}) }}</span>
+      <span class="mt-2 text-sm font-medium text-sand">{{ 'Drop your image here or click to choose'|t }}</span>
+    </label>
+    {{ data|without('preview', 'upload') }}
+  {% else %}
+    <div class="flex items-center gap-3 rounded-md border border-line px-3 py-2 text-xs">
+      {% if data.preview is defined %}
+        <span class="size-10 shrink-0 overflow-hidden rounded bg-ink-2 [&_img]:size-10 [&_img]:object-cover">{{ data.preview }}</span>
+      {% endif %}
+      <span class="flex min-w-0 flex-col">
+        <span class="truncate text-sand">{{ salsa_file.name }}</span>
+        <span class="text-mist">{{ salsa_file.size }}</span>
+      </span>
+      <span class="ms-auto flex items-center gap-2">
+        {{ icon('salsa', 'circle-check', {size: 20, class: 'text-sea'}) }}
+        <span class="relative inline-flex size-8 shrink-0 items-center justify-center rounded text-mist transition-colors hover:text-sand focus-within:outline-2 focus-within:outline-flame-gold [&_input]:absolute [&_input]:inset-0 [&_input]:size-full [&_input]:cursor-pointer [&_input]:opacity-0">
+          {{ icon('salsa', 'x', {size: 20}) }}
+          {{ data.remove_button }}
+        </span>
+      </span>
+    </div>
+    {{ data|without('preview', 'remove_button', salsa_file_child) }}
+    {% if salsa_file_child and data[salsa_file_child] is defined %}
+      {# Keep the fid token of temporary uploads; only the filename link is ours. #}
+      {{ data[salsa_file_child]|without('filename', 'selected') }}
+    {% endif %}
+  {% endif %}
+
+  <template data-salsa-upload-row>
+    <div class="flex items-center gap-3 rounded-md border border-line px-3 py-2 text-xs">
+      <img data-salsa-upload-preview alt="" width="40" height="40" class="size-10 shrink-0 rounded object-cover">
+      <span class="flex min-w-0 flex-col">
+        <span data-salsa-upload-name class="truncate text-sand"></span>
+        <span data-salsa-upload-size class="text-mist"></span>
+      </span>
+      <span class="ms-auto flex items-center gap-2">
+        <span class="h-1 w-20 overflow-hidden rounded-full bg-line" aria-hidden="true">
+          <span class="block h-full w-1/2 animate-upload-progress rounded-full bg-flame-gold motion-reduce:animate-none"></span>
+        </span>
+        <span class="text-mist">{{ icon('salsa', 'loader-circle', {size: 20, class: 'animate-spin motion-reduce:animate-none'}) }}</span>
+        <span class="sr-only" aria-live="polite">{{ 'Uploading…'|t }}</span>
+      </span>
+    </div>
+  </template>
+</div>

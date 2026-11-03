@@ -3,6 +3,7 @@
 
 @source "../../components";
 @source "../../templates";
+@source "../js";
 
 /* Official Tailwind Typography element modifiers, CSS-only. */
 @custom-variant prose-headings (& :is(:where(h1,h2,h3,h4,h5,h6,th):not(:where([class~="not-prose"],[class~="not-prose"] *))));
@@ -71,6 +72,17 @@
   --font-body: "Instrument Sans", "Instrument Sans Variable", system-ui, sans-serif;
 
   --radius-card: 1.25rem;
+
+  --animate-upload-progress: salsa-upload-progress 1.2s ease-in-out infinite;
+
+  @keyframes salsa-upload-progress {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(250%);
+    }
+  }
 }
 
 /* -------------------------------------------------------------------------
@@ -947,6 +959,36 @@
     100% {
       opacity: 0;
       transform: translate(calc(-50% + var(--drift)), -38px) scale(0.9) rotate(var(--rotate));
+    }
+  }
+
+  /* Description tooltips are native popovers anchored to their info button. */
+  [role="tooltip"][popover] {
+    inset: auto;
+    position-area: bottom span-right;
+    margin-top: 0.5rem;
+    position-try-fallbacks: flip-block, flip-inline;
+    opacity: 0;
+    transition:
+      opacity 150ms ease,
+      display 150ms allow-discrete,
+      overlay 150ms allow-discrete;
+    transition-behavior: allow-discrete;
+  }
+
+  [role="tooltip"][popover]:popover-open {
+    opacity: 1;
+  }
+
+  @starting-style {
+    [role="tooltip"][popover]:popover-open {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [role="tooltip"][popover] {
+      transition: none;
     }
   }
 }

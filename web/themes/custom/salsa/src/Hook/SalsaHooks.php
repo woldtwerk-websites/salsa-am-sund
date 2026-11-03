@@ -7,6 +7,7 @@ namespace Drupal\salsa\Hook;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\StringTranslation\ByteSizeMarkup;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
@@ -21,6 +22,7 @@ use Drupal\Core\Template\Attribute;
 use Drupal\Core\Url;
 use Drupal\canvas\Entity\ContentTemplate;
 use Drupal\canvas\Entity\Page;
+use Drupal\file\FileInterface;
 use Drupal\flag\FlagInterface;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
@@ -103,6 +105,59 @@ final class SalsaHooks {
     if (isset($variables['html_attributes']) && $variables['html_attributes'] instanceof Attribute) {
       $variables['html_attributes']->addClass('salsa-theme');
     }
+  }
+
+  /**
+   * Implements hook_preprocess_image_widget().
+   *
+   * @param array<string, mixed> $variables
+   *   The theme variables.
+   */
+  #[Hook('preprocess_image_widget')]
+  public function preprocessImageWidget(array &$variables): void {
+    $element = $variables['element'] ?? NULL;
+    if (!is_array($element)) {
+      return;
+    }
+
+    $files = $element['#files'] ?? [];
+    $file = is_array($files) ? reset($files) : FALSE;
+
+    $data = $variables['data'] ?? [];
+    $data = is_array($data) ? $data : [];
+    $variables['salsa_file'] = NULL;
+    $variables['salsa_file_child'] = NULL;
+
+    if ($file instanceof FileInterface) {
+      $variables['salsa_file'] = [
+        'name' => $file->getFilename(),
+        'size' => ByteSizeMarkup::create((int) $file->getSize()),
+      ];
+      // The template shows the name and size itself, so the file link is not
+      // rendered twice.
+      $variables['salsa_file_child'] = 'file_' . $file->id();
+    }
+    else {
+      // Core shows the field's default image. The empty dropzone must not
+      // pretend that an image is already uploaded.
+      unset($data['preview']);
+    }
+
+    // Keep the real file input in the dropzone label for the focus ring, but
+    // make it visually hidden without touching its id, name or Drupal classes.
+    $upload = $data['upload'] ?? NULL;
+    if (is_array($upload)) {
+      $attributes = $upload['#attributes'] ?? [];
+      $attributes = is_array($attributes) ? $attributes : [];
+      $classes = $attributes['class'] ?? [];
+      $classes = is_array($classes) ? $classes : [];
+      $classes[] = 'sr-only';
+      $attributes['class'] = $classes;
+      $upload['#attributes'] = $attributes;
+      $data['upload'] = $upload;
+    }
+
+    $variables['data'] = $data;
   }
 
   /**
