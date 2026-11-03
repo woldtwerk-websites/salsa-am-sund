@@ -8,9 +8,9 @@ dependencies:
 _core:
   default_config_hash: CHAjzSss2YXSSIH7snaB7Zc9GEubxXtV0XE--SpzCB8
 id: comment
-label: Comments
+label: Kommentare
 module: comment
-description: 'Find and manage comments.'
+description: 'Kommentare finden und verwalten.'
 tag: default
 base_table: comment_field_data
 base_field: cid
@@ -21,7 +21,7 @@ display:
     display_plugin: default
     position: 0
     display_options:
-      title: Comments
+      title: Kommentare
       fields:
         comment_bulk_form:
           id: comment_bulk_form
@@ -88,7 +88,7 @@ display:
           entity_type: comment
           entity_field: subject
           plugin_id: field
-          label: Subject
+          label: Betreff
           exclude: false
           alter:
             alter_text: false
@@ -282,7 +282,7 @@ display:
           entity_type: comment
           entity_field: entity_id
           plugin_id: commented_entity
-          label: 'Posted in'
+          label: 'Veröffentlicht in'
           exclude: false
           alter:
             alter_text: false
@@ -578,7 +578,7 @@ display:
           admin_label: ''
           plugin_id: text_custom
           empty: true
-          content: 'No comments available.'
+          content: 'Keine Kommentare verfügbar.'
           tokenize: false
       sorts:
         changed:
@@ -655,7 +655,7 @@ display:
           exposed: true
           expose:
             operator_id: subject_op
-            label: Subject
+            label: Betreff
             description: ''
             use_operator: false
             operator: subject_op
@@ -693,7 +693,7 @@ display:
           exposed: true
           expose:
             operator_id: combine_op
-            label: 'Author name'
+            label: 'Name des Autors'
             description: ''
             use_operator: false
             operator: combine_op
@@ -872,19 +872,19 @@ display:
       cacheable: false
   page_published:
     id: page_published
-    display_title: 'Published comments'
+    display_title: 'Veröffentlichte Kommentare'
     display_plugin: page
     position: 1
     display_options:
-      display_description: 'The approved comments listing.'
+      display_description: 'Die Liste der freigegebenen Kommentare.'
       display_comment: ''
       exposed_block: false
       display_extenders: {  }
       path: admin/content/comment
       menu:
         type: tab
-        title: Comments
-        description: 'Comments published'
+        title: Kommentare
+        description: 'Veröffentlichte Kommentare'
         weight: 0
         menu_name: admin
         parent: ''
@@ -901,7 +901,7 @@ display:
       cacheable: false
   page_unapproved:
     id: page_unapproved
-    display_title: 'Unapproved comments'
+    display_title: 'Nicht freigegebene Kommentare'
     display_plugin: page
     position: 2
     display_options:
@@ -971,7 +971,7 @@ display:
           entity_type: comment
           entity_field: subject
           plugin_id: field
-          label: Subject
+          label: Betreff
           exclude: false
           alter:
             alter_text: false
@@ -1165,7 +1165,7 @@ display:
           entity_type: comment
           entity_field: entity_id
           plugin_id: commented_entity
-          label: 'Posted in'
+          label: 'Veröffentlicht in'
           exclude: false
           alter:
             alter_text: false
@@ -1469,7 +1469,7 @@ display:
           exposed: true
           expose:
             operator_id: subject_op
-            label: Subject
+            label: Betreff
             description: ''
             use_operator: false
             operator: subject_op
@@ -1507,7 +1507,7 @@ display:
           exposed: true
           expose:
             operator_id: combine_op
-            label: 'Author Name'
+            label: 'Name des Autors'
             description: ''
             use_operator: false
             operator: combine_op
@@ -1583,13 +1583,13 @@ display:
         fields: false
         filters: false
         filter_groups: false
-      display_description: 'The unapproved comments listing.'
+      display_description: 'Die Liste der nicht freigegebenen Kommentare.'
       display_extenders: {  }
       path: admin/content/comment/approval
       menu:
         type: tab
-        title: 'Unapproved comments'
-        description: 'Comments unapproved'
+        title: 'Nicht freigegebene Kommentare'
+        description: 'Nicht freigegebene Kommentare'
         weight: 1
         menu_name: admin
         parent: ''
