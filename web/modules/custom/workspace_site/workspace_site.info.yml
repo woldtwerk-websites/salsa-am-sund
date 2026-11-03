@@ -3,6 +3,8 @@ type: module
 description: 'Canvas-compatible blocks for the Salsa am Sund site.'
 package: Custom
 core_version_requirement: ^11.3
+'interface translation project': workspace_site
+'interface translation server pattern': modules/custom/workspace_site/translations/%language.po
 dependencies:
   - drupal:comment
   - drupal:contact

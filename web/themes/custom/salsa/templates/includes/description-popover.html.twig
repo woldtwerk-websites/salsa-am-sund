@@ -1,0 +1,29 @@
+{#
+/**
+ * @file
+ * Info-icon popover for a form element description.
+ *
+ * Shared by form-element.html.twig and form-element--password.html.twig so the
+ * popover markup lives in one place.
+ *
+ * Available variables:
+ * - description: A list of description properties containing:
+ *    - content: A description of the form element, may not be set.
+ *    - attributes: (optional) A list of HTML attributes to apply to the
+ *      description content wrapper.
+ * - description_id: The id of the description content, targeted by the popover
+ *   button.
+ */
+#}
+{%
+  set tooltip_classes = [
+    'description',
+    'm-0 w-max max-w-[min(20rem,calc(100vw-2rem))]! rounded-lg border border-line bg-ink-2 px-3 py-2 text-xs! leading-relaxed text-sand! shadow-lg',
+  ]
+%}
+<button type="button" commandfor="{{ description_id }}" command="toggle-popover" interestfor="{{ description_id }}" aria-label="{{ 'More information'|t }}" style="anchor-name: --desc-{{ description_id|clean_class }}" class="relative z-10 inline-flex size-5 items-center justify-center rounded-full text-mist hover:text-sand focus-visible:outline-2 focus-visible:outline-flame-gold">
+  {{ icon('salsa', 'info', {size: 16}) }}
+</button>
+<div{{ description.attributes.addClass(tooltip_classes).setAttribute('popover', 'auto').setAttribute('role', 'tooltip').setAttribute('style', 'position-anchor: --desc-' ~ description_id|clean_class) }}>
+  {{ description.content }}
+</div>

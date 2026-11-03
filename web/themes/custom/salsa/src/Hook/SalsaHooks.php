@@ -6,6 +6,7 @@ namespace Drupal\salsa\Hook;
 
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Component\Render\MarkupInterface;
+use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\StringTranslation\ByteSizeMarkup;
 use Drupal\Core\Cache\CacheableMetadata;
@@ -27,6 +28,7 @@ use Drupal\flag\FlagInterface;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
 use Drupal\workspace_gallery\GalleryImages;
+use Drupal\workspace_site\PasswordResetDetector;
 use Drupal\workspace_site\UserAvatar;
 use Drupal\workspace_site\UserMenuBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -81,6 +83,8 @@ final class SalsaHooks {
    *   The config factory.
    * @param \Drupal\workspace_site\UserAvatar $userAvatar
    *   The avatar resolver.
+   * @param \Drupal\workspace_site\PasswordResetDetector $passwordResetDetector
+   *   The password reset detector.
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   The service container, used to load optional module services lazily.
    */
@@ -91,6 +95,7 @@ final class SalsaHooks {
     private readonly TimeInterface $time,
     private readonly ConfigFactoryInterface $configFactory,
     private readonly UserAvatar $userAvatar,
+    private readonly PasswordResetDetector $passwordResetDetector,
     private readonly ContainerInterface $container,
   ) {}
 
@@ -182,7 +187,7 @@ final class SalsaHooks {
 
     $variables['flag_effect'] = match ($this->routeMatch->getRouteName()) {
       'flag.action_link_flag' => 'flag',
-      'flag.action_link_unflag' => 'break',
+      'flag.action_link_unflag' => $flag->id() === 'like' ? 'break' : 'fade',
       default => NULL,
     };
 
@@ -250,8 +255,28 @@ final class SalsaHooks {
     $contexts = $cache['contexts'] ?? [];
     $contexts = is_array($contexts) ? $contexts : [];
     $contexts[] = 'route';
+
+    // The account edit form is titled "Edit profile" for the account owner and
+    // with the account name for everyone else.
+    if ($this->routeMatch->getRouteName() === 'entity.user.edit_form') {
+      $contexts[] = 'user';
+    }
+
+    // The password reset form shows its own heading in the visually hidden
+    // page title and its output depends on the session and the query.
+    $password_reset = $this->passwordResetDetector->isPasswordReset();
+    if ($password_reset) {
+      $contexts = array_merge($contexts, PasswordResetDetector::CACHE_CONTEXTS);
+    }
+
     $cache['contexts'] = $contexts;
     $variables['#cache'] = $cache;
+
+    if ($password_reset) {
+      $variables['title'] = $this->t('Set password');
+      $variables['title_hidden'] = TRUE;
+      return;
+    }
 
     // Canvas pages carry their own <h1> in the hero component, and profile
     // pages carry it in the profile component. The authentication card prints
@@ -262,6 +287,7 @@ final class SalsaHooks {
       'user.login',
       'user.pass',
       'user.register',
+      'workspace_site.complete_registration',
     ], TRUE)) {
       $variables['title'] = '';
     }
@@ -301,9 +327,26 @@ final class SalsaHooks {
       return;
     }
 
+    $elements = $variables['elements'] ?? NULL;
+    $view_mode = $variables['view_mode'] ?? (is_array($elements) ? ($elements['#view_mode'] ?? NULL) : NULL);
+
     $avatar = $this->userAvatar->get($user);
     $variables['salsa_initials'] = $avatar['initials'];
     $variables['salsa_profile_picture'] = $avatar['picture'];
+
+    // The profile page links to its own edit form, but only on the full view
+    // mode and only for accounts the current user may edit.
+    $variables['salsa_edit_url'] = NULL;
+    $edit_access = NULL;
+    if ($view_mode === 'full' && !$user->isNew()) {
+      $access = $user->access('update', NULL, TRUE);
+      if ($access instanceof AccessResultInterface) {
+        $edit_access = $access;
+        if ($access->isAllowed()) {
+          $variables['salsa_edit_url'] = $user->toUrl('edit-form')->toString();
+        }
+      }
+    }
 
     $created = (int) $user->getCreatedTime();
     if ($created > 0) {
@@ -326,6 +369,12 @@ final class SalsaHooks {
     $cache = is_array($cache) ? $cache : [];
     $metadata = CacheableMetadata::createFromRenderArray($variables);
     $metadata->merge($this->userAvatar->getCacheability($user));
+    if ($edit_access !== NULL) {
+      // The edit link depends on the current user, not only on their
+      // permissions.
+      $metadata->addCacheableDependency($edit_access);
+      $metadata->addCacheContexts(['user']);
+    }
     $metadata->setCacheMaxAge(3600);
     $cache['contexts'] = $metadata->getCacheContexts();
     $cache['tags'] = $metadata->getCacheTags();
@@ -425,6 +474,9 @@ final class SalsaHooks {
   /**
    * Implements hook_theme_suggestions_form_alter().
    *
+   * Suggests the authentication card for the login, password and registration
+   * forms, and the account edit layout for the user form.
+   *
    * @param array<int, string> $suggestions
    *   The theme suggestions.
    * @param array<string, mixed> $variables
@@ -434,8 +486,16 @@ final class SalsaHooks {
   public function themeSuggestionsFormAlter(array &$suggestions, array $variables): void {
     $element = $variables['element'] ?? NULL;
     $form_id = is_array($element) ? ($element['#form_id'] ?? NULL) : NULL;
-    if (in_array($form_id, ['user_login_form', 'user_pass', 'user_register_form'], TRUE)) {
+    if (in_array($form_id, [
+      'user_login_form',
+      'user_pass',
+      'user_register_form',
+      'workspace_site_complete_registration',
+    ], TRUE)) {
       $suggestions[] = 'form__user_auth';
+    }
+    elseif ($form_id === 'user_form') {
+      $suggestions[] = 'form__user_edit';
     }
   }
 
@@ -487,6 +547,13 @@ final class SalsaHooks {
     }
 
     $form_id = $element['#form_id'] ?? NULL;
+
+    // The account edit form shows only the password fields right after a
+    // one-time login.
+    if ($form_id === 'user_form') {
+      $variables['salsa_password_reset'] = !empty($element['#salsa_password_reset']);
+    }
+
     $auth = $this->buildAuthCard($form_id);
     if ($auth === NULL) {
       return;
@@ -543,6 +610,13 @@ final class SalsaHooks {
           'links' => [
             ['url' => Url::fromRoute('user.login')->toString(), 'label' => $this->t('Go to sign in')],
           ],
+        ];
+
+      case 'workspace_site_complete_registration':
+        return [
+          'heading' => $this->t('Complete your registration'),
+          'intro' => $this->t('Please add your name. Then we will review your account and activate it.'),
+          'links' => [],
         ];
     }
 
@@ -614,7 +688,49 @@ final class SalsaHooks {
   }
 
   /**
+   * Implements hook_form_user_pass_reset_alter().
+   *
+   * @param array<mixed> $form
+   *   The one-time login form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param string $form_id
+   *   The form ID.
+   *
+   * @param-out array<mixed> $form
+   */
+  #[Hook('form_user_pass_reset_alter')]
+  public function formUserPassResetAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
+    $actions = $form['actions'] ?? NULL;
+    if (!is_array($actions)) {
+      return;
+    }
+    self::addClass($actions, 'mt-6');
+    $form['actions'] = $actions;
+  }
+
+  /**
+   * Implements hook_form_workspace_site_complete_registration_alter().
+   *
+   * @param array<mixed> $form
+   *   The registration completion form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param string $form_id
+   *   The form ID.
+   *
+   * @param-out array<mixed> $form
+   */
+  #[Hook('form_workspace_site_complete_registration_alter')]
+  public function formCompleteRegistrationAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
+    $this->prepareAuthForm($form);
+  }
+
+  /**
    * Implements hook_form_user_register_form_alter().
+   *
+   * Focuses the first name field. The hook only runs in the frontend theme, so
+   * the user form at /admin/people/create is not affected.
    *
    * @param array<mixed> $form
    *   The registration form.
@@ -628,6 +744,28 @@ final class SalsaHooks {
   #[Hook('form_user_register_form_alter')]
   public function formUserRegisterFormAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
     $this->prepareAuthForm($form);
+
+    $first_name = $form['field_first_name'] ?? NULL;
+    if (!is_array($first_name)) {
+      return;
+    }
+    $widget = $first_name['widget'] ?? NULL;
+    if (!is_array($widget) || !isset($widget[0]) || !is_array($widget[0])) {
+      return;
+    }
+    $value = $widget[0]['value'] ?? NULL;
+    if (!is_array($value)) {
+      return;
+    }
+    $attributes = $value['#attributes'] ?? [];
+    if (!is_array($attributes)) {
+      $attributes = [];
+    }
+    $attributes['autofocus'] = 'autofocus';
+    $value['#attributes'] = $attributes;
+    $widget[0]['value'] = $value;
+    $first_name['widget'] = $widget;
+    $form['field_first_name'] = $first_name;
   }
 
   /**

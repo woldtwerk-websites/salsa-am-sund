@@ -3,6 +3,8 @@ langcode: de
 status: true
 dependencies:
   module:
+    - eca_base
+    - eca_form
     - eca_user
     - modeler_api
 third_party_settings:
@@ -23,7 +25,25 @@ events:
       -
         id: action_goto_action_login
         condition: ''
-conditions: {  }
+  user_password_reset_submit:
+    plugin: 'form:form_submit'
+    label: 'Passwort über Einmal-Link gesetzt'
+    configuration:
+      form_ids: user_form
+      entity_type_id: ''
+      bundle: ''
+      operation: ''
+    successors:
+      -
+        id: action_goto_front_after_password_reset
+        condition: condition_password_reset_token
+conditions:
+  condition_password_reset_token:
+    plugin: eca_token_exists
+    label: 'Einmal-Link-Token vorhanden'
+    configuration:
+      negate: false
+      token_name: 'current-page:query:pass-reset-token'
 gateways: {  }
 actions:
   action_goto_action_login:
@@ -31,4 +51,10 @@ actions:
     plugin: action_goto_action
     configuration:
       url: /user/login
+    successors: {  }
+  action_goto_front_after_password_reset:
+    label: 'Nach dem Passwort-Reset zur Startseite'
+    plugin: eca_form_state_set_redirect
+    configuration:
+      destination: /
     successors: {  }

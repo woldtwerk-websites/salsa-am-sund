@@ -32,6 +32,13 @@ props:
       title: Mitglied seit
       examples:
         - 'Mitglied seit 12.03.2021 (vor 5 Jahren)'
+    edit_url:
+      type: string
+      title: Link zum Bearbeiten
+      format: uri-reference
+      description: 'Adresse des Profilbearbeitungsformulars. Ist sie gesetzt, erscheint unter dem Namen ein kleiner Bearbeiten-Button. Leer lassen, wenn das Profil nicht bearbeitet werden darf.'
+      examples:
+        - '/user/4/edit'
 slots:
   content:
     title: Inhalt

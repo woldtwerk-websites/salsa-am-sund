@@ -42,9 +42,11 @@ props:
       type: string
       title: Größe
       enum:
+        - sm
         - md
         - lg
       meta:enum:
+        sm: Klein
         md: Standard
         lg: Groß
       default: md

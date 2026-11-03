@@ -4,21 +4,30 @@
  * On-brand page title for non-Canvas routes.
  *
  * Canvas pages render their own <h1> in the hero component; SalsaHooks empties
- * this title for the entity.canvas_page.canonical route.
+ * this title for the entity.canvas_page.canonical route. The password reset
+ * form keeps its title for screen readers only, so it is rendered without the
+ * padded wrapper.
  *
  * Available variables:
  * - title: The page title.
  * - title_attributes: Attributes for the title element.
  * - title_prefix, title_suffix: Contextual output.
+ * - title_hidden: Whether the title is visually hidden.
  */
 #}
 {% if title %}
   {% set attributes = title_attributes|default(create_attribute()) %}
-  <div class="mx-auto w-full max-w-6xl px-5 pt-10 pb-2 md:px-8 md:pt-14">
+  {% if title_hidden %}
     {{ title_prefix }}
-    <h1{{ attributes.addClass('font-display text-4xl leading-[1.02] font-extrabold italic text-balance text-sand md:text-5xl lg:text-6xl') }}>
-      {{ title }}
-    </h1>
+    <h1{{ attributes.addClass('visually-hidden') }}>{{ title }}</h1>
     {{ title_suffix }}
-  </div>
+  {% else %}
+    <div class="mx-auto w-full max-w-6xl px-5 pt-10 pb-2 md:px-8 md:pt-14">
+      {{ title_prefix }}
+      <h1{{ attributes.addClass('font-display text-4xl leading-[1.02] font-extrabold italic text-balance text-sand md:text-5xl lg:text-6xl') }}>
+        {{ title }}
+      </h1>
+      {{ title_suffix }}
+    </div>
+  {% endif %}
 {% endif %}

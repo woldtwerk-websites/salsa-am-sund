@@ -1,0 +1,43 @@
+# German translation of the workspace_site module.
+#
+# English is the source language: the msgids are the literals passed to t(),
+# formatPlural() and TranslatableMarkup() in this module's PHP. Imported into
+# Drupal's locale storage with:
+#
+#   drush locale:import de modules/custom/workspace_site/translations/de.po \
+#     --type=customized --override=all
+#
+# Informal "du".
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: workspace_site\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Salsa am Sund – Site"
+msgstr "Salsa am Sund – Website"
+
+msgid "Canvas-compatible blocks for the Salsa am Sund site."
+msgstr "Canvas-kompatible Blöcke für die Salsa am Sund-Website."
+
+msgid "Please add your last name."
+msgstr "Bitte ergänze deinen Nachnamen."
+
+msgid "Please add your first name."
+msgstr "Bitte ergänze deinen Vornamen."
+
+msgid "Please add your first and last name."
+msgstr "Bitte ergänze deinen Vor- und Nachnamen."
+
+msgid "Complete your registration"
+msgstr "Registrierung abschließen"
+
+msgid "Your registration could not be completed. Please sign in again."
+msgstr "Deine Registrierung konnte nicht abgeschlossen werden. Bitte melde dich erneut an."
+
+msgid "Your email address comes from @provider. Change it there; it is updated on your next sign-in."
+msgstr "Deine E-Mail-Adresse kommt von @provider. Ändere sie dort, sie wird bei deiner nächsten Anmeldung übernommen."

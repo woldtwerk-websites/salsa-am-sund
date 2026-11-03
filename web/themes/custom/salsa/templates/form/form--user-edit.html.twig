@@ -1,0 +1,23 @@
+{#
+/**
+ * @file
+ * Account edit form for the Salsa am Sund theme.
+ *
+ * SalsaHooks suggests this template for the user edit form. The page wrapper
+ * (max width, padding and vertical spacing) comes from the route content
+ * region, so it only wraps the form in the same surface card as the
+ * authentication forms. Right after a one-time login the form only asks for
+ * the new password, so the card is narrower and centered.
+ *
+ * Available variables:
+ * - attributes: Attributes for the form element.
+ * - children: The form children.
+ * - salsa_password_reset: Whether the form is the password reset form shown
+ *   after a one-time login.
+ */
+#}
+<div class="{{ salsa_password_reset ? 'mx-auto max-w-md' : 'max-w-2xl' }} salsa-surface-dark rounded-2xl border border-line bg-ink-2 p-6 shadow-[0_24px_60px_-32px_rgb(13_11_16_/_0.9)] md:p-8">
+  <form{{ attributes }}>
+    {{ children }}
+  </form>
+</div>
