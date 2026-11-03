@@ -14,14 +14,16 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
- * Grants navigation permissions to a masqueraded account.
+ * Grants the admin UI permissions to a masqueraded account.
  *
- * Stepping into an account without them would take the toolbar or the
- * Navigation sidebar away, and with it the Unmasquerade link. `access toolbar`
- * is what the toolbar, gin and gin_toolbar ask for; core's Navigation module
- * asks for `access navigation` instead, and the masqueraded account has no
- * role to grant it. Both are granted here, so whichever navigation the site
- * uses keeps working.
+ * The authenticated role no longer has the permissions for the Navigation
+ * sidebar, the admin theme, the admin pages, coffee and contextual links.
+ * Stepping into a member account would therefore take the admin UI away, and
+ * with it the Unmasquerade link. `access toolbar` is what the toolbar, gin and
+ * gin_toolbar ask for; core's Navigation module asks for `access navigation`
+ * instead, and the masqueraded account has no role to grant it. All of these
+ * are granted here, so an admin masquerading as a plain member keeps the admin
+ * UI.
  *
  * Only the masqueraded account gets them: permissions are calculated for other
  * accounts during the same request too, and the session says nothing about
@@ -29,6 +31,20 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  * for one account would be served to another with the same roles.
  */
 final class MasqueradeToolbarAccessPolicy extends AccessPolicyBase {
+
+  /**
+   * Permissions that keep the admin UI available while masquerading.
+   *
+   * @var string[]
+   */
+  private const ADMIN_UI_PERMISSIONS = [
+    'access toolbar',
+    'access navigation',
+    'access administration pages',
+    'access coffee',
+    'access contextual links',
+    'view the administration theme',
+  ];
 
   /**
    * Constructs the access policy.
@@ -61,7 +77,7 @@ final class MasqueradeToolbarAccessPolicy extends AccessPolicyBase {
     // switched to whichever account is being calculated.
     $uid = $this->session->get('uid');
     if ((is_string($uid) || is_int($uid)) && (string) $account->id() === (string) $uid) {
-      $calculated_permissions->addItem(new CalculatedPermissionsItem(['access toolbar', 'access navigation']));
+      $calculated_permissions->addItem(new CalculatedPermissionsItem(self::ADMIN_UI_PERMISSIONS));
     }
 
     return $calculated_permissions;
