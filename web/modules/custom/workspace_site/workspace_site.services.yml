@@ -5,6 +5,8 @@ services:
     autowire: true
   Drupal\workspace_site\UserMenuBuilder:
     autowire: true
+  Drupal\workspace_site\UsernameGenerator:
+    autowire: true
   Drupal\workspace_site\EventSubscriber\PageVariantThemeGuardSubscriber:
     autowire: true
     tags:
