@@ -39,7 +39,11 @@ final class MemberProfileHooks {
   /**
    * The wrapper classes of the dance figure flag buttons.
    *
-   * Copied from the dance figure detail page, so the buttons look the same.
+   * Keep in sync with the wrapper classes in the theme's
+   * dance-figure-flags.html.twig, so the buttons of the profile lists look the
+   * same as on the dance figure pages and cards.
+   *
+   * @see web/themes/custom/salsa/templates/includes/dance-figure-flags.html.twig
    */
   private const string FIGURE_FLAG_ACTIONS_CLASS = 'flex flex-wrap items-center gap-3'
     . ' [&_.flag]:contents'
@@ -49,18 +53,20 @@ final class MemberProfileHooks {
     . ' [&_a]:justify-center'
     . ' [&_a]:gap-2.5'
     . ' [&_a]:rounded-full'
-    . ' [&_a]:px-6'
-    . ' [&_a]:py-3'
     . ' [&_a]:font-semibold'
     . ' [&_a]:no-underline'
     . ' [&_a]:transition'
     . ' [&_a]:duration-200'
     . ' [&_a]:ease-out'
-    . ' [&_.flag-learned_a]:bg-flame-deep'
-    . ' [&_.flag-learned_a]:text-white'
-    . ' [&_.flag-learned_a]:shadow-[0_14px_34px_-16px_rgb(143_15_22_/_0.9)]'
-    . ' [&_.flag-learned_a]:hover:brightness-95'
-    . ' [&_.flag-learned_a]:hover:text-white'
+    . ' [&_.flag-learned_a]:p-3'
+    . ' [&_.flag-learned_a]:border'
+    . ' [&_.flag-learned_a]:border-line'
+    . ' [&_.flag-learned_a]:bg-transparent'
+    . ' [&_.flag-learned_a]:text-mist'
+    . ' [&_.flag-learned_a]:hover:border-palm/40'
+    . ' [&_.flag-learned_a]:hover:bg-palm/10'
+    . ' [&_.flag-learned_a]:hover:text-palm'
+    . ' [&_.flag-like_a]:p-3'
     . ' [&_.flag-like_a]:border'
     . ' [&_.flag-like_a]:border-line'
     . ' [&_.flag-like_a]:bg-transparent'

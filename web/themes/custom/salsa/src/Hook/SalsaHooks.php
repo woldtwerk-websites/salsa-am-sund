@@ -165,8 +165,10 @@ final class SalsaHooks {
    *
    * The HTMX link swaps the re-rendered flag link into the page, so the
    * response of the flag or unflag route is the only link that should animate:
-   * its route name tells whether the heart is being liked or unliked. The
-   * initial page render and the no-JavaScript routes never animate.
+   * its route name tells whether the flag is being set or removed. The heart
+   * pops and pours on a like and breaks on an unlike, the learned check pops on
+   * a flag and fades on an unflag. The initial page render and the
+   * no-JavaScript routes never animate.
    *
    * @param array<string, mixed> $variables
    *   The theme variables.
@@ -174,11 +176,11 @@ final class SalsaHooks {
   #[Hook('preprocess_flag')]
   public function preprocessFlag(array &$variables): void {
     $flag = $variables['flag'] ?? NULL;
-    if (!$flag instanceof FlagInterface || $flag->id() !== 'like') {
+    if (!$flag instanceof FlagInterface || !in_array($flag->id(), ['like', 'learned'], TRUE)) {
       return;
     }
 
-    $variables['heart_effect'] = match ($this->routeMatch->getRouteName()) {
+    $variables['flag_effect'] = match ($this->routeMatch->getRouteName()) {
       'flag.action_link_flag' => 'flag',
       'flag.action_link_unflag' => 'break',
       default => NULL,
