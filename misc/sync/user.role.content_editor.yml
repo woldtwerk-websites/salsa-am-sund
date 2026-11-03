@@ -21,11 +21,14 @@ dependencies:
     - taxonomy.vocabulary.organizer
   module:
     - canvas
+    - coffee
     - comment
+    - contextual
     - dashboard
     - filter
     - media
     - media_library_bulk_upload
+    - navigation
     - node
     - path
     - redirect
@@ -42,9 +45,12 @@ weight: 2
 is_admin: false
 permissions:
   - 'access administration pages'
+  - 'access coffee'
   - 'access comments'
   - 'access content overview'
+  - 'access contextual links'
   - 'access media overview'
+  - 'access navigation'
   - 'access taxonomy overview'
   - 'access trash'
   - 'access user profiles'
@@ -117,4 +123,5 @@ permissions:
   - 'view own unpublished content'
   - 'view own unpublished media'
   - 'view scheduled content'
+  - 'view the administration theme'
   - 'view welcome dashboard'

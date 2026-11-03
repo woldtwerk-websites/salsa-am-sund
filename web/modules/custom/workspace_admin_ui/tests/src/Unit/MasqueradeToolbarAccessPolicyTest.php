@@ -161,7 +161,7 @@ class MasqueradeToolbarAccessPolicyTest extends UnitTestCase {
   }
 
   /**
-   * Tests the masqueraded account gets the navigation permissions.
+   * Tests the masqueraded account gets the admin UI permissions.
    */
   public function testPermissionForMasqueradedAccount(): void {
     $this->masquerade = $this->createMock(Masquerade::class);
@@ -175,8 +175,17 @@ class MasqueradeToolbarAccessPolicyTest extends UnitTestCase {
     $permissions = $this->policy($this->stackWithMasqueradeSession())
       ->calculatePermissions($account, AccessPolicyInterface::SCOPE_DRUPAL);
 
-    $this->assertTrue($permissions->getItem()->hasPermission('access toolbar'));
-    $this->assertTrue($permissions->getItem()->hasPermission('access navigation'));
+    $expected_permissions = [
+      'access toolbar',
+      'access navigation',
+      'access administration pages',
+      'access coffee',
+      'access contextual links',
+      'view the administration theme',
+    ];
+    foreach ($expected_permissions as $permission) {
+      $this->assertTrue($permissions->getItem()->hasPermission($permission), $permission);
+    }
     $this->assertContains('user', $permissions->getCacheContexts());
     $this->assertContains('session.is_masquerading', $permissions->getCacheContexts());
   }
