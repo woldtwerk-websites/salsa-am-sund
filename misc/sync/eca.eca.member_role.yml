@@ -1,0 +1,44 @@
+uuid: e7bbcd03-9db6-4d1d-80d7-5cfd0a47423e
+langcode: de
+status: true
+dependencies:
+  module:
+    - eca_content
+    - modeler_api
+third_party_settings:
+  modeler_api:
+    modeler_id: modeler
+    label: 'Mitgliedsrolle für neue Benutzer'
+id: member_role
+weight: 0
+template: null
+events:
+  content_entity__presave:
+    plugin: 'content_entity:presave'
+    label: 'Benutzer wird gespeichert'
+    configuration:
+      type: 'user user'
+    successors:
+      -
+        id: action_add_member_role
+        condition: condition_entity_is_new
+conditions:
+  condition_entity_is_new:
+    plugin: eca_entity_is_new
+    label: 'Neuer Benutzer'
+    configuration:
+      negate: false
+      entity: entity
+gateways: {  }
+actions:
+  action_add_member_role:
+    label: 'Mitgliedsrolle hinzufügen'
+    plugin: eca_set_field_value
+    configuration:
+      field_name: roles
+      field_value: member
+      method: 'append:not_full'
+      strip_tags: false
+      trim: false
+      save_entity: false
+    successors: {  }
