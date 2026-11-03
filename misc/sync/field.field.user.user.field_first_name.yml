@@ -1,0 +1,20 @@
+uuid: 6ca84eb0-24c2-433b-ac38-ef2f7994fed4
+langcode: de
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_first_name
+  module:
+    - user
+id: user.user.field_first_name
+field_name: field_first_name
+entity_type: user
+bundle: user
+label: Vorname
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
