@@ -5,7 +5,7 @@ dependencies: {  }
 _core:
   default_config_hash: YhNk9pF6Z6XX7hxg2zo9S8MpzAvcJqC51WxEqdo2nGo
 id: user_canceled
-label: 'User: Account Canceled'
+label: 'Benutzer: Account gelöscht'
 key: ''
 recipient: {  }
 cc: {  }
@@ -13,12 +13,12 @@ bcc: {  }
 fromName: ''
 fromAddress: ''
 replyToAddress: ''
-subject: 'Account details for [easy_email:recipient_uid:0:entity:display-name] at [site:name] (canceled)'
+subject: 'Dein Account auf [site:name] wurde gelöscht'
 inboxPreview: ''
 bodyHtml:
-  value: '<p>[easy_email:recipient_uid:0:entity:display-name],</p><p>Your account on [site:name] has been canceled.</p><p>-- &nbsp;[site:name] team</p>'
+  value: '<p>Hallo [easy_email:recipient_uid:0:entity:display-name],</p><p>dein Account auf [site:name] wurde gelöscht.</p><p>Viele Grüße<br>Dein Team von [site:name]</p>'
   format: easy_email
-bodyPlain: "[easy_email:recipient_uid:0:entity:display-name],\r\n\r\nYour account on [site:name] has been canceled.\r\n\r\n--  [site:name] team"
+bodyPlain: "Hallo [easy_email:recipient_uid:0:entity:display-name],\r\n\r\ndein Account auf [site:name] wurde gelöscht.\r\n\r\nViele Grüße\r\nDein Team von [site:name]"
 generateBodyPlain: false
 attachment: {  }
 saveAttachment: false

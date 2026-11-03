@@ -5,7 +5,7 @@ dependencies: {  }
 _core:
   default_config_hash: R9i03-dkbYVX5YpNxrXZ4YuXSFE8SQPqsK2KPK3iYIg
 id: user_blocked
-label: 'User: Account Blocked'
+label: 'Benutzer: Account gesperrt'
 key: ''
 recipient: {  }
 cc: {  }
@@ -13,12 +13,12 @@ bcc: {  }
 fromName: ''
 fromAddress: ''
 replyToAddress: ''
-subject: 'Account details for [easy_email:recipient_uid:0:entity:display-name] at [site:name] (blocked)'
+subject: 'Dein Account auf [site:name] wurde gesperrt'
 inboxPreview: ''
 bodyHtml:
-  value: '<p>[easy_email:recipient_uid:0:entity:display-name],</p><p>Your account on [site:name] has been blocked.</p><p>-- &nbsp;[site:name] team</p>'
+  value: '<p>Hallo [easy_email:recipient_uid:0:entity:display-name],</p><p>dein Account auf [site:name] wurde gesperrt.</p><p>Viele Grüße<br>Dein Team von [site:name]</p>'
   format: easy_email
-bodyPlain: "[easy_email:recipient_uid:0:entity:display-name],\r\n\r\nYour account on [site:name] has been blocked.\r\n\r\n--  [site:name] team"
+bodyPlain: "Hallo [easy_email:recipient_uid:0:entity:display-name],\r\n\r\ndein Account auf [site:name] wurde gesperrt.\r\n\r\nViele Grüße\r\nDein Team von [site:name]"
 generateBodyPlain: false
 attachment: {  }
 saveAttachment: false

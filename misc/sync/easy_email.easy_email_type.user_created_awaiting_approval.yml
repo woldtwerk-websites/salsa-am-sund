@@ -5,7 +5,7 @@ dependencies: {  }
 _core:
   default_config_hash: 1ZAXZxNQwYxLotq6hm5Um5kzE_yUuYJYZBtbZ4Ij4s8
 id: user_created_awaiting_approval
-label: 'User: Created - Awaiting Approval'
+label: 'Benutzer: Registriert – wartet auf Freischaltung'
 key: ''
 recipient: {  }
 cc: {  }
@@ -13,12 +13,12 @@ bcc: {  }
 fromName: ''
 fromAddress: ''
 replyToAddress: ''
-subject: 'Account details for [easy_email:recipient_uid:0:entity:display-name] at [site:name] (pending admin approval)'
+subject: 'Dein Account auf [site:name] wartet auf Freischaltung'
 inboxPreview: ''
 bodyHtml:
-  value: '<p>[easy_email:recipient_uid:0:entity:display-name],</p><p>Thank you for registering at [site:name]. Your application for an account is currently pending approval. Once it has been approved, you will receive another email containing information about how to log in, set your password, and other details.</p><p>-- &nbsp;[site:name] team</p>'
+  value: '<p>Hallo [easy_email:recipient_uid:0:entity:display-name],</p><p>vielen Dank für deine Registrierung auf [site:name]. Wir prüfen dein Konto und schalten es bald frei. Sobald das erledigt ist, bekommst du eine weitere E-Mail von uns.</p><p>Viele Grüße<br>Dein Team von [site:name]</p>'
   format: easy_email
-bodyPlain: "[easy_email:recipient_uid:0:entity:display-name],\r\n\r\nThank you for registering at [site:name]. Your application for an account is currently pending approval. Once it has been approved, you will receive another email containing information about how to log in, set your password, and other details.\r\n\r\n--  [site:name] team"
+bodyPlain: "Hallo [easy_email:recipient_uid:0:entity:display-name],\r\n\r\nvielen Dank für deine Registrierung auf [site:name]. Wir prüfen dein Konto und schalten es bald frei. Sobald das erledigt ist, bekommst du eine weitere E-Mail von uns.\r\n\r\nViele Grüße\r\nDein Team von [site:name]"
 generateBodyPlain: false
 attachment: {  }
 saveAttachment: false
