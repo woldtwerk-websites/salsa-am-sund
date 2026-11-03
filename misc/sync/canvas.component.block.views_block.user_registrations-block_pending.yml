@@ -1,0 +1,27 @@
+uuid: 61dcc2f2-e410-4ebf-88dd-bd22c3e42a13
+langcode: de
+status: true
+dependencies:
+  config:
+    - views.view.user_registrations
+  module:
+    - views
+active_version: 165f95c2596b7b29
+versioned_properties:
+  active:
+    settings:
+      default_settings:
+        id: 'views_block:user_registrations-block_pending'
+        label: 'Offene Registrierungen'
+        label_display: '0'
+        provider: views
+        views_label: ''
+        items_per_page: null
+    fallback_metadata:
+      slot_definitions: null
+label: 'Offene Registrierungen'
+id: block.views_block.user_registrations-block_pending
+provider: views
+source: block
+source_local_id: 'views_block:user_registrations-block_pending'
+

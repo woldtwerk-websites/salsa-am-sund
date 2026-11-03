@@ -1,6 +1,8 @@
 services:
   Drupal\workspace_site\Access\PendingRegistrationAccess:
     autowire: true
+  Drupal\workspace_site\Access\RegistrationApprovalAccess:
+    autowire: true
   Drupal\workspace_site\PageCommentsResolver:
     autowire: true
   Drupal\workspace_site\PasswordResetDetector:

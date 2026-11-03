@@ -1,0 +1,9 @@
+'approve user registrations':
+  title: 'Approve user registrations'
+  description: 'Approve or delete accounts that registered themselves and await approval.'
+  restrict access: true
+
+'view user list':
+  title: 'View the user list'
+  description: 'Open the user list under People without being able to edit accounts.'
+  restrict access: true

@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * @file
+ * Update hooks for the workspace_site module.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\workspace_site\Hook\AwaitingApprovalHooks;
+
+/**
+ * Installs the awaiting approval marker and marks existing pending accounts.
+ */
+function workspace_site_update_11001(): TranslatableMarkup {
+  \Drupal::entityDefinitionUpdateManager()->installFieldStorageDefinition(
+    AwaitingApprovalHooks::FIELD_NAME,
+    'user',
+    'workspace_site',
+    AwaitingApprovalHooks::fieldDefinition(),
+  );
+
+  // Nothing can tell the existing blocked accounts apart, so treat the ones
+  // that never logged in as pending registrations.
+  \Drupal::database()->update('users_field_data')
+    ->fields([AwaitingApprovalHooks::FIELD_NAME => 1])
+    ->condition('status', 0)
+    ->condition('login', 0)
+    ->condition('uid', 0, '>')
+    ->execute();
+
+  Cache::invalidateTags(['user_list']);
+
+  return t('Marked the blocked accounts without a login as awaiting approval.');
+}

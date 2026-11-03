@@ -6,16 +6,18 @@ namespace Drupal\workspace_site;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\user\UserInterface;
+use Drupal\workspace_site\Hook\AwaitingApprovalHooks;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
- * Tracks the pending registration of a new OpenID Connect account.
+ * Tracks the approval of self-registered accounts.
  *
- * A new account created by an OpenID Connect login is blocked until an
- * administrator approves it. When the provider did not send a usable name, the
- * member is asked for it before the approval, so the account does not end up in
- * the approval queue with a login name as its display name.
+ * A new account created through the register form or an OpenID Connect login
+ * is blocked and marked as awaiting approval until an administrator approves
+ * it. When the provider did not send a usable name, the member is asked for it
+ * before the approval, so the account does not end up in the approval queue
+ * with a login name as its display name.
  */
 final class PendingRegistration {
 
@@ -52,11 +54,29 @@ final class PendingRegistration {
   }
 
   /**
+   * Determines whether an account awaits approval.
+   *
+   * Only an account that explicitly carries the marker counts, so an account
+   * an administrator created blocked or blocked later is not pending.
+   *
+   * @param \Drupal\user\UserInterface $account
+   *   The account.
+   *
+   * @return bool
+   *   TRUE when the account awaits approval.
+   */
+  public function isPending(UserInterface $account): bool {
+    return !$account->isAnonymous()
+      && $account->isBlocked()
+      && $account->hasField(AwaitingApprovalHooks::FIELD_NAME)
+      && (bool) $account->get(AwaitingApprovalHooks::FIELD_NAME)->value;
+  }
+
+  /**
    * Returns the marked account.
    *
-   * Only a blocked account that has never logged in counts as a pending
-   * registration. Once an administrator activates it, the marked account is
-   * ignored.
+   * The marked account is ignored unless it still awaits approval, so a marked
+   * account that an administrator approved in the meantime is skipped.
    *
    * @return \Drupal\user\UserInterface|null
    *   The marked account, or NULL when there is none.
@@ -72,10 +92,7 @@ final class PendingRegistration {
     }
 
     $account = $this->entityTypeManager->getStorage('user')->load((int) $uid);
-    if (!$account instanceof UserInterface) {
-      return NULL;
-    }
-    if (!$account->isBlocked() || (int) $account->getLastLoginTime() !== 0) {
+    if (!$account instanceof UserInterface || !$this->isPending($account)) {
       return NULL;
     }
     if (!$account->hasField('field_first_name') || !$account->hasField('field_last_name')) {

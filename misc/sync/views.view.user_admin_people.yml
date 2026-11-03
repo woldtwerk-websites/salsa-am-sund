@@ -4,6 +4,7 @@ status: true
 dependencies:
   module:
     - user
+    - workspace_site
 _core:
   default_config_hash: hZxrM4LiKjRy1g-zZSX1RExTVK8SKQAtMrsRER1420I
 id: user_admin_people
@@ -241,7 +242,7 @@ display:
           entity_type: user
           entity_field: created
           plugin_id: field
-          label: 'Member for'
+          label: 'Mitglied seit'
           exclude: false
           alter:
             alter_text: false
@@ -493,7 +494,7 @@ display:
       access:
         type: perm
         options:
-          perm: 'administer users'
+          perm: 'view user list'
       cache:
         type: tag
       empty:
@@ -540,7 +541,7 @@ display:
           exposed: true
           expose:
             operator_id: combine_op
-            label: 'Name or email contains'
+            label: 'Name oder E-Mail enthält'
             description: ''
             use_operator: false
             operator: combine_op

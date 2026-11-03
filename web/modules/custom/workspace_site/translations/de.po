@@ -41,3 +41,39 @@ msgstr "Deine Registrierung konnte nicht abgeschlossen werden. Bitte melde dich 
 
 msgid "Your email address comes from @provider. Change it there; it is updated on your next sign-in."
 msgstr "Deine E-Mail-Adresse kommt von @provider. Ändere sie dort, sie wird bei deiner nächsten Anmeldung übernommen."
+
+msgid "Approve"
+msgstr "Freigeben"
+
+msgid "Approve registration"
+msgstr "Registrierung freigeben"
+
+msgid "The account of %name has been approved."
+msgstr "Das Konto von %name wurde freigegeben."
+
+msgid "Awaiting approval"
+msgstr "Wartet auf Freigabe"
+
+msgid "Whether the account registered itself and waits for an administrator to approve it."
+msgstr "Ob sich das Konto selbst registriert hat und auf die Freigabe durch eine Administration wartet."
+
+msgid "Marked the blocked accounts without a login as awaiting approval."
+msgstr "Gesperrte Konten ohne Anmeldung wurden als wartend auf Freigabe markiert."
+
+msgid "Approve user registrations"
+msgstr "Registrierungen freigeben"
+
+msgid "Approve or delete accounts that registered themselves and await approval."
+msgstr "Konten freigeben oder löschen, die sich selbst registriert haben und auf eine Freigabe warten."
+
+msgid "Delete registration"
+msgstr "Registrierung löschen"
+
+msgid "Delete the registration of %name?"
+msgstr "Möchtest du die Registrierung von %name löschen?"
+
+msgid "View the user list"
+msgstr "Benutzerliste ansehen"
+
+msgid "Open the user list under People without being able to edit accounts."
+msgstr "Die Benutzerliste unter Personen öffnen, ohne Konten bearbeiten zu können."

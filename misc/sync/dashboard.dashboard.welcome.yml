@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - views.view.lessons
+    - views.view.user_registrations
   module:
     - layout_builder
     - views
@@ -46,6 +47,19 @@ layout:
           views_label: ''
           items_per_page: null
         weight: 4
+        additional: {  }
+      0a30366e-7a11-4563-9167-ae7341e4c570:
+        uuid: 0a30366e-7a11-4563-9167-ae7341e4c570
+        region: second
+        configuration:
+          id: 'views_block:user_registrations-block_pending'
+          label: 'Offene Registrierungen'
+          label_display: visible
+          provider: views
+          context_mapping: {  }
+          views_label: ''
+          items_per_page: null
+        weight: 0
         additional: {  }
     third_party_settings: {  }
 weight: 0

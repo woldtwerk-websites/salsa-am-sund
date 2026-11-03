@@ -5,3 +5,32 @@ workspace_site.complete_registration:
     _title: 'Complete your registration'
   requirements:
     _custom_access: 'Drupal\workspace_site\Access\PendingRegistrationAccess::access'
+
+workspace_site.approve_registration:
+  path: '/admin/people/{user}/approve'
+  defaults:
+    _controller: '\Drupal\workspace_site\Controller\ApproveRegistrationController::approve'
+    _title: 'Approve registration'
+  requirements:
+    _custom_access: 'Drupal\workspace_site\Access\RegistrationApprovalAccess::access'
+    _csrf_token: 'TRUE'
+    user: '\d+'
+  options:
+    _admin_route: TRUE
+    parameters:
+      user:
+        type: 'entity:user'
+
+workspace_site.delete_registration:
+  path: '/admin/people/{user}/delete-registration'
+  defaults:
+    _form: '\Drupal\workspace_site\Form\DeleteRegistrationForm'
+    _title: 'Delete registration'
+  requirements:
+    _custom_access: 'Drupal\workspace_site\Access\RegistrationApprovalAccess::access'
+    user: '\d+'
+  options:
+    _admin_route: TRUE
+    parameters:
+      user:
+        type: 'entity:user'

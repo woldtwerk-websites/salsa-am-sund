@@ -37,6 +37,7 @@ dependencies:
     - taxonomy
     - trash
     - workspace_events
+    - workspace_site
 _core:
   default_config_hash: g-zSnaBXJnH7VoimReFb6KcLjIgHCU-hisiShtZ9hjQ
 id: content_editor
@@ -58,6 +59,7 @@ permissions:
   - 'administer menu'
   - 'administer redirects'
   - 'administer url aliases'
+  - 'approve user registrations'
   - 'create canvas_page'
   - 'create course content'
   - 'create document media'
@@ -124,4 +126,5 @@ permissions:
   - 'view own unpublished media'
   - 'view scheduled content'
   - 'view the administration theme'
+  - 'view user list'
   - 'view welcome dashboard'
