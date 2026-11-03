@@ -20,7 +20,7 @@
     warning: {box: 'border-flame-gold/60 bg-flame-gold/10', badge: 'bg-flame-gold/20 text-flame-gold', icon: 'triangle-alert'},
     error: {box: 'border-flame-red/70 bg-flame-red/10', badge: 'bg-flame-red/20 text-flame-red', icon: 'circle-alert'},
   } %}
-  <div data-drupal-messages class="mx-auto flex w-full max-w-2xl flex-col gap-3 px-5 pt-8 md:px-8 md:pt-10" role="status" aria-live="polite">
+  <div data-drupal-messages class="mx-auto flex w-full max-w-2xl flex-col gap-3 px-5 pt-8 pb-8 md:px-8 md:pt-10 md:pb-10" role="status" aria-live="polite">
     {% for type, messages in message_list %}
       {% set tone = tones[type]|default({box: 'border-line bg-ink', badge: 'bg-sand/10 text-sand', icon: 'info'}) %}
       <div

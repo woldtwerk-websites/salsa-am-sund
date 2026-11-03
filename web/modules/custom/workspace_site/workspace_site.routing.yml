@@ -1,0 +1,7 @@
+workspace_site.complete_registration:
+  path: '/registrierung/vervollstaendigen'
+  defaults:
+    _form: 'Drupal\workspace_site\Form\CompleteRegistrationForm'
+    _title: 'Complete your registration'
+  requirements:
+    _custom_access: 'Drupal\workspace_site\Access\PendingRegistrationAccess::access'

@@ -1,5 +1,15 @@
 services:
+  Drupal\workspace_site\Access\PendingRegistrationAccess:
+    autowire: true
   Drupal\workspace_site\PageCommentsResolver:
+    autowire: true
+  Drupal\workspace_site\PasswordResetDetector:
+    autowire: true
+  Drupal\workspace_site\PendingApprovalMailer:
+    autowire: true
+  Drupal\workspace_site\PendingRegistration:
+    autowire: true
+  Drupal\workspace_site\SsoAccount:
     autowire: true
   Drupal\workspace_site\UserAvatar:
     autowire: true
@@ -11,3 +21,10 @@ services:
     autowire: true
     tags:
       - { name: event_subscriber }
+  Drupal\workspace_site\Routing\UserFrontendRouteSubscriber:
+    tags:
+      - { name: event_subscriber }
+  Drupal\workspace_site\Theme\OtherUserAdminThemeNegotiator:
+    autowire: true
+    tags:
+      - { name: theme_negotiator, priority: 1 }

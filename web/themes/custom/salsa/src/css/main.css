@@ -365,6 +365,54 @@
     outline-offset: 1px;
   }
 
+  /* Disabled fields: no fill, a dashed border and muted text, so the field
+     reads as not editable (for example the email address of an SSO account). */
+  input[type="text"]:disabled,
+  input[type="email"]:disabled,
+  input[type="tel"]:disabled,
+  input[type="url"]:disabled,
+  input[type="password"]:disabled,
+  input[type="search"]:disabled,
+  input[type="number"]:disabled,
+  input[type="date"]:disabled,
+  input[type="datetime-local"]:disabled,
+  textarea:disabled,
+  select:disabled {
+    @apply cursor-not-allowed;
+    border-style: dashed;
+    background-color: color-mix(
+      in srgb,
+      var(--surface-field-bg, var(--color-ink)) 40%,
+      transparent
+    );
+    color: var(--surface-muted, var(--color-mist));
+    box-shadow: none;
+  }
+
+  /* Hovering must not light up the border of a disabled field. */
+  input[type="text"]:disabled:hover,
+  input[type="email"]:disabled:hover,
+  input[type="tel"]:disabled:hover,
+  input[type="url"]:disabled:hover,
+  input[type="password"]:disabled:hover,
+  input[type="search"]:disabled:hover,
+  input[type="number"]:disabled:hover,
+  textarea:disabled:hover,
+  select:disabled:hover {
+    border-color: var(--surface-border, var(--color-line));
+  }
+
+  /* The label of a disabled field is dimmed as well. With a description
+     tooltip the template wraps the label in an inline-flex div. */
+  .form-item:has(> input:disabled) > label,
+  .form-item:has(> input:disabled) > div > label,
+  .form-item:has(> textarea:disabled) > label,
+  .form-item:has(> textarea:disabled) > div > label,
+  .form-item:has(> select:disabled) > label,
+  .form-item:has(> select:disabled) > div > label {
+    color: var(--surface-muted, var(--color-mist));
+  }
+
   textarea {
     min-height: 9rem;
     resize: vertical;
@@ -1073,6 +1121,116 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* -------------------------------------------------------------------------
+ * Password confirm widget
+ *
+ * core/modules/user/user.js marks up and toggles the password strength bar
+ * (is-weak / is-fair / is-good / is-strong), the confirm message (ok / error)
+ * and the suggestion box. Core's user.module.css is unlayered, so these rules
+ * have to stay outside `@layer components` as well.
+ * ---------------------------------------------------------------------- */
+.password-strength__meter {
+  block-size: 0.375rem;
+  margin-block-start: 0.5rem;
+  border-radius: 999px;
+  background-color: color-mix(
+    in srgb,
+    var(--surface-border, var(--color-line)) 60%,
+    transparent
+  );
+  overflow: hidden;
+}
+
+/* The width is an inline style set by core JS; only the transition is ours. */
+.password-strength__indicator {
+  inline-size: 0;
+  block-size: 100%;
+  border-radius: 999px;
+  background-color: var(--surface-muted, var(--color-mist));
+  transition:
+    inline-size 200ms ease,
+    background-color 200ms ease;
+}
+
+.password-strength__indicator.is-weak {
+  background-color: var(--color-flame-red);
+}
+
+.password-strength__indicator.is-fair {
+  background-color: var(--color-flame-gold);
+}
+
+.password-strength__indicator.is-good,
+.password-strength__indicator.is-strong {
+  background-color: var(--color-sea);
+}
+
+.password-strength__title {
+  margin-block-start: 0.375rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--surface-muted, var(--color-mist));
+}
+
+.password-strength__text {
+  font-weight: 600;
+}
+
+/* The state class lives on the indicator, so the value word follows it. */
+.password-strength:has(.password-strength__indicator.is-weak)
+  .password-strength__text {
+  color: var(--color-flame-red);
+}
+
+.password-strength:has(.password-strength__indicator.is-fair)
+  .password-strength__text {
+  color: var(--color-flame-gold);
+}
+
+.password-strength:has(.password-strength__indicator.is-good)
+  .password-strength__text,
+.password-strength:has(.password-strength__indicator.is-strong)
+  .password-strength__text {
+  color: var(--color-sea);
+}
+
+.password-confirm-message {
+  margin-block-start: 0.375rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--surface-muted, var(--color-mist));
+}
+
+.password-confirm-message [data-drupal-selector="password-match-status-text"].ok {
+  font-weight: 600;
+  color: var(--color-sea);
+}
+
+.password-confirm-message [data-drupal-selector="password-match-status-text"].error {
+  font-weight: 600;
+  color: var(--color-flame-red);
+}
+
+.password-suggestions {
+  margin-block-start: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--surface-border, var(--color-line));
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--surface-muted, var(--color-mist));
+}
+
+.password-suggestions ul {
+  margin-block-start: 0.25rem;
+  padding-inline-start: 1.1rem;
+  list-style: disc;
+}
+
+.password-suggestions li + li {
+  margin-block-start: 0.125rem;
 }
 
 /* -------------------------------------------------------------------------
