@@ -2819,7 +2819,8 @@
             "homepage": "https://www.drupal.org/project/config_language_lock",
             "support": {
                 "source": "https://git.drupalcode.org/project/config_language_lock"
-            }
+            },
+            "published-time": "2026-09-12T09:00:22+00:00"
         },
         {
             "name": "drupal/core",
@@ -3637,16 +3638,16 @@
         },
         {
             "name": "drupal/drupal_cms_installer",
-            "version": "2.2.7",
+            "version": "2.2.8",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/drupal_cms_installer.git",
-                "reference": "70118ffddfe593d81b6b2e3a52847d03f19c01cd"
+                "reference": "77951ac749adff15e5cdb94d58a63202b7b40fcf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://git.drupalcode.org/api/v4/projects/project%2Fdrupal_cms_installer/repository/archive.zip?sha=70118ffddfe593d81b6b2e3a52847d03f19c01cd",
-                "reference": "70118ffddfe593d81b6b2e3a52847d03f19c01cd",
+                "url": "https://git.drupalcode.org/api/v4/projects/project%2Fdrupal_cms_installer/repository/archive.zip?sha=77951ac749adff15e5cdb94d58a63202b7b40fcf",
+                "reference": "77951ac749adff15e5cdb94d58a63202b7b40fcf",
                 "shasum": ""
             },
             "require": {
@@ -3661,9 +3662,10 @@
             ],
             "description": "Provides install-time tweaks for Drupal CMS. Not to be used in production.",
             "support": {
-                "source": "https://git.drupalcode.org/project/drupal_cms_installer/-/tree/2.2.7"
+                "source": "https://git.drupalcode.org/project/drupal_cms_installer/-/tree/2.2.8"
             },
-            "time": "2026-10-23T12:39:09+00:00"
+            "time": "2026-11-01T21:08:44+00:00",
+            "published-time": "2026-11-02T03:26:15+00:00"
         },
         {
             "name": "drupal/drupical",
