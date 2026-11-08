@@ -18,6 +18,9 @@ unflag_short: 'Gelernt ✓'
 unflag_long: 'Die Markierung als gelernt entfernen'
 unflag_message: 'Die Markierung als gelernt wurde entfernt.'
 unflag_denied_text: ''
+flood_control_active: false
+flood_control_limit: 10
+flood_control_window: 3600
 weight: 0
 flag_type: 'entity:taxonomy_term'
 link_type: htmx
