@@ -15698,16 +15698,16 @@
         },
         {
             "name": "mglaman/phpstan-drupal",
-            "version": "2.3.0",
+            "version": "2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mglaman/phpstan-drupal.git",
-                "reference": "517b460c44f55f8b40aa9dfaf4e43e6593ecf1b5"
+                "reference": "174a0d78a70e79f4a139e78d9b904b56f535cc65"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mglaman/phpstan-drupal/zipball/517b460c44f55f8b40aa9dfaf4e43e6593ecf1b5",
-                "reference": "517b460c44f55f8b40aa9dfaf4e43e6593ecf1b5",
+                "url": "https://api.github.com/repos/mglaman/phpstan-drupal/zipball/174a0d78a70e79f4a139e78d9b904b56f535cc65",
+                "reference": "174a0d78a70e79f4a139e78d9b904b56f535cc65",
                 "shasum": ""
             },
             "require": {
@@ -15723,6 +15723,7 @@
                 "composer/installers": "^1.9 || ^2",
                 "drupal/core-recommended": "^11",
                 "drush/drush": "^11 || ^12 || ^13",
+                "nette/neon": "^3.0",
                 "phpstan/extension-installer": "^1.4.3",
                 "phpstan/phpstan-strict-rules": "^2.0",
                 "phpunit/phpunit": "^9 || ^10 || ^11",
@@ -15779,7 +15780,7 @@
             "description": "Drupal extension and rules for PHPStan",
             "support": {
                 "issues": "https://github.com/mglaman/phpstan-drupal/issues",
-                "source": "https://github.com/mglaman/phpstan-drupal/tree/2.3.0"
+                "source": "https://github.com/mglaman/phpstan-drupal/tree/2.4.0"
             },
             "funding": [
                 {
@@ -15795,8 +15796,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-11-05T18:22:32+00:00",
-            "published-time": "2026-11-05T18:29:04+00:00"
+            "time": "2026-11-09T21:03:37+00:00",
+            "published-time": "2026-11-09T21:10:58+00:00"
         },
         {
             "name": "mikey179/vfsstream",
