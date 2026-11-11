@@ -3594,17 +3594,17 @@
         },
         {
             "name": "drupal/drupal_cms_helper",
-            "version": "2.2.8",
+            "version": "2.2.9",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/drupal_cms_helper.git",
-                "reference": "2.2.8"
+                "reference": "2.2.9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/drupal_cms_helper-2.2.8.zip",
-                "reference": "2.2.8",
-                "shasum": "2c86b167d814ed1083ddc8deeae747e3e27f0047"
+                "url": "https://ftp.drupal.org/files/projects/drupal_cms_helper-2.2.9.zip",
+                "reference": "2.2.9",
+                "shasum": "d302757929d964d82d438cf203a396bd0bd0b3f4"
             },
             "require": {
                 "drupal/core": "^11.4.8"
@@ -3619,8 +3619,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "2.2.8",
-                    "datestamp": "1793586224",
+                    "version": "2.2.9",
+                    "datestamp": "1794417904",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -3647,20 +3647,20 @@
             "support": {
                 "source": "https://git.drupalcode.org/project/drupal_cms_helper"
             },
-            "published-time": "2026-11-02T02:23:23+00:00"
+            "published-time": "2026-11-11T17:24:43+00:00"
         },
         {
             "name": "drupal/drupal_cms_installer",
-            "version": "2.2.8",
+            "version": "2.2.9",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/drupal_cms_installer.git",
-                "reference": "77951ac749adff15e5cdb94d58a63202b7b40fcf"
+                "reference": "1882da06aee1c68c754420f499fb016ac5800a60"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://git.drupalcode.org/api/v4/projects/project%2Fdrupal_cms_installer/repository/archive.zip?sha=77951ac749adff15e5cdb94d58a63202b7b40fcf",
-                "reference": "77951ac749adff15e5cdb94d58a63202b7b40fcf",
+                "url": "https://git.drupalcode.org/api/v4/projects/project%2Fdrupal_cms_installer/repository/archive.zip?sha=1882da06aee1c68c754420f499fb016ac5800a60",
+                "reference": "1882da06aee1c68c754420f499fb016ac5800a60",
                 "shasum": ""
             },
             "require": {
@@ -3675,10 +3675,10 @@
             ],
             "description": "Provides install-time tweaks for Drupal CMS. Not to be used in production.",
             "support": {
-                "source": "https://git.drupalcode.org/project/drupal_cms_installer/-/tree/2.2.8"
+                "source": "https://git.drupalcode.org/project/drupal_cms_installer/-/tree/2.2.9"
             },
-            "time": "2026-11-01T21:08:44+00:00",
-            "published-time": "2026-11-02T03:26:15+00:00"
+            "time": "2026-11-11T12:01:35+00:00",
+            "published-time": "2026-11-11T17:25:49+00:00"
         },
         {
             "name": "drupal/drupical",
