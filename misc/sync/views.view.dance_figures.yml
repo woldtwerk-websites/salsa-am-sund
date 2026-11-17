@@ -3,23 +3,18 @@ langcode: de
 status: true
 dependencies:
   config:
-    - field.storage.lesson.field_dance_figures
-    - field.storage.taxonomy_term.field_difficulty
-    - field.storage.taxonomy_term.field_video
-    - flag.flag.like
     - flag.flag.learned
+    - flag.flag.like
     - image.style.16_9_608x342_focal_point_webp
-    - node.type.course
     - taxonomy.vocabulary.dance_figure
   module:
     - flag
-    - image
     - media
     - node
     - options
+    - svg_image
     - taxonomy
     - user
-    - views
     - workspace_events
 id: dance_figures
 label: Tanzfiguren
@@ -783,11 +778,14 @@ display:
       contexts:
         - 'languages:language_content'
         - 'languages:language_interface'
+        - session
         - url
         - url.query_args
         - user
         - user.permissions
-      tags: {  }
+      tags:
+        - flag.flag.learned
+        - flag.flag.like
   page_1:
     id: page_1
     display_title: Seite
@@ -801,8 +799,11 @@ display:
       contexts:
         - 'languages:language_content'
         - 'languages:language_interface'
+        - session
         - url
         - url.query_args
         - user
         - user.permissions
-      tags: {  }
+      tags:
+        - flag.flag.learned
+        - flag.flag.like
