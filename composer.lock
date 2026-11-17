@@ -3855,17 +3855,17 @@
         },
         {
             "name": "drupal/easy_email",
-            "version": "3.0.9",
+            "version": "3.0.10",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/easy_email.git",
-                "reference": "3.0.9"
+                "reference": "3.0.10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/easy_email-3.0.9.zip",
-                "reference": "3.0.9",
-                "shasum": "802f4681ccde0de51c456f704d0e30d55ec99002"
+                "url": "https://ftp.drupal.org/files/projects/easy_email-3.0.10.zip",
+                "reference": "3.0.10",
+                "shasum": "c5911af2a2eb9ca41d50b729cfaa720ea8a441b1"
             },
             "require": {
                 "drupal/core": "^10.3 || ^11",
@@ -3876,14 +3876,15 @@
                 "drupal/commerce": "^2 || ^3",
                 "drupal/commerce_order": "*",
                 "drupal/commerce_price": "*",
+                "drupal/easy_email_theme": "^1",
                 "drupal/mailsystem": "^4",
                 "drupal/symfony_mailer_lite": "^1 || ^2"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "3.0.9",
-                    "datestamp": "1783602522",
+                    "version": "3.0.10",
+                    "datestamp": "1794855655",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -3911,23 +3912,28 @@
             ],
             "description": "Easy Email is an HTML email system for Drupal, designed to be as simple as possible to configure, with a robust set of features.",
             "homepage": "https://www.drupal.org/project/easy_email",
+            "keywords": [
+                "Actively maintained",
+                "Integrations"
+            ],
             "support": {
                 "source": "https://git.drupalcode.org/project/easy_email"
-            }
+            },
+            "published-time": "2026-11-16T19:00:32+00:00"
         },
         {
             "name": "drupal/easy_email_theme",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/easy_email_theme.git",
-                "reference": "1.1.0"
+                "reference": "1.1.1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/easy_email_theme-1.1.0.zip",
-                "reference": "1.1.0",
-                "shasum": "14270a75753e3c228a2a281b266b7e62c270b4f0"
+                "url": "https://ftp.drupal.org/files/projects/easy_email_theme-1.1.1.zip",
+                "reference": "1.1.1",
+                "shasum": "f90a3e4a06f00d80d12bc7c42a0aeadec97aeedb"
             },
             "require": {
                 "drupal/core": "^10.2 || ^11"
@@ -3935,8 +3941,8 @@
             "type": "drupal-theme",
             "extra": {
                 "drupal": {
-                    "version": "1.1.0",
-                    "datestamp": "1757509759",
+                    "version": "1.1.1",
+                    "datestamp": "1794855439",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -3955,9 +3961,13 @@
             ],
             "description": "A theme for sending HTML emails",
             "homepage": "https://www.drupal.org/project/easy_email_theme",
+            "keywords": [
+                "Actively maintained"
+            ],
             "support": {
                 "source": "https://git.drupalcode.org/project/easy_email_theme"
-            }
+            },
+            "published-time": "2026-11-16T18:56:57+00:00"
         },
         {
             "name": "drupal/eca",
@@ -4269,17 +4279,17 @@
         },
         {
             "name": "drupal/flag",
-            "version": "5.2.1",
+            "version": "5.2.2",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/flag.git",
-                "reference": "5.2.1"
+                "reference": "5.2.2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/flag-5.2.1.zip",
-                "reference": "5.2.1",
-                "shasum": "6bc66d94cfaeb45fea2961ee21250886e6e52b49"
+                "url": "https://ftp.drupal.org/files/projects/flag-5.2.2.zip",
+                "reference": "5.2.2",
+                "shasum": "645879255947173e271bbf31ff2060347605ece7"
             },
             "require": {
                 "drupal/core": "^10.3 || ^11 || ^12"
@@ -4287,8 +4297,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "5.2.1",
-                    "datestamp": "1794732330",
+                    "version": "5.2.2",
+                    "datestamp": "1794847466",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -4346,7 +4356,7 @@
             "support": {
                 "source": "https://git.drupalcode.org/project/flag"
             },
-            "published-time": "2026-11-15T08:45:08+00:00"
+            "published-time": "2026-11-16T16:44:03+00:00"
         },
         {
             "name": "drupal/focal_point",
@@ -4766,7 +4776,8 @@
             "homepage": "https://www.drupal.org/project/jquery_ui",
             "support": {
                 "source": "https://git.drupalcode.org/project/jquery_ui"
-            }
+            },
+            "published-time": "2025-09-27T06:32:10+00:00"
         },
         {
             "name": "drupal/jquery_ui_resizable",
@@ -4825,9 +4836,14 @@
             ],
             "description": "Provides jQuery UI Resizable library.",
             "homepage": "https://www.drupal.org/project/jquery_ui_resizable",
+            "keywords": [
+                "Actively maintained",
+                "Developer tools"
+            ],
             "support": {
                 "source": "https://git.drupalcode.org/project/jquery_ui_resizable"
-            }
+            },
+            "published-time": "2024-05-30T01:08:35+00:00"
         },
         {
             "name": "drupal/key",
