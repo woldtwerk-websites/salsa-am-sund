@@ -8,8 +8,14 @@ description: Additional instructions for working with drupal.
 ## Development
 
 - always use oop hooks instead of hooks in .module and .theme
+- don't write helper code that an installed library already has. before writing parsing, path, string, array, url, date or file helpers, check:
+  - drupal's utilities: `Drupal\Component\Utility` (`NestedArray`, `UrlHelper`, `Html`, `Xss`, `Crypt`, `Unicode`, `SortArray`, …), `Drupal\Component\Datetime` / `Drupal\Core\Datetime`, and core services (`file_system`, `datetime.time`, `path.validator`, …).
+  - the symfony components and other libraries already in `vendor/` (`ls vendor/symfony`, `ddev composer show`), e.g. `Symfony\Component\Finder\Glob::toRegex()` for globs, `Symfony\Component\Filesystem\Path` for path handling, `symfony/string`, `symfony/process`, `symfony/yaml`.
+  - contrib modules in `web/modules/contrib` and `composer.json`.
+    a package that is only installed as a dependency of another one may be used: declare it in the custom module's `composer.json`, not in the root `composer.json`. ask before adding a package that isn't installed yet. if you still write it yourself, say why.
 - custom modules use the `workspace_` prefix: machine name, directory, file names and namespace (`web/modules/custom/workspace_foo`, `workspace_foo.info.yml`, `Drupal\workspace_foo`). a module's `composer.json` is named `workspace/workspace_foo`.
 - a custom module's or theme's `composer.json` always has a `repositories` key with `{"type": "composer", "url": "https://packages.drupal.org/8"}`. composer ignores it in non-root packages, but renovate scans these files on their own and can't look up `drupal/*` dependencies without it. a renovate pr there only bumps the constraint; update the root lock with `ddev composer update workspace/workspace_foo <package> -W`.
+- check if eca is installed. If yes prefer eca over custom php logic.
 
 ## Frontend Development
 
@@ -23,6 +29,17 @@ description: Additional instructions for working with drupal.
 - prefer modern html apis over custom js, e.g. popover (`popovertarget`), invoker commands (`commandfor`/`command`), `<dialog>`, `<details name>`, `:has()`, `:popover-open`, `@starting-style`, css anchor positioning. only add js when there is no declarative way.
 - style rich text (html props, formatted text fields) with the css-only port of tailwind typography (`prose`, `prose-invert`, size modifiers), never with ad-hoc `[&_p]:…` variants. it has the same features as the official plugin and uses em wherever possible: font-sizes, line-heights and spacing are written directly in em at the element rule, size modifiers (`prose-sm` … `prose-2xl`) only change the base font-size. custom properties only for colours, font families and max-width.
 - write custom css with native css nesting (and `@scope` where a component needs a boundary, e.g. `@scope (.prose) to (.not-prose)`), not flat repeated selectors.
+
+## Creating a theme
+
+- make sure these routes are properly styled:
+  - /
+  - /user/login
+  - /user/register
+  - /user/{uid}
+  - /user/{uid}/edit
+  - /user/{uid}/cancel
+  - /user/reset/{uid}/{token} (This should have a form-display with only the password)
 
 ## Class Variance Authority
 

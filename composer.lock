@@ -15063,16 +15063,16 @@
         },
         {
             "name": "woldtwerk-websites/scaffold",
-            "version": "v1.1.0",
+            "version": "v1.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/woldtwerk-websites/scaffold.git",
-                "reference": "46e095d0605df42fcfbe8f00644f80ca2f9f095e"
+                "reference": "2dc63d0d8d9eccded32b2625a3797005b9f9dd48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woldtwerk-websites/scaffold/zipball/46e095d0605df42fcfbe8f00644f80ca2f9f095e",
-                "reference": "46e095d0605df42fcfbe8f00644f80ca2f9f095e",
+                "url": "https://api.github.com/repos/woldtwerk-websites/scaffold/zipball/2dc63d0d8d9eccded32b2625a3797005b9f9dd48",
+                "reference": "2dc63d0d8d9eccded32b2625a3797005b9f9dd48",
                 "shasum": ""
             },
             "type": "library",
@@ -15147,8 +15147,16 @@
                             "path": "assets/.ddev/web-build/pre.Dockerfile.frankenphp",
                             "overwrite": true
                         },
+                        "[project-root]/.github/scripts/deploy-check.sh": {
+                            "path": "assets/.github/scripts/deploy-check.sh",
+                            "overwrite": true
+                        },
                         "[project-root]/.github/scripts/promote-check.sh": {
                             "path": "assets/.github/scripts/promote-check.sh",
+                            "overwrite": true
+                        },
+                        "[project-root]/.github/scripts/runtime-changes.sh": {
+                            "path": "assets/.github/scripts/runtime-changes.sh",
                             "overwrite": true
                         },
                         "[project-root]/.github/workflows/ci.yml": {
@@ -15194,6 +15202,10 @@
                         "[project-root]/.vscode/tasks.json": {
                             "path": "assets/.vscode/tasks.json",
                             "overwrite": false
+                        },
+                        "[project-root]/AGENTS.md": {
+                            "path": "assets/AGENTS.md",
+                            "overwrite": true
                         },
                         "[project-root]/drush/Commands/CiSnapshotCommands.php": {
                             "path": "assets/drush/Commands/CiSnapshotCommands.php",
@@ -15328,10 +15340,10 @@
             },
             "description": "Shared Drupal scaffold files for the woldtwerk-websites sites: DDEV, Vite+, CI workflows, tooling config",
             "support": {
-                "source": "https://github.com/woldtwerk-websites/scaffold/tree/v1.1.0",
+                "source": "https://github.com/woldtwerk-websites/scaffold/tree/v1.4.1",
                 "issues": "https://github.com/woldtwerk-websites/scaffold/issues"
             },
-            "time": "2026-11-01T20:40:01+00:00"
+            "time": "2026-11-18T18:08:22+00:00"
         },
         {
             "name": "workspace/workspace_admin_ui",

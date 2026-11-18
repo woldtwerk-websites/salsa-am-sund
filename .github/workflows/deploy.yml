@@ -1,5 +1,10 @@
 name: Deploy
 
+# Renovate updates deploy on their own, everything else waits for the approval
+# of the production environment. The AUTO_DEPLOY repository variable narrows
+# that down, e.g. `gh variable set AUTO_DEPLOY --body security`, see
+# .github/scripts/deploy-check.sh.
+
 on:
   push:
     branches:
@@ -7,7 +12,31 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Decides whether this deploy needs the production approval.
+  classify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    outputs:
+      approval: ${{ steps.check.outputs.approval }}
+      sha: ${{ steps.check.outputs.sha }}
+    steps:
+      # Always the production branch, also for a manual run from another branch.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: production
+          fetch-depth: 0
+      - id: check
+        env:
+          AUTO_DEPLOY: ${{ vars.AUTO_DEPLOY }}
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/deploy-check.sh
+
   approve:
+    needs: classify
+    if: needs.classify.outputs.approval == 'true'
     runs-on: ubuntu-latest
     # Requires a manual approval before deploying.
     environment: production
@@ -19,7 +48,10 @@ jobs:
       - run: echo "Approved"
 
   deploy:
-    needs: approve
+    needs: [classify, approve]
+    # Runs after the approval, or directly when classify skipped it. A rejected
+    # or superseded approval and a failed classify stop the deploy.
+    if: ${{ !cancelled() && needs.classify.result == 'success' && (needs.approve.result == 'success' || needs.approve.result == 'skipped') }}
     runs-on: ubuntu-latest
     # Not cancel-in-progress: killing Deployer mid-release leaves the deploy lock
     # behind.
@@ -27,9 +59,11 @@ jobs:
       group: deploy-production
       cancel-in-progress: false
     steps:
+      # The commit classify judged and the approval covered, not whatever the
+      # production branch points at by now.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: production
+          ref: ${{ needs.classify.outputs.sha }}
           lfs: true
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:

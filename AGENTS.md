@@ -144,18 +144,24 @@ your code branches on it, following the "Write few tests" rules under Testing.
 Before you open the PR, re-read your whole diff as a reviewer and fix what this checklist finds. In the
 PR body, list the edge cases you handled and the design decisions you made (e.g. contrib vs. custom).
 
-## Claude Code: delegate coding to opencode
+## Delegate coding to subagents
 
-This section is for Claude Code only. opencode reads this file too: if you are
-opencode, ignore this section — you are the one who writes the code.
+This section is for the main agents only. subagents read this file too: if you are
+a subagent, ignore this section — you are the one who writes the code.
 
-Claude does not write code in this repo itself. Claude plans and reviews;
-opencode writes the code. Every coding task goes to opencode as a plan of
+You may ask once per project which tool to use for spawning subagents. E.g. claude, opencode, etc.
+
+The main agent does not write code in this repo itself. The main agent plans and reviews;
+subagents write the code. You must tell the subagent, that it is a subagent!
+Spawn as much as possible (max 5) agents to work concurrently on different tasks related to the project.
+Review the code max 2 times to ensure quality and consistency. Each agent should have a clear objective
+and defined responsibilities.
+Every coding task goes to subagents as a plan of
 concrete todos — files, functions, behaviour, tests to add — with the research
 and design decisions already made:
 
 ```
-opencode run --auto -m 'opencode-go/deepseek-v4.1-flash#high' --session ses_<task> --title "<task>" "<plan>" </dev/null
+opencode run --auto -m 'opencode-go/deepseek-v4.1-flash#low' --session ses_<task> --title "<task>" "<plan>" </dev/null
 ```
 
 - Name the session (`--session` creates it), so the user can watch the run
