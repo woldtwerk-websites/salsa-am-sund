@@ -7,21 +7,22 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-# Its post-start hook installs agent skills, not needed in CI. Moved aside instead
-# of deleted, so the change doesn't end up in the agent's pull request.
-if [ -f .ddev/config.ai.yaml ]; then
-  config_ai_backup="$(mktemp -d)"
-  mv .ddev/config.ai.yaml "$config_ai_backup/config.ai.yaml"
-  # shellcheck disable=SC2064 # Expanded now on purpose: the path is fixed.
-  trap "mv '$config_ai_backup/config.ai.yaml' .ddev/config.ai.yaml" EXIT
-fi
+# Post-start hooks and extra packages not needed in CI. Moved aside instead of
+# deleted, so the change doesn't end up in the agent's pull request.
+config_backup="$(mktemp -d)"
+for f in config.ai.yaml config.ffmpeg.yaml config.vite.yml config.vite-devtools.yaml; do
+  if [ -f ".ddev/$f" ]; then
+    mv ".ddev/$f" "$config_backup/$f"
+  fi
+done
+# shellcheck disable=SC2064 # Expanded now on purpose: the path is fixed.
+trap "for f in '$config_backup'/*; do [ -f \"\$f\" ] && mv \"\$f\" .ddev/; done" EXIT
 
 # Not needed in CI: all requests go to http://localhost inside the web container.
 ddev config global --omit-containers=ddev-router,ddev-ssh-agent
 
+# .ddev/config.yaml post-start already runs composer install.
 ddev start
-
-ddev composer install --no-interaction --no-progress
 
 # A scrubbed production database has the real content and the modules production
 # runs, which a fresh install lacks. It lives outside the checkout, so the agent

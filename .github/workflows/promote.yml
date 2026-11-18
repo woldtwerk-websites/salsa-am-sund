@@ -17,17 +17,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    # A manual run from another branch must not reach production.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      promote: ${{ steps.check.outputs.promote }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+      # Renovate tooling updates reach production with the next runtime change.
+      - id: check
+        run: bash .github/scripts/promote-check.sh
+
   ci:
+    needs: changes
+    if: needs.changes.outputs.promote == 'true'
     uses: woldtwerk-websites/renovate-config/.github/workflows/drupal-ci.yml@885049df5f3cab29ad8c5c327c922659bb90295f # main
     with:
       build-script: typecheck
-      # Its post-start hook installs agent skills, not needed in CI.
-      ddev-skip-configs: config.ai.yaml
+      # Post-start hooks and extra packages not needed in CI.
+      ddev-skip-configs: config.ai.yaml config.ffmpeg.yaml config.vite.yml config.vite-devtools.yaml
+      db-ssh-host: ${{ vars.DB_SNAPSHOT_HOST }}
+      db-ssh-known-hosts: ${{ vars.DB_SNAPSHOT_KNOWN_HOSTS }}
+    secrets:
+      db-snapshot-key: ${{ secrets.DB_SNAPSHOT_KEY }}
 
   promote:
-    needs: ci
-    # A manual run from another branch must not reach production.
-    if: github.ref == 'refs/heads/main'
+    needs: [changes, ci]
+    if: needs.changes.outputs.promote == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -37,10 +56,6 @@ jobs:
           # across commits that change .github/workflows, and its pushes do not
           # trigger deploy.yml. A deploy-key push does.
           ssh-key: ${{ secrets.PROMOTE_DEPLOY_KEY }}
-      # Renovate tooling updates reach production with the next runtime change.
-      - id: changes
-        run: bash .github/scripts/promote-check.sh
       # No --force: fast-forward only, so it fails instead of clobbering
       # production if the branches diverged.
-      - if: steps.changes.outputs.promote == 'true'
-        run: git push origin "$GITHUB_SHA:refs/heads/production"
+      - run: git push origin "$GITHUB_SHA:refs/heads/production"

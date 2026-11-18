@@ -5,6 +5,17 @@
     {
       "matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest"],
       "automerge": true
+    },
+    {
+      "matchDepNames": ["php"],
+      "allowedVersions": ">=8.3 <8.6"
+    },
+    {
+      "description": "Drupal contrib patch releases (security advisories land on Wednesdays as patch releases): no release age wait, run during Wednesday security window",
+      "matchPackageNames": ["drupal/*"],
+      "matchUpdateTypes": ["patch"],
+      "minimumReleaseAge": null,
+      "schedule": ["before 6am", "after 4pm on wednesday"]
     }
   ]
 }
