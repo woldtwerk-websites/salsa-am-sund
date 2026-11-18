@@ -11,8 +11,8 @@ jobs:
     uses: woldtwerk-websites/renovate-config/.github/workflows/drupal-ci.yml@885049df5f3cab29ad8c5c327c922659bb90295f # main
     with:
       build-script: typecheck
-      # Its post-start hook installs agent skills, not needed in CI.
-      ddev-skip-configs: config.ai.yaml
+      # Post-start hooks and extra packages not needed in CI.
+      ddev-skip-configs: config.ai.yaml config.ffmpeg.yaml config.vite.yml config.vite-devtools.yaml
       # Without the host or the DB_SNAPSHOT_KEY secret, the reusable workflow
       # installs a fresh site.
       db-ssh-host: ${{ vars.DB_SNAPSHOT_HOST }}
