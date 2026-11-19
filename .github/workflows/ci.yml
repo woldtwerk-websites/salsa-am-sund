@@ -2,15 +2,16 @@ name: CI
 
 on:
   pull_request:
+  # Also called from promote.yml (secrets: inherit), so both share one CI configuration.
+  workflow_call:
 
 permissions:
   contents: read
 
 jobs:
   drupal:
-    uses: woldtwerk-websites/scaffold/.github/workflows/drupal-ci.yml@7bd9b6f46b3cbb2037e78cbfd13dcf45c4d25d29 # main
+    uses: ./.github/workflows/drupal-ci.yml
     with:
-      build-script: typecheck
       # Post-start hooks and extra packages not needed in CI.
       ddev-skip-configs: config.ai.yaml config.ffmpeg.yaml config.vite.yml config.vite-devtools.yaml
       # Without the host or the DB_SNAPSHOT_KEY secret, the reusable workflow

@@ -1,0 +1,333 @@
+# Reusable CI for DDEV-based Drupal projects.
+#
+# Ships with the project; call it locally from .github/workflows/ci.yml:
+#
+#   on:
+#     pull_request:
+#   permissions:
+#     contents: read
+#   jobs:
+#     drupal:
+#       uses: ./.github/workflows/drupal-ci.yml
+#
+# Optional production-DB mode: install from a scrubbed production dump instead
+# of config. The shared endpoint receives the project (repository) name as
+# SSH_ORIGINAL_COMMAND via its authorized_keys forced command and prints a
+# gzipped SQL dump to stdout.
+#
+#       with:
+#         db-ssh-host: dump@db.example.com
+#         db-ssh-known-hosts: db.example.com ssh-ed25519 AAAA...
+#       secrets:
+#         db-snapshot-key: ${{ secrets.DB_SNAPSHOT_KEY }}
+#
+# Without db-ssh-host (or without the secret, e.g. fork PRs) the site is
+# installed from the base branch's config as before.
+#
+# Optional: let CI commit config changed by update hooks to Renovate PRs. The
+# PAT needs contents write access; pushes with GITHUB_TOKEN start no new run.
+#
+#       secrets:
+#         config-push-token: ${{ secrets.CONFIG_PUSH_TOKEN }}
+#
+# Flow: install the site from the base branch's config, or optionally import a
+# scrubbed production database over SSH, switch to the PR head, then composer
+# install/audit, drush updb, verify that the config changed by the update hooks
+# is exported (on Renovate PRs, push the export), pnpm checks, tests.
+
+name: Drupal CI
+
+on:
+  workflow_call:
+    inputs:
+      frontend-dir:
+        description: Directory containing package.json and pnpm-lock.yaml, relative to the repo root (empty = skip pnpm steps)
+        type: string
+        default: '.'
+      build-script:
+        description: package.json script for the frontend build (empty = skip)
+        type: string
+        default: build
+      test-script:
+        description: composer.json script that runs the tests (empty = skip)
+        type: string
+        default: test
+      ddev-skip-configs:
+        description: Space-separated .ddev/config.*.yaml files not needed in CI, e.g. ones with dev-only hooks
+        type: string
+        default: ''
+      smoke-paths:
+        # Not "/" by default: after site:install the CI site has no content, so
+        # a node front page is a 404. A production DB import adds "/" itself.
+        description: Space-separated paths that must answer with HTTP 200
+        type: string
+        default: /user/login
+      db-ssh-host:
+        description: SSH destination (user@host) of the shared dump endpoint; it receives the repository name as SSH_ORIGINAL_COMMAND and prints a gzipped SQL dump. Empty = install from config
+        type: string
+        default: ''
+      db-ssh-known-hosts:
+        description: known_hosts line(s) for db-ssh-host, passed as an input so CI does not depend on how vars reach it
+        type: string
+        default: ''
+    secrets:
+      db-snapshot-key:
+        description: Private SSH key for db-ssh-host (empty on fork PRs = install from config)
+        required: false
+      config-push-token:
+        description: PAT with contents write access; lets CI push config changed by update hooks to Renovate PRs (empty = fail instead)
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: drupal-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      FRONTEND_DIR: ${{ inputs.frontend-dir }}
+      BUILD_SCRIPT: ${{ inputs.build-script }}
+      TEST_SCRIPT: ${{ inputs.test-script }}
+      DDEV_SKIP_CONFIGS: ${{ inputs.ddev-skip-configs }}
+      SMOKE_PATHS: ${{ inputs.smoke-paths }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Classify changes
+        id: classify
+        run: |
+          if [ "$BASE_SHA" = "$HEAD_SHA" ]; then
+            echo "needs_ddev=true" >> "$GITHUB_OUTPUT"
+            echo "needs_updb=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed=$(git diff --name-only --no-renames "$BASE_SHA" "$HEAD_SHA")
+          # Skip DDEV when only CI workflows, docs, or editor/AI metadata changed.
+          relevant=$(echo "$changed" | grep -v -E '^(\.github/|\.vscode/|\.agents/|\.claude/|\.opencode/|.*\.md$|renovate\.json$|taze\.config\.js$|skills-lock\.json$|\.editorconfig$)' || true)
+          if [ -z "$relevant" ]; then
+            echo "needs_ddev=false" >> "$GITHUB_OUTPUT"
+            echo "needs_updb=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No Drupal, DDEV, or frontend changes; skipping DDEV CI."
+            exit 0
+          fi
+          echo "needs_ddev=true" >> "$GITHUB_OUTPUT"
+          # Only install BASE_SHA first when packages or update hooks changed.
+          if echo "$changed" | grep -q -E '(^composer\.lock$|\.(install|post_update\.php)$)'; then
+            echo "needs_updb=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "needs_updb=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: ddev/github-action-setup-ddev@fdf2f5c97943bae638f31df6df86f1defa6210c0 # v1.12.1
+        if: steps.classify.outputs.needs_ddev == 'true'
+        with:
+          autostart: false
+
+      - name: Fetch production database
+        if: steps.classify.outputs.needs_ddev == 'true'
+        uses: woldtwerk-websites/scaffold/.github/actions/db-snapshot@b41e57369edcaf041f3ebee96528f1c238a328ec
+        with:
+          host: ${{ inputs.db-ssh-host }}
+          known-hosts: ${{ inputs.db-ssh-known-hosts }}
+          ssh-key: ${{ secrets.db-snapshot-key }}
+
+      - name: Install site
+        if: steps.classify.outputs.needs_ddev == 'true'
+        run: |
+          if [ "${{ steps.classify.outputs.needs_updb }}" = "true" ]; then
+            git checkout --quiet "$BASE_SHA"
+          else
+            git checkout --quiet "$HEAD_SHA"
+          fi
+          for f in $DDEV_SKIP_CONFIGS; do rm -f ".ddev/$f"; done
+          # Not needed in CI: all requests go to http://localhost inside the web container.
+          ddev config global --omit-containers=ddev-router,ddev-ssh-agent
+          ddev start
+          # Run composer install only if .ddev/config.yaml post-start did not already do it.
+          [ -f vendor/autoload.php ] || ddev composer install --no-interaction --no-progress
+          if [ -n "${CI_DB_DUMP:-}" ]; then
+            # Production-like state: import the scrubbed dump, then run update
+            # hooks and config import against the checked-out branch code.
+            ddev import-db --file="$CI_DB_DUMP"
+            rm -f "$CI_DB_DUMP"
+            ddev drush deploy --yes
+            echo "CI_DB_IMPORTED=1" >> "$GITHUB_ENV"
+          else
+            # Random throwaway password, so drush doesn't print a generated one to the log.
+            ddev drush site:install --existing-config --yes --account-pass="$(openssl rand -hex 16)"
+          fi
+          if [ "${{ steps.classify.outputs.needs_updb }}" = "true" ]; then
+            # Compare against this snapshot, not the repo: install itself (e.g.
+            # translation imports) can make active config differ from the export.
+            # Settle derived config (e.g. Canvas regenerates components on rebuild).
+            ddev drush cache:rebuild
+            mkdir -p .ci-config
+            ddev drush config:export --yes --destination=/var/www/html/.ci-config/before
+          fi
+
+      - name: Switch to PR head
+        if: steps.classify.outputs.needs_updb == 'true'
+        run: |
+          ddev_changed=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- .ddev/)
+          # --force: DDEV post-start hooks (e.g. recipe-unpack) may have touched tracked files.
+          git checkout --quiet --force "$HEAD_SHA"
+          for f in $DDEV_SKIP_CONFIGS; do rm -f ".ddev/$f"; done
+          if [ -n "$ddev_changed" ]; then
+            ddev restart
+            [ -f vendor/autoload.php ] || ddev composer install --no-interaction --no-progress
+          else
+            ddev composer install --no-interaction --no-progress
+          fi
+
+      - name: Composer audit
+        if: steps.classify.outputs.needs_ddev == 'true'
+        # ddev exec, not ddev composer: the latter hides stdout when the command fails.
+        # Fails only on advisories the PR adds: one that already affects the base
+        # branch must not block unrelated PRs (and hold up Renovate automerge).
+        run: |
+          if ddev exec composer audit --locked --abandoned=report; then
+            exit 0
+          fi
+          mkdir -p .ci-config/audit-base
+          git show "$BASE_SHA:composer.json" > .ci-config/audit-base/composer.json
+          git show "$BASE_SHA:composer.lock" > .ci-config/audit-base/composer.lock
+          # Non-zero exit when advisories are found, so check the JSON instead.
+          ddev exec composer audit --locked --format=json > .ci-config/audit-head.json || true
+          ddev exec --dir /var/www/html/.ci-config/audit-base composer audit --locked --format=json > .ci-config/audit-base.json || true
+          jq -e .advisories .ci-config/audit-head.json .ci-config/audit-base.json > /dev/null
+          ids() { jq -r '[.advisories[][]?.advisoryId] | unique | .[]' "$1"; }
+          new=$(comm -13 <(ids .ci-config/audit-base.json) <(ids .ci-config/audit-head.json))
+          if [ -n "$new" ]; then
+            echo "::error::This PR adds packages with security advisories: ${new//$'\n'/ }"
+            exit 1
+          fi
+          echo "::warning::composer audit found advisories that already affect the base branch. Update the affected packages in a separate PR."
+
+      - name: Database updates
+        if: steps.classify.outputs.needs_updb == 'true'
+        run: |
+          ddev drush updatedb --yes
+          ddev drush cache:rebuild
+
+      - name: Config changed by update hooks must be exported
+        id: config
+        if: steps.classify.outputs.needs_updb == 'true'
+        # Production runs `drush deploy` (updb, then config:import), so whatever
+        # the update hooks change must already be in the PR's sync directory, or
+        # the import reverts it. Files the PR itself changes in the sync
+        # directory are its target state: the update hooks may leave them in an
+        # intermediate state that config:import completes, so only files the PR
+        # leaves unchanged are checked. On Renovate PRs the export is pushed to
+        # the PR branch when config-push-token is set; the push starts a new CI
+        # run, so this run skips the remaining steps and passes.
+        env:
+          CONFIG_PUSH_TOKEN: ${{ secrets.config-push-token }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          ddev drush config:export --yes --destination=/var/www/html/.ci-config/after
+          sync=$(ddev drush php:eval 'echo realpath(\Drupal\Core\Site\Settings::get("config_sync_directory"));')
+          sync=${sync#/var/www/html/}
+          # Files the update hooks added, changed or removed, relative to the export root.
+          changed=$( { (cd .ci-config/before && find . -type f); (cd .ci-config/after && find . -type f); } \
+            | sort -u | while IFS= read -r f; do
+                cmp -s ".ci-config/before/$f" ".ci-config/after/$f" || echo "$f"
+              done )
+          stale=()
+          while IFS= read -r f; do
+            [ -n "$f" ] || continue
+            # The PR changed, added or removed this file in the sync directory
+            # compared to production: config:import sets that state after
+            # updatedb, so skip it.
+            if [ -e ".ci-config/before/$f" ] || [ -e "$sync/$f" ]; then
+              cmp -s ".ci-config/before/$f" "$sync/$f" || continue
+            fi
+            if [ -f ".ci-config/after/$f" ]; then
+              cmp -s ".ci-config/after/$f" "$sync/$f" || stale+=("$f")
+            elif [ -e "$sync/$f" ]; then
+              stale+=("$f")
+            fi
+          done <<< "$changed"
+          if [ ${#stale[@]} -eq 0 ]; then
+            exit 0
+          fi
+          for f in "${stale[@]}"; do
+            diff --unified --new-file "$sync/$f" ".ci-config/after/$f" || true
+          done
+          if [ "$PR_AUTHOR" != "renovate[bot]" ] || [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ] || [ -z "$CONFIG_PUSH_TOKEN" ]; then
+            echo "::error::Update hooks changed configuration that is not in $sync. Run 'drush updb && drush cex' locally and commit the result."
+            exit 1
+          fi
+          for f in "${stale[@]}"; do
+            if [ -f ".ci-config/after/$f" ]; then
+              mkdir -p "$(dirname "$sync/$f")"
+              cp ".ci-config/after/$f" "$sync/$f"
+            else
+              rm -f "$sync/$f"
+            fi
+          done
+          git add --all -- "$sync"
+          git -c user.name="github-actions[bot]" \
+            -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit --quiet --message "chore: export config changed by update hooks"
+          git push "https://x-access-token:${CONFIG_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$HEAD_REF"
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+          echo "::notice::Pushed the config changed by update hooks to $HEAD_REF. The remaining steps are skipped, the new CI run checks the result."
+
+      - name: Pick the frontend container
+        if: steps.classify.outputs.needs_ddev == 'true' && steps.config.outputs.pushed != 'true' && inputs.frontend-dir != ''
+        run: |
+          # Sites with the ddev-viteplus addon have no pnpm in the web container.
+          if [ -f .ddev/docker-compose.viteplus.yaml ]; then
+            echo "FRONTEND_EXEC=ddev exec -s viteplus --dir /app/$FRONTEND_DIR vp" >> "$GITHUB_ENV"
+          else
+            echo "FRONTEND_EXEC=ddev exec --dir /var/www/html/$FRONTEND_DIR pnpm" >> "$GITHUB_ENV"
+          fi
+
+      - name: pnpm install and dedupe check
+        if: steps.classify.outputs.needs_ddev == 'true' && steps.config.outputs.pushed != 'true' && inputs.frontend-dir != ''
+        run: |
+          $FRONTEND_EXEC install --frozen-lockfile
+          $FRONTEND_EXEC dedupe --check
+
+      - name: Frontend build
+        if: steps.classify.outputs.needs_ddev == 'true' && steps.config.outputs.pushed != 'true' && inputs.frontend-dir != '' && inputs.build-script != ''
+        run: $FRONTEND_EXEC run "$BUILD_SCRIPT"
+
+      - name: Tests
+        if: steps.classify.outputs.needs_ddev == 'true' && steps.config.outputs.pushed != 'true' && inputs.test-script != ''
+        # ddev exec, not ddev composer: the latter hides stdout when the script fails.
+        run: ddev exec composer run-script --timeout=0 "$TEST_SCRIPT"
+
+      - name: Smoke test
+        if: steps.classify.outputs.needs_ddev == 'true' && steps.config.outputs.pushed != 'true'
+        run: |
+          ddev drush status --field=bootstrap | grep -q Successful
+          # A production dump has a front page node, a fresh install does not.
+          # Callers cannot pass "/" conditionally: secrets are unavailable in `with:`.
+          if [ -n "${CI_DB_IMPORTED:-}" ]; then
+            case " $SMOKE_PATHS " in
+              *" / "*) ;;
+              *) SMOKE_PATHS="/ $SMOKE_PATHS" ;;
+            esac
+          fi
+          for path in $SMOKE_PATHS; do
+            echo "GET $path"
+            ddev exec curl --fail --silent --show-error --output /dev/null "http://localhost$path"
+          done
+
+      - name: Watchdog errors
+        if: failure() && steps.classify.outputs.needs_ddev == 'true'
+        # Numeric severity (3 = error): level names are translated on non-English sites.
+        run: ddev drush watchdog:show --severity=3 --count=50 || true

@@ -34,15 +34,10 @@ jobs:
   ci:
     needs: changes
     if: needs.changes.outputs.promote == 'true'
-    uses: woldtwerk-websites/scaffold/.github/workflows/drupal-ci.yml@7bd9b6f46b3cbb2037e78cbfd13dcf45c4d25d29 # main
-    with:
-      build-script: typecheck
-      # Post-start hooks and extra packages not needed in CI.
-      ddev-skip-configs: config.ai.yaml config.ffmpeg.yaml config.vite.yml config.vite-devtools.yaml
-      db-ssh-host: ${{ vars.DB_SNAPSHOT_HOST }}
-      db-ssh-known-hosts: ${{ vars.DB_SNAPSHOT_KNOWN_HOSTS }}
-    secrets:
-      db-snapshot-key: ${{ secrets.DB_SNAPSHOT_KEY }}
+    uses: ./.github/workflows/ci.yml
+    # inherit also passes CONFIG_PUSH_TOKEN; it is inert on push events, where
+    # the config check fails instead of pushing (not a Renovate PR).
+    secrets: inherit
 
   promote:
     needs: [changes, ci]

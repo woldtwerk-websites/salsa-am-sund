@@ -15063,16 +15063,16 @@
         },
         {
             "name": "woldtwerk-websites/scaffold",
-            "version": "v1.4.1",
+            "version": "v1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/woldtwerk-websites/scaffold.git",
-                "reference": "2dc63d0d8d9eccded32b2625a3797005b9f9dd48"
+                "reference": "129f697763cf1feb984045eee6858968a8db1fee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woldtwerk-websites/scaffold/zipball/2dc63d0d8d9eccded32b2625a3797005b9f9dd48",
-                "reference": "2dc63d0d8d9eccded32b2625a3797005b9f9dd48",
+                "url": "https://api.github.com/repos/woldtwerk-websites/scaffold/zipball/129f697763cf1feb984045eee6858968a8db1fee",
+                "reference": "129f697763cf1feb984045eee6858968a8db1fee",
                 "shasum": ""
             },
             "type": "library",
@@ -15147,6 +15147,10 @@
                             "path": "assets/.ddev/web-build/pre.Dockerfile.frankenphp",
                             "overwrite": true
                         },
+                        "[project-root]/.github/scripts/ci-site-install.sh": {
+                            "path": "assets/.github/scripts/ci-site-install.sh",
+                            "overwrite": true
+                        },
                         "[project-root]/.github/scripts/deploy-check.sh": {
                             "path": "assets/.github/scripts/deploy-check.sh",
                             "overwrite": true
@@ -15165,6 +15169,14 @@
                         },
                         "[project-root]/.github/workflows/deploy.yml": {
                             "path": "assets/.github/workflows/deploy.yml",
+                            "overwrite": true
+                        },
+                        "[project-root]/.github/workflows/drupal-ci.yml": {
+                            "path": "assets/.github/workflows/drupal-ci.yml",
+                            "overwrite": true
+                        },
+                        "[project-root]/.github/workflows/opencode.yml": {
+                            "path": "assets/.github/workflows/opencode.yml",
                             "overwrite": true
                         },
                         "[project-root]/.github/workflows/promote.yml": {
@@ -15340,10 +15352,10 @@
             },
             "description": "Shared Drupal scaffold files for the woldtwerk-websites sites: DDEV, Vite+, CI workflows, tooling config",
             "support": {
-                "source": "https://github.com/woldtwerk-websites/scaffold/tree/v1.4.1",
+                "source": "https://github.com/woldtwerk-websites/scaffold/tree/v1.6.0",
                 "issues": "https://github.com/woldtwerk-websites/scaffold/issues"
             },
-            "time": "2026-11-18T18:08:22+00:00"
+            "time": "2026-11-19T18:50:25+00:00"
         },
         {
             "name": "workspace/workspace_admin_ui",
