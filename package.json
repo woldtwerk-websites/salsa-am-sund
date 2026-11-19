@@ -2,6 +2,7 @@
   "name": "@workspace/root",
   "type": "module",
   "scripts": {
+    "build": "vp run typecheck",
     "typecheck": "tsc -p tsconfig.json",
     "upgrade:check": "vp dlx taze -r -f",
     "upgrade:apply": "vp dlx taze -r -w",
