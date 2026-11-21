@@ -22,6 +22,8 @@ use Drupal\workspace_events\Hook\DanceFigureAccessHooks;
 use Drupal\workspace_events\LessonInstaller;
 use Drupal\workspace_events\OrganizerResolver;
 use Drupal\workspace_events\ScheduleMigrator;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * Implements hook_install().
@@ -248,6 +250,41 @@ function workspace_events_update_10013(): void {
     $uninstalled = \Drupal::service('module_installer')->uninstall($installed);
     if ($uninstalled === FALSE) {
       throw new UpdateException(sprintf('The modules %s could not be uninstalled.', implode(', ', $installed)));
+    }
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Removes stale Canvas form violations of the event block filter checkboxes.
+ *
+ * Before the filter checkboxes were made submittable, the Canvas editor sent 0
+ * for unchecked boxes. That stored violations such as "The submitted value 0 in
+ * the Organizers element is not allowed." which Canvas never clears. They make
+ * the Canvas post-update that re-saves all pages abort. Update hooks run before
+ * all post-updates, so removing them here unblocks it.
+ */
+function workspace_events_update_10014(): void {
+  $store = \Drupal::keyValue('canvas.component_instance_form_violations');
+  foreach ($store->getAll() as $uuid => $violations) {
+    if (!$violations instanceof ConstraintViolationListInterface) {
+      continue;
+    }
+    $remaining = new ConstraintViolationList();
+    foreach ($violations as $violation) {
+      if (!in_array($violation->getPropertyPath(), ['organizers', 'locations'], TRUE)) {
+        $remaining->add($violation);
+      }
+    }
+    if (count($remaining) === count($violations)) {
+      continue;
+    }
+    if (count($remaining) === 0) {
+      $store->delete($uuid);
+    }
+    else {
+      $store->set($uuid, $remaining);
     }
   }
 }
