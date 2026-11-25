@@ -12,3 +12,8 @@ settings:
   iss_allowed_domains: ''
   prompt:
     - login
+  verify_id_token: warn
+  issuer: ''
+  jwks_uri: ''
+  id_token_signing_algorithms:
+    - RS256
